@@ -10,31 +10,31 @@ from database import Database
 
 
 
-# def get_user_list():
-#     # This function gets the list of accounts to check
-#     # from config.account_list_file
-#     # Returns an object with all the accounts
-
-#     try:
-#         with open(config.account_list_file, 'r') as f:
-#             x = f.read().splitlines()
-#         return(x)
-#     except:
-#         exit('Error: Account list file (%s) was not found' % config.account_list_file)
-
-
-
-
 def get_user_list():
     # This function gets the list of accounts to check
-    # from database
+    # from config.account_list_file
     # Returns an object with all the accounts
 
     try:
-        db.cursor.execute("SELECT username FROM Accounts")
-        return(db.cursor.fetchall())
+        with open(config.account_list_file, 'r') as f:
+            x = f.read().splitlines()
+        return(x)
     except:
-        exit("Error: Getting list of users has failed.")
+        exit('Error: Account list file (%s) was not found' % config.account_list_file)
+
+
+
+
+# def get_user_list():
+#     # This function gets the list of accounts to check
+#     # from database
+#     # Returns an object with all the accounts
+
+#     try:
+#         db.cursor.execute("SELECT username FROM Accounts")
+#         return(db.cursor.fetchall())
+#     except:
+#         exit("Error: Getting list of users has failed.")
 
 
 
@@ -143,7 +143,9 @@ def set_user_timestamp(user_id, timestamp):
 def add_data_to_db(user_data):
     # Adds new pictures to the DB
 
-    user_timestamp = get_user_timestamp(user_data['id'])[0]
+    #user_timestamp = get_user_timestamp(user_data['id'])[0]
+    user_timestamp = 0
+    
     latest_timestamp = user_data['edge_owner_to_timeline_media']['edges'][0]['node']['taken_at_timestamp']
     
     media_count = 0
@@ -218,7 +220,8 @@ def main():
     user_list = get_user_list()
 
     for user in user_list:
-        user_data = get_user_data(user[0])
+        # user_data = get_user_data(user[0])
+        user_data = get_user_data(user)
 
         if user_data is None:
             print('Warning: user %s has returned no data. You should check if an account still exists by that name.' % user)
@@ -227,8 +230,8 @@ def main():
             # print(user_data['full_name'])
 
             # THIS WILL BE MOVED TO import_accounts_list
-            # if user_exists(user[0]) is False:
-            #     add_new_user(user_data)
+            if user_exists(user[0]) is False:
+                add_new_user(user_data)
 
             if user_data['is_private'] is False and user_data['edge_owner_to_timeline_media']['count'] > 0:
                 add_data_to_db(user_data)
@@ -237,6 +240,5 @@ def main():
 
 if __name__ == '__main__':
     db = Database()
-    db.init_db()
     main()
     db.stop_db()

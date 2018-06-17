@@ -32,7 +32,7 @@ This should setup the Database and import your contacts. Depending on the quanti
 
 When it’s done, run
 
-    $ python3 FLASK_APP=app.py flask run
+    $ FLASK_APP=app.py flask run
 
 And open a browser page to `http://127.0.0.1:5000/`.
 
