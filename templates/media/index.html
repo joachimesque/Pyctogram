@@ -1,0 +1,56 @@
+{% extends 'base.html' %}
+
+{% block title %}A photo by {{ media['owner_full_name'] }}{% endblock %}
+
+{% block header %}
+  <!-- <h1 class="title">A photo by {{ media['owner_full_name'] }}</h1> -->
+{% endblock %}
+
+{% block content %}
+
+    <article class="card">
+      <header class="card-header">
+        <div class="is-flex card-header-title">
+          <a href="{{ url_for('profile', username = media['owner_username']) }}">
+            <figure class="profile-picture image is-48x48">
+              <img src="{{ media['owner_profile_pic_url'] }}" alt="{{ media['owner_username'] }}">
+            </figure>
+          </a>
+          &nbsp;
+          <p>
+            <a href="{{ url_for('profile', username = media['owner_username']) }}">
+              <span class="title is-5">{{ media['owner_full_name'] }}</span>
+              <span class="subtitle is-6">@{{ media['owner_username'] }}</span>
+            </a>
+          </p>
+        </div>
+
+      </header>
+      <div class="card-image">
+        <figure class="image">
+          <img src="{{ media['display_url'] }}" alt="A photo by {{ media['owner_full_name'] }}">
+        </figure>
+      </div>
+      <div class="card-content">
+        <div class="content" style="white-space: pre-line;">{{ media['caption'] }}</div>
+        <p class="is-size-7 is-marginless">
+          <time datetime="{{ media['timestamp'].strftime('%Y-%m-%d') }}">{{ media['timestamp'].strftime('%Y-%m-%d %H:%m') }}</time>
+        </p>
+      </div>
+      <footer class="card-footer">
+        <p href="#" class="card-footer-item is-centered">
+          {{ media['likes'] }} 👍
+        </p>
+        <p href="#" class="card-footer-item is-centered">
+          {{ media['comments'] }} 💬
+        </p>
+        <p class="card-footer-item is-centered">
+          {% if media['is_saved'] == False %}
+          <a href="{{ url_for('save', media_shortcode = media['shortcode'], origin = 'media') }}">Save 💾</a>
+          {% else %}
+          <a href="{{ url_for('forget', media_shortcode = media['shortcode'], origin = 'media') }}">Forget 💾</a>
+          {% endif %}
+        </p>
+      </footer>
+    </article>
+{% endblock %}

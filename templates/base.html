@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset=utf-8>
+  <meta name=description content="">
+  <meta name=viewport content="width=device-width, initial-scale=1">
+  <link rel="stylesheet" href="{{ url_for('static', filename='bulma.css') }}">
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+  <title>{% block title %}{% endblock %} - Pyctogram</title>
+
+</head>
+<body class="template-{{ request.url_rule.endpoint }}">
+  <nav class="navbar">
+    <div class="navbar-brand">
+      <a class="navbar-item" href="{{ url_for('index') }}">
+        <p class="is-size-3"><strong><span role="img" aria-label="Picture">📷</span> Pyctogram</strong></p>
+      </a>
+      <div class="navbar-burger burger" data-target="menu">
+        <span></span>
+        <span></span>
+        <span></span>
+      </div>
+    </div>
+
+    <div id="menu" class="navbar-menu">
+      <div class="navbar-start">
+        <a class="navbar-item" href="{{ url_for('index') }}">
+          <span class="is-size-4" role="img" aria-label="Picture">{{ ['🗾','🎑','🏞','🌅','🌄','🌠','🎇','🎆','🌇','🌆','🏙','🌃','🌌','🌉','🌁']|random }}</span>&nbsp;Feed
+        </a>
+        <a class="navbar-item" href="{{ url_for('memory') }}">
+          <span class="is-size-5" role="img" aria-label="Saved pictures">💾</span>&nbsp;Memory
+        </a>
+      </div>
+    </div>
+  </nav>
+
+
+  <header class="header">
+    <div class="container">
+      <div class="columns is-centered">
+        <div class="column is-half">
+          {% block header %}{% endblock %}
+        </div>
+      </div>
+    </div>
+  </header>
+  <section class="section">
+    <div class="container">
+      <div class="columns is-centered">
+        <div class="column is-half">
+          {% block content %}{% endblock %}
+        </div>
+      </div>
+    </div>
+  </section>
+</body>
+</html>
+
+
+
+
+

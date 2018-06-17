@@ -1,0 +1,44 @@
+body {
+  background: #eee;
+}
+
+body > header {
+  margin-top: 2rem;
+}
+
+body.template-index .content, body.template-memory .content {
+  max-height: 4.5em;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+body.template-media .content {
+  white-space: pre-line;
+}
+
+.card {
+  background: transparent;
+  box-shadow: none;
+  margin-bottom: 3em;
+}
+
+.profile-picture img {
+  border-radius: 50%;
+}
+
+.is-one-third .card {
+  margin-bottom: 1em;
+}
+
+.card-header {
+  border: none;
+  box-shadow: none;
+}
+.card-content, .card-footer {
+  background: white;
+}
+.card-footer {
+  border-bottom-left-radius: .5rem;
+  border-bottom-right-radius: .5rem;
+}

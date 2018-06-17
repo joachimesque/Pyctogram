@@ -1,0 +1,82 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ author['full_name'] }}’s photos{% endblock %}
+
+{% block header %}
+  <div class="media">
+    <div class="media-left">
+      <figure class="profile-picture image is-96x96">
+          <img src="{{ author['profile_pic_url'] }}" alt="{{ author['username'] }}">
+        </figure>
+    </div>
+    <div class="media-content">
+      <h1 class="title is-1">{{ author['full_name'] }}</h1>
+      <p class="subtitle is-3">@{{ author['username'] }}</p>
+      <p class="content" style="white-space: pre-line;">{{ author['biography'] }}</p>
+      <p class=""><a href="{{ author['external_url'] }}">{{ author['external_url'] }}</a></p>
+    </div>
+  </div>
+
+{% endblock %}
+
+{% block content %}
+
+  <div class="columns is-multiline">
+  {% for post in posts %}
+    <div class=" column is-one-third" id="{{ post['shortcode'] }}">
+      <article class="card">
+
+        <div class="card-image">
+          <a href="{{ url_for('media', media_shortcode = post['shortcode']) }}"><figure class="image">
+            <img src="{{ post['thumbnail_320'] }}" alt="A photo by {{ author['full_name'] }}">
+          </figure></a>
+        </div>
+        <footer class="card-footer has-text-centered">
+          <p href="#" class="card-footer-item is-centered">
+            👍<br>{{ post['likes'] }}
+          </p>
+          <p href="#" class="card-footer-item is-centered">
+            💬<br>{{ post['comments'] }}
+          </p>
+          <p href="#" class="card-footer-item is-centered">
+            {% if post['is_saved'] == False %}
+            <a href="{{ url_for('save', media_shortcode = post['shortcode'], origin = post['origin']) }}#{{ post['shortcode'] }}">💾<br>Save</a>
+            {% else %}
+            <a href="{{ url_for('forget', media_shortcode = post['shortcode'], origin = post['origin']) }}#{{ post['shortcode'] }}">💾<br>Forget</a>
+            {% endif %}
+          </p>
+
+        </footer>
+      </article>
+    </div>
+  {% endfor %}
+  </div>
+  {{ render_pagination(pagination) }}
+{% endblock %}
+
+
+
+{% macro render_pagination(pagination) %}
+  <nav class="pagination is-centered is-rounded" role="navigation" aria-label="pagination">
+  {% if pagination.has_prev %}
+    <!-- <a href="{{ url_for_other_page(pagination.page - 1) }}" class="pagination-previous">Previous</a> -->
+  {% endif %}
+
+  {% if pagination.has_next %}
+    <a href="{{ url_for_other_page(pagination.page + 1) }}" class="pagination-next">Next page</a>
+  {% endif %}
+    <ul class="pagination-list">
+    {%- for page in pagination.iter_pages() %}
+      {% if page %}
+        {% if page != pagination.page %}
+          <li><a href="{{ url_for_other_page(page) }}" class="pagination-link" aria-label="Goto page {{ page }}">{{ page }}</a></li>
+        {% else %}
+          <li><a class="pagination-link is-current" aria-label="Page {{ page }}" aria-current="page">{{ page }}</a></li>
+        {% endif %}
+      {% else %}
+        <li><span class="pagination-ellipsis">&hellip;</span></li>
+      {% endif %}
+    {%- endfor %}
+    </ul>
+  </nav>
+{% endmacro %}

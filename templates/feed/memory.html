@@ -1,0 +1,87 @@
+{% extends 'base.html' %}
+
+{% block header %}
+  <h1 class="title">{% block title %}💾 Saved items{% endblock %}</h1>
+{% endblock %}
+
+{% block content %}
+  {% for post in posts %}
+    <article class="card" id="{{ post['shortcode'] }}">
+      <header class="card-header">
+        <div class="is-flex card-header-title">
+          <a href="{{ url_for('profile', username = post['owner_username']) }}">
+            <figure class="profile-picture image is-48x48">
+              <img src="{{ post['owner_profile_pic_url'] }}" alt="{{ post['owner_username'] }}">
+            </figure>
+          </a>
+          &nbsp;
+          <p>
+            <a href="{{ url_for('profile', username = post['owner_username']) }}">
+              <span class="title is-5">{{ post['owner_full_name'] }}</span>
+              <span class="subtitle is-6">@{{ post['owner_username'] }}</span>
+            </a>
+          </p>
+        </div>
+
+      </header>
+      <div class="card-image">
+        <a href="{{ url_for('media', media_shortcode = post['shortcode']) }}">
+          <figure class="image">
+            <img src="{{ url_for('static', filename= post['filename']) }}" alt="A photo by {{ post['owner_full_name'] }}">
+          </figure>
+        </a>
+      </div>
+      <div class="card-content">
+        <a href="{{ url_for('media', media_shortcode = post['shortcode']) }}">
+          <div class="content" style="white-space: pre-line;">{{ post['caption'] }}</div>
+          <p class="is-size-7 is-marginless">
+            <time datetime="{{ post['timestamp'].strftime('%Y-%m-%d') }}">{{ post['timestamp'].strftime('%Y-%m-%d %H:%m') }}</time>
+          </p>
+        </a>
+      </div>
+      <footer class="card-footer">
+        <p class="card-footer-item is-centered">
+          {{ post['likes'] }} 👍
+        </p>
+        <p class="card-footer-item is-centered">
+          {{ post['comments'] }} 💬
+        </p>
+        <p class="card-footer-item is-centered">
+          {% if post['is_saved'] == False %}
+          <a href="{{ url_for('save', media_shortcode = post['shortcode'], origin = post['origin']) }}">Save 💾</a>
+          {% else %}
+          <a href="{{ url_for('forget', media_shortcode = post['shortcode'], origin = post['origin']) }}">Forget 💾</a>
+          {% endif %}
+        </p>
+      </footer>
+    </article>
+  {% endfor %}
+  {{ render_pagination(pagination) }}
+{% endblock %}
+
+
+
+{% macro render_pagination(pagination) %}
+  <nav class="pagination is-centered is-rounded" role="navigation" aria-label="pagination">
+  {% if pagination.has_prev %}
+    <!-- <a href="{{ url_for_other_page(pagination.page - 1) }}" class="pagination-previous">Previous</a> -->
+  {% endif %}
+
+  {% if pagination.has_next %}
+    <a href="{{ url_for_other_page(pagination.page + 1) }}" class="pagination-next">Next page</a>
+  {% endif %}
+    <ul class="pagination-list">
+    {%- for page in pagination.iter_pages() %}
+      {% if page %}
+        {% if page != pagination.page %}
+          <li><a href="{{ url_for_other_page(page) }}" class="pagination-link" aria-label="Goto page {{ page }}">{{ page }}</a></li>
+        {% else %}
+          <li><a class="pagination-link is-current" aria-label="Page {{ page }}" aria-current="page">{{ page }}</a></li>
+        {% endif %}
+      {% else %}
+        <li><span class="pagination-ellipsis">&hellip;</span></li>
+      {% endif %}
+    {%- endfor %}
+    </ul>
+  </nav>
+{% endmacro %}
