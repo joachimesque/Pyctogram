@@ -13,7 +13,9 @@
       <h1 class="title is-1">{{ author['full_name'] }}</h1>
       <p class="subtitle is-3">@{{ author['username'] }}</p>
       <p class="content" style="white-space: pre-line;">{{ author['biography'] }}</p>
+      {% if author['external_url'] != None %}
       <p class=""><a href="{{ author['external_url'] }}">{{ author['external_url'] }}</a></p>
+      {% endif %}
       <p class="">
         <a href="https://instagram.com/{{ author['username'] }}/">
           View <strong>@{{ author['username'] }}</strong>’s profile on Instagram ↗
