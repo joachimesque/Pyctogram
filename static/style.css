@@ -1,9 +1,16 @@
 body {
   background: #eee;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
 }
 
 body > header {
   margin-top: 2rem;
+}
+
+body > section {
+  flex: 1 0 auto;
 }
 
 body.template-index .content, body.template-memory .content {
