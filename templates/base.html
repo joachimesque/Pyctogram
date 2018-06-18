@@ -6,6 +6,7 @@
   <meta name=viewport content="width=device-width, initial-scale=1">
   <link rel="stylesheet" href="{{ url_for('static', filename='css/bulma.css') }}">
   <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/slider-css.css') }}">
   <title>{% block title %}{% endblock %} - 📷 Pyctogram</title>
 
 </head>
@@ -59,11 +60,117 @@
       <div class="content">
         <p>
           <strong><span role="img" aria-label="Picture">📷</span> Pyctogram</strong> by <a href="https://github.com/joachimesque">Joachim Robert</a>.<br>
-          The source code is licensed <a href="https://choosealicense.com/licenses/agpl-3.0/">AGPLv3</a>, with some code from <a href="https://bulma.io">Bulma</a> which is licensed <a href="http://opensource.org/licenses/mit-license.php">MIT</a>. The photos are hosted by Instagram and belong to their authors.
+          The source code is licensed <a href="https://choosealicense.com/licenses/agpl-3.0/">AGPLv3</a>, unless otherwise mentioned. The photos are hosted by Instagram and belong to their authors.
         </p>
       </div>
     </div>
   </footer>
+
+  <script type="text/javascript" src="{{ url_for('static', filename='js/slider.js') }}"></script>
+  <script>
+    window.sliderInit = (function (window, document, undefined) {
+
+      'use strict';
+
+      // Feature Test
+      if ( 'querySelector' in document && 'addEventListener' in window && Array.prototype.forEach ) {
+
+        // SELECTORS
+        var sliders = document.querySelectorAll('[data-slider]');
+        var mySwipe = Array;
+
+
+        // EVENTS, LISTENERS, AND INITS
+
+        // Add class to HTML element to activate conditional CSS
+        document.documentElement.className += ' js-slider';
+
+        // Activate all sliders
+        Array.prototype.forEach.call(sliders, function (slider, index) {
+
+          // SELECTORS
+
+          var slideNav = slider.querySelector('[data-slider-nav]'); // Slider nav wrapper
+
+
+          // METHODS
+
+          // Display Slider navigation
+          var createNavButtons = function () {
+            if ( slideNav !== null ) {
+              slideNav.innerHTML = '<a data-slider-nav-prev href="#" class="button is-rounded is-white hidden" aria-label="Previous"><span class="icon is-small">◀</span></a><a data-slider-nav-next href="#" class="button is-rounded is-white" aria-label="Next"><span class="icon is-small">▶</span></a>';
+            }
+          };
+
+          // Handle next button
+          var handleNextBtn = function (event) {
+            event.preventDefault();
+            mySwipe[index].next();
+          };
+
+          // Handle previous button
+          var handlePrevBtn = function (event) {
+            event.preventDefault();
+            mySwipe[index].prev();
+          };
+
+          // Handle keypress
+          var handleKeypress = function (event) {
+            if ( event.keyCode == 37 ) {
+              mySwipe[index].prev();
+            }
+            if ( event.keyCode == 39) {
+              mySwipe[index].next();
+            }
+          };
+
+
+          var checkActiveButtons = function(i,e) {
+              btnNext.classList.remove('hidden')
+              btnPrev.classList.remove('hidden')
+              if(i == e.parentNode.childElementCount - 1) {
+                btnNext.classList.add('hidden')
+              }
+              else if(i == 0) {
+                btnPrev.classList.add('hidden')
+              }
+          }
+
+          // EVENTS, LISTENERS, AND INITS
+
+          // Activate Slider
+          mySwipe[index] = Swipe(slider, {
+            speed: 500,
+            continuous: false,
+            callback: function(index, elem) {
+              checkActiveButtons(index, elem);
+              // createSlideCount(); // Update with new position on slide change
+            }
+          });
+
+          // Create slide count and nav
+          createNavButtons();
+          var btnNext = slider.querySelector('[data-slider-nav-next]'); // Next slide button
+          var btnPrev = slider.querySelector('[data-slider-nav-prev]'); // Previous slide button
+
+          // Toggle Previous & Next Buttons
+          if ( btnNext ) {
+            btnNext.addEventListener('click', handleNextBtn, false);
+          }
+          if ( btnPrev ) {
+            btnPrev.addEventListener('click', handlePrevBtn, false);
+          }
+
+          // Toggle Left & Right Keypress
+          window.addEventListener('keydown', handleKeypress, false);
+
+        });
+
+      }
+
+    })(window, document);
+  </script>
+
 </body>
 </html>
 

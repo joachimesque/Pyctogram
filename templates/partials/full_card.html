@@ -23,11 +23,15 @@
           <img src="{{ post['display_url'] }}" alt="A photo by {{ post['owner_full_name'] }}">
         </figure>
         {% elif post['media_type'] == 'GraphSidecar' %}
+          <div class="sidecar slider" data-slider>
+            <div class="slides">
               {% for image in post['sidecar']['edges'] %}
               <figure class="">
                 <img src="{{ image['node']['display_url'] }}" alt="A photo by {{ post['owner_full_name'] }}">
               </figure>
               {% endfor %}
+            </div>
+            <div data-slider-nav></div>
           </div>
 
         {% endif %}

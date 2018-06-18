@@ -69,7 +69,11 @@ def index(page):
         post['likes'] = likes
         post['comments'] = comments
         #post['thumbnails'] = json.loads(media[12])
-        #post['sidecar'] = json.loads(media[13])
+        
+        if post['media_type'] == 'GraphSidecar':
+            post['sidecar'] = json.loads(media[13])
+        else:
+            post['sidecar'] = []
 
 
         post['owner_id'] = owner_profile[0]
@@ -85,7 +89,7 @@ def index(page):
         # post['owner_last_updated'] = time.gmtime(owner_profile[10])
         # post['owner_is_private'] = bool(owner_profile[11])
         # post['owner_is_deleted'] = bool(owner_profile[12])
-        
+
         post['origin'] = 'feed:' + str(page)
 
         posts.append(post)
@@ -155,7 +159,11 @@ def memory(page):
         post['likes'] = likes
         post['comments'] = comments
         #post['thumbnails'] = json.loads(media[12])
-        #post['sidecar'] = json.loads(media[13])
+        
+        if post['media_type'] == 'GraphSidecar':
+            post['sidecar'] = json.loads(media[13])
+        else:
+            post['sidecar'] = []
 
 
         post['owner_id'] = owner_profile[0]
@@ -214,7 +222,11 @@ def media(media_shortcode):
     media_export['timestamp'] = datetime.datetime.fromtimestamp(media[9])
     media_export['likes'] = media_likes
     media_export['comments'] = media_comments
-    #media_export['sidecar'] = json.loads(media[13])
+
+    if media_export['media_type'] == 'GraphSidecar':
+        media_export['sidecar'] = json.loads(media[13])
+    else:
+        media_export['sidecar'] = []
 
 
     media_export['owner_id'] = owner_profile[0]
@@ -234,7 +246,7 @@ def media(media_shortcode):
     media_export['origin'] = media[8]
 
     e.close()
-    return render_template('media/index.html', media=media_export)
+    return render_template('media/index.html', post=media_export)
 
 @app.route("/save/<media_shortcode>")
 def save(media_shortcode):
@@ -318,6 +330,12 @@ def profile(username, page):
     e = Exporter()
     u = User()
 
+
+    display_as_feed = False
+    if request.args.get('display') == 'feed':
+        display_as_feed = True
+
+
     # gets
     user_id = e.get_user_id_from_username(username)
 
@@ -360,6 +378,10 @@ def profile(username, page):
 
         post = {}
 
+        post['owner_username'] = author['username']
+        post['owner_profile_pic_url'] = author['profile_pic_url']
+        post['owner_full_name'] = author['full_name']
+
         post['is_saved'] = saved_status
 
         post['media_id'] = media[0]
@@ -375,7 +397,11 @@ def profile(username, page):
         post['likes'] = media_likes
         post['comments'] = media_comments
         post['thumbnail_320'] = media_thumbnail_320
-        #post['sidecar'] = json.loads(media[13])
+        
+        if post['media_type'] == 'GraphSidecar':
+            post['sidecar'] = json.loads(media[13])
+        else:
+            post['sidecar'] = []
 
         post['origin'] = '@' + username + ':' + str(page)
 
@@ -383,7 +409,11 @@ def profile(username, page):
 
     u.close()
     e.close()
-    return render_template('profile/index.html', author=author, posts=posts, pagination=pagination)
+    return render_template('profile/index.html',
+                            author=author,
+                            posts=posts,
+                            pagination=pagination,
+                            display_as_feed=display_as_feed)
 
 def get_redirection(origin, media_shortcode):
     if origin[0] == '@':
