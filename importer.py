@@ -25,7 +25,7 @@ class Importer:
         # Returns an object with all the accounts
 
         try:
-            self.db.cursor.execute("SELECT username FROM Accounts")
+            self.db.cursor.execute("SELECT username FROM Accounts ORDER BY last_updated DESC")
             return(self.db.cursor.fetchall())
         except:
             exit("Error: Getting list of users has failed.")
