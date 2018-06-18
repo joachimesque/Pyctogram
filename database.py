@@ -5,7 +5,7 @@ import config
 
 class Database:
     """
-    This class will start the connexion to the DB and make sure we have
+    This class will start the connection to the DB and make sure we have
     the right DB structure
     """
 

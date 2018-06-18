@@ -28,7 +28,7 @@ When everything is installed, download & unzip the project, copy your Instagram 
 
     $ python3 start_here.py
 
-This should setup the Database and import your contacts. Depending on the quantity of accounts you follow and your internet connexion speed, it can take from a few seconds to many minutes (last time I tried, 800 contacts took 20 minutes to be scraped).
+This should setup the Database and import your contacts. Depending on the quantity of accounts you follow and your internet connectivity, it can take from a few seconds to many minutes (last time I tried, 800 contacts took 20 minutes to be scraped).
 
 When it’s done, run
 
