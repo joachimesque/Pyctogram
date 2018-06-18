@@ -60,6 +60,9 @@ body.template-profile .card .card-header {
 .card-image, .card-content, .card-footer {
   background: white;
 }
+.card:target  {
+    box-shadow: 0 1px 5px #3273dc;
+}
 .card-footer {
   border-bottom-left-radius: .5rem;
   border-bottom-right-radius: .5rem;
