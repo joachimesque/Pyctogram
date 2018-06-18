@@ -6,55 +6,7 @@
 
 {% block content %}
   {% for post in posts %}
-    <article class="card" id="{{ post['shortcode'] }}">
-      <header class="card-header">
-        <div class="is-flex card-header-title">
-          <a href="{{ url_for('profile', username = post['owner_username']) }}">
-            <figure class="profile-picture image is-48x48">
-              <img src="{{ post['owner_profile_pic_url'] }}" alt="{{ post['owner_username'] }}">
-            </figure>
-          </a>
-          &nbsp;
-          <p>
-            <a href="{{ url_for('profile', username = post['owner_username']) }}">
-              <span class="title is-5">{{ post['owner_full_name'] }}</span>
-              <span class="subtitle is-6">@{{ post['owner_username'] }}</span>
-            </a>
-          </p>
-        </div>
-
-      </header>
-      <div class="card-image">
-        <a href="{{ url_for('media', media_shortcode = post['shortcode']) }}">
-          <figure class="image">
-            <img src="{{ url_for('static', filename= post['filename']) }}" alt="A photo by {{ post['owner_full_name'] }}">
-          </figure>
-        </a>
-      </div>
-      <div class="card-content">
-        <a href="{{ url_for('media', media_shortcode = post['shortcode']) }}">
-          <div class="content" style="white-space: pre-line;">{{ post['caption'] }}</div>
-          <p class="is-size-7 is-marginless">
-            <time datetime="{{ post['timestamp'].strftime('%Y-%m-%d') }}">{{ post['timestamp'].strftime('%Y-%m-%d %H:%m') }}</time>
-          </p>
-        </a>
-      </div>
-      <footer class="card-footer">
-        <p class="card-footer-item is-centered">
-          {{ post['likes'] }} 👍
-        </p>
-        <p class="card-footer-item is-centered">
-          {{ post['comments'] }} 💬
-        </p>
-        <p class="card-footer-item is-centered">
-          {% if post['is_saved'] == False %}
-          <a href="{{ url_for('save', media_shortcode = post['shortcode'], origin = post['origin']) }}">Save 💾</a>
-          {% else %}
-          <a href="{{ url_for('forget', media_shortcode = post['shortcode'], origin = post['origin']) }}">Forget 💾</a>
-          {% endif %}
-        </p>
-      </footer>
-    </article>
+    {% include 'partials/full_card.html' %}
   {% endfor %}
   {{ render_pagination(pagination) }}
 {% endblock %}

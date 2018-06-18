@@ -14,6 +14,11 @@
       <p class="subtitle is-3">@{{ author['username'] }}</p>
       <p class="content" style="white-space: pre-line;">{{ author['biography'] }}</p>
       <p class=""><a href="{{ author['external_url'] }}">{{ author['external_url'] }}</a></p>
+      <p class="">
+        <a href="https://instagram.com/{{ author['username'] }}/">
+          View <strong>@{{ author['username'] }}</strong>’s profile on Instagram ↗
+        </a>
+      </p>
     </div>
   </div>
 
@@ -21,36 +26,31 @@
 
 {% block content %}
 
-  <div class="columns is-multiline">
-  {% for post in posts %}
-    <div class=" column is-one-third" id="{{ post['shortcode'] }}">
-      <article class="card">
-
-        <div class="card-image">
-          <a href="{{ url_for('media', media_shortcode = post['shortcode']) }}"><figure class="image">
-            <img src="{{ post['thumbnail_320'] }}" alt="A photo by {{ author['full_name'] }}">
-          </figure></a>
-        </div>
-        <footer class="card-footer has-text-centered">
-          <p href="#" class="card-footer-item is-centered">
-            👍<br>{{ post['likes'] }}
-          </p>
-          <p href="#" class="card-footer-item is-centered">
-            💬<br>{{ post['comments'] }}
-          </p>
-          <p href="#" class="card-footer-item is-centered">
-            {% if post['is_saved'] == False %}
-            <a href="{{ url_for('save', media_shortcode = post['shortcode'], origin = post['origin']) }}#{{ post['shortcode'] }}">💾<br>Save</a>
-            {% else %}
-            <a href="{{ url_for('forget', media_shortcode = post['shortcode'], origin = post['origin']) }}#{{ post['shortcode'] }}">💾<br>Forget</a>
-            {% endif %}
-          </p>
-
-        </footer>
-      </article>
-    </div>
-  {% endfor %}
+  <div class="buttons has-addons">
+    <a class="button is-small{% if display_as_feed == False %} is-selected is-dark{% endif %}" href="{{ url_for('profile', username = author['username']) }}">
+      <span>Grid</span>
+    </a>
+    <a class="button is-small{% if display_as_feed == True %} is-selected is-dark{% endif %}" href="{{ url_for('profile', username = author['username'], display = 'feed') }}">
+      <span>Feed</span>
+    </a>
   </div>
+
+  {% if display_as_feed == True %}
+
+    {% for post in posts %}
+        {% include 'partials/full_card.html' %}
+    {% endfor %}
+
+  {% else %}
+
+    <div class="columns is-multiline">
+    {% for post in posts %}
+      {% include 'partials/mini_card.html' %}
+    {% endfor %}
+    </div>
+
+  {% endif %}
+
   {{ render_pagination(pagination) }}
 {% endblock %}
 
