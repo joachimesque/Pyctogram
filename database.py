@@ -67,6 +67,12 @@ class Database:
         #   
 
 
+    def commit(self):
+        # A function for commiting changes to the DB
+
+        self.db.commit()
+
+
     def stop_db(self):
         # A function for commiting changes to the DB and closing it.
         # Because we do things properly around here

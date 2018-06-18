@@ -73,6 +73,7 @@ class Importer:
 
         self.db.cursor.execute("SELECT count(*) FROM Accounts WHERE username = ?", (username,))
         data = self.db.cursor.fetchone()[0]
+        self.db.commit()
 
         if data == 0:
             # print("user does not exist")
@@ -103,6 +104,7 @@ class Importer:
         
         try:
             self.db.cursor.execute("INSERT INTO Accounts VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)", values)
+            self.db.commit()
             return True
         except:
             exit("Error: Adding %s into the database failed." % user_data["username"])
@@ -113,7 +115,9 @@ class Importer:
 
         try:
             self.db.cursor.execute("SELECT last_updated FROM Accounts WHERE id=?", (user_id,))
-            return(self.db.cursor.fetchone())
+            ts = self.db.cursor.fetchone()
+            self.db.commit()
+            return(ts)
         except:
             exit("Error: Getting the timestamp of %s has failed." % user_id)
 
@@ -123,6 +127,7 @@ class Importer:
 
         try:
             self.db.cursor.execute("UPDATE Accounts SET last_updated=? WHERE id=?", (timestamp,user_id,))
+            self.db.commit()
         except:
             exit("Error: Setting the timestamp of %s has failed." % user_id)
 
@@ -176,6 +181,7 @@ class Importer:
                 
                 try:
                     self.db.cursor.execute("INSERT INTO Media VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)", values)
+                    self.db.commit()
                     media_count += 1
                 except:
                     exit("Error: Adding an image by %s into the database failed." % user_data["username"])
@@ -183,15 +189,13 @@ class Importer:
 
         self.set_user_timestamp(user_data['id'], latest_timestamp)
 
-        if media_count > 0:
-            print("%d new media added for user %s" % (media_count, user_data['username']))
-
         return media_count
 
     def tag_user_as_deleted(self, user):
         # Tags user as DELETED
         try:
             self.db.cursor.execute("UPDATE Accounts SET is_deleted=1 WHERE username=?", (user,))
+            self.db.commit()
         except:
             exit("Error: Changing the status of user %s failed." % user)
 
@@ -199,6 +203,7 @@ class Importer:
         # Removes DELETED tag
         try:
             self.db.cursor.execute("UPDATE Accounts SET is_deleted=0 WHERE username=?", (user,))
+            self.db.commit()
         except:
             exit("Error: Changing the status of user %s failed." % user)
 
@@ -212,10 +217,12 @@ class Importer:
         else:
             user_list = [i[0] for i in self.get_user_list()]
 
+        self.db.commit()
+
         user_count = 0
         total_media_added = 0
 
-        for user in user_list:
+        for index, user in enumerate(user_list):
             user_data = self.get_user_data(user)
 
             if user_data is None:
@@ -225,8 +232,10 @@ class Importer:
                 if user_data['is_private'] is False and user_data['edge_owner_to_timeline_media']['count'] > 0:
                     media_added = self.add_data_to_db(user_data)
                     if media_added > 0:
+                        print("%d/%d : %d new media added for user %s" % (index + 1, len(user_list), media_added, user_data['username']))
                         user_count += 1
                     total_media_added += media_added
+
 
         if user_count > 1:
             print("We got \033[1m%s\033[0m new media for \033[1m%s\033[0m users" % (total_media_added, user_count))
