@@ -68,10 +68,10 @@ class Importer:
                     return None
 
 
-    def user_exists(self, user):
-        # Check if user exists, returns boolean
+    def user_exists(self, username):
+        # Check if username exists, returns boolean
 
-        self.db.cursor.execute("SELECT count(*) FROM Accounts WHERE username = ?", (user,))
+        self.db.cursor.execute("SELECT count(*) FROM Accounts WHERE username = ?", (username,))
         data = self.db.cursor.fetchone()[0]
 
         if data == 0:
@@ -85,7 +85,7 @@ class Importer:
     def add_new_user(self, user_data):
         # Adds a new user to the DB
         
-        print("Adding user %s to database" % user_data["username"]) 
+        print("New user added to database : %s" % user_data["username"]) 
         
         values = (  user_data["id"],
                     user_data["username"],
@@ -184,9 +184,9 @@ class Importer:
         self.set_user_timestamp(user_data['id'], latest_timestamp)
 
         if media_count > 0:
-            return("%d new media added for user %s" % (media_count, user_data['username']))
-        else:
-            return("No new media added for user %s" % user_data['username'])
+            print("%d new media added for user %s" % (media_count, user_data['username']))
+
+        return media_count
 
     def tag_user_as_deleted(self, user):
         # Tags user as DELETED
@@ -203,20 +203,37 @@ class Importer:
             exit("Error: Changing the status of user %s failed." % user)
 
 
-    def import_media(self):
+    def import_media(self, from_users = None):
 
-        user_list = self.get_user_list()
+        print("\033[1mImporting media:\033[0m")
+
+        if from_users is not None:
+            user_list = from_users
+        else:
+            user_list = [i[0] for i in self.get_user_list()]
+
+        user_count = 0
+        total_media_added = 0
 
         for user in user_list:
-            user_data = self.get_user_data(user[0])
+            user_data = self.get_user_data(user)
 
             if user_data is None:
                 print('Warning: user %s has returned no data. You should check if an account still exists by that name.' % user)
 
             else:
                 if user_data['is_private'] is False and user_data['edge_owner_to_timeline_media']['count'] > 0:
-                    print(self.add_data_to_db(user_data))
+                    media_added = self.add_data_to_db(user_data)
+                    if media_added > 0:
+                        user_count += 1
+                    total_media_added += media_added
 
+        if user_count > 1:
+            print("We got \033[1m%s\033[0m new media for \033[1m%s\033[0m users" % (total_media_added, user_count))
+        elif user_count > 0:
+            print("We got \033[1m%s\033[0m new media for \033[1mone\033[0m user" % total_media_added)
+        else:
+            print("No new media was found at this time")
 
 
 if __name__ == '__main__':
