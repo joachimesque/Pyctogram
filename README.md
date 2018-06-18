@@ -44,14 +44,14 @@ You can run the app in Debug mode by launching it that way:
 
 ## 🛠 To Do
 
-- 🖼 Display the "Sidecar" objects (when there’s many photos in a single post)
+- ~~🖼 Display the "Sidecar" objects (when there’s many photos in a single post)~~
 - 👍 Display latest likes and comments on Media view
 - ~~📇 Importing Instagram-exported accounts lists~~
 - ⏬ Calling the scraper from the web interface (with a nice Progress Bar component)
 - 🎪 Better Bulma Customization
 - More emoji
 - 🖖 Some JS to help with the navigation (*j*, *k*, *l*, like on Flickr)
-- 🌊 DRY the templates
+- ~~🌊 DRY the templates~~
 - 🚚 Easy Install, esp. on web hosts
 - 📄 Lists ! Like Twitter lists, with the possibility to call for a scrape for a specific list
 - 📔 Albums
