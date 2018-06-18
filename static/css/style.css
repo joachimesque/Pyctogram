@@ -1,5 +1,5 @@
 body {
-  background: #eee;
+  background: whitesmoke;
   min-height: 100vh;
   display: flex;
   flex-direction: column;
@@ -13,36 +13,51 @@ body > section {
   flex: 1 0 auto;
 }
 
-body.template-index .content, body.template-memory .content {
+.card .card-content a, .card a .title, .card a .subtitle {
+  color: #000;
+}
+.card .card-content a:hover, .card a:hover .title, .card a:hover .subtitle {
+  color: #3273dc;
+}
+
+.card .content {
   max-height: 4.5em;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
 }
 
-body.template-media .content {
+body.template-media .card .content {
+  max-height: unset;
+  overflow: auto;
   white-space: pre-line;
+}
+body.template-profile .card .card-header {
+  display: none;
 }
 
 .card {
   background: transparent;
   box-shadow: none;
-  margin-bottom: 3em;
 }
+.card + .card {
+  margin-top: 4.5em;
+}
+
 
 .profile-picture img {
   border-radius: 50%;
 }
 
-.is-one-third .card {
-  margin-bottom: 1em;
+.card.full-card .card-image img {
+  object-fit: contain;
+  max-height: 100vh;
 }
-
 .card-header {
   border: none;
   box-shadow: none;
 }
-.card-content, .card-footer {
+.card-image, .card-content, .card-footer {
   background: white;
 }
 .card-footer {
