@@ -36,6 +36,12 @@ When it’s done, run
 
 And open a browser page to `http://127.0.0.1:5000/`.
 
+### Development
+
+You can run the app in Debug mode by launching it that way:
+  
+    $ python3 app.py
+
 ## 🛠 To Do
 
 - 🖼 Display the "Sidecar" objects (when there’s many photos in a single post)

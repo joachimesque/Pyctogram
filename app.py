@@ -408,3 +408,8 @@ def url_for_other_page(page):
     args['page'] = page
     return url_for(request.endpoint, **args)
 app.jinja_env.globals['url_for_other_page'] = url_for_other_page
+
+
+
+if __name__ == '__main__':
+    app.run(debug=True)
