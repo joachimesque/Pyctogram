@@ -253,6 +253,11 @@ def save(media_shortcode):
     origin = request.args.get('origin', default='')
     e = Exporter()
 
+    display_as_feed = False
+    if request.args.get('display') == 'feed':
+        display_as_feed = True
+
+
     # Main user is 0
     user_id = 0
 
@@ -289,7 +294,7 @@ def save(media_shortcode):
     e.close()
     u.close()
 
-    redirection = get_redirection(origin, media_shortcode)
+    redirection = get_redirection(origin, media_shortcode, display_as_feed)
 
     return redirect(redirection)
 
@@ -297,6 +302,11 @@ def save(media_shortcode):
 def forget(media_shortcode):
     origin = request.args.get('origin', default='')
     e = Exporter()
+
+    display_as_feed = False
+    if request.args.get('display') == 'feed':
+        display_as_feed = True
+
     # gets
     media_id = e.get_media_id_from_shortcode(media_shortcode)
     e.close()
@@ -318,7 +328,7 @@ def forget(media_shortcode):
     u.close()
 
 
-    redirection = get_redirection(origin, media_shortcode)
+    redirection = get_redirection(origin, media_shortcode, display_as_feed)
 
     return redirect(redirection)
 
@@ -415,22 +425,25 @@ def profile(username, page):
                             pagination=pagination,
                             display_as_feed=display_as_feed)
 
-def get_redirection(origin, media_shortcode):
+def get_redirection(origin, media_shortcode, display_as_feed = False):
     if origin[0] == '@':
-      colonindex = origin.find(':')
-      username = origin[1:colonindex]
-      page = origin[colonindex+1:]
-      return url_for('profile', page = page, username = username)
+        colonindex = origin.find(':')
+        username = origin[1:colonindex]
+        page = origin[colonindex+1:]
+        if display_as_feed == True:
+            return url_for('profile', page = page, username = username, display = 'feed')
+        else:
+            return url_for('profile', page = page, username = username)
     elif origin[0:4] == 'feed':
-      colonindex = origin.find(':')
-      page = origin[colonindex+1:]
-      return url_for('index', page = page)
+        colonindex = origin.find(':')
+        page = origin[colonindex+1:]
+        return url_for('index', page = page)
     elif origin[0:6] == 'memory':
-      colonindex = origin.find(':')
-      page = origin[colonindex+1:]
-      return url_for('memory', page = page)
+        colonindex = origin.find(':')
+        page = origin[colonindex+1:]
+        return url_for('memory', page = page)
     elif origin == 'media' or origin is '':
-      return url_for('media', media_shortcode = media_shortcode)
+        return url_for('media', media_shortcode = media_shortcode)
 
 
 def url_for_other_page(page):

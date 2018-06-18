@@ -26,9 +26,9 @@
           <div class="sidecar slider" data-slider>
             <div class="slides">
               {% for image in post['sidecar']['edges'] %}
-              <figure class="">
-                <img src="{{ image['node']['display_url'] }}" alt="A photo by {{ post['owner_full_name'] }}">
-              </figure>
+              <div class="">
+                <figure class="image is-square"><img src="{{ image['node']['display_url'] }}" alt="A photo by {{ post['owner_full_name'] }}"></figure>
+              </div>
               {% endfor %}
             </div>
             <div data-slider-nav></div>
@@ -57,9 +57,9 @@
         </p>
         <p class="card-footer-item is-centered">
           {% if post['is_saved'] == False %}
-          <a href="{{ url_for('save', media_shortcode = post['shortcode'], origin = post['origin']) }}#{{ post['shortcode'] }}">Save 💾</a>
+          <a href="{{ url_for('save', media_shortcode = post['shortcode'], origin = post['origin'], display = 'feed') }}#{{ post['shortcode'] }}">Save 💾</a>
           {% else %}
-          <a href="{{ url_for('forget', media_shortcode = post['shortcode'], origin = post['origin']) }}#{{ post['shortcode'] }}">Forget 💾</a>
+          <a href="{{ url_for('forget', media_shortcode = post['shortcode'], origin = post['origin'], display = 'feed') }}#{{ post['shortcode'] }}">Forget 💾</a>
           {% endif %}
         </p>
       </footer>
