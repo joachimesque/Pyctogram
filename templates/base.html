@@ -167,6 +167,78 @@
       }
     })(window, document);
 
+    window.jkNavigation = (function (window, document, undefined) {
+      'use strict';
+
+      // Feature Test
+      if ( 'querySelector' in document && 'addEventListener' in window ) {
+
+        // SELECTORS
+        var cards = document.querySelectorAll('article.full-card');
+        
+        // FUNCTIONS
+        function jkNavNext() {
+          if(window.location.hash != '') {
+            var activeCard = document.querySelector(window.location.hash);
+            var nextCard = activeCard.nextElementSibling;
+            if (nextCard.nodeName == 'NAV') {
+              var destination = document.querySelector('nav.pagination a.is-current').parentElement.nextElementSibling.firstChild;
+              destination = destination.href;
+              window.location = destination;
+            } else {
+              window.location.hash = nextCard.id;
+            }
+          } else {
+            window.location.hash = cards[0].id;
+          }
+        }
+
+        function jkNavPrev() {
+          if(window.location.hash != '') {
+            var activeCard = document.querySelector(window.location.hash);
+            var prevCard = activeCard.previousElementSibling;
+            if (prevCard == null) {
+              var destination = document.querySelector('nav.pagination a.is-current').parentElement.previousElementSibling.firstChild;
+              destination = destination.href;
+              window.location = destination;
+            } else {
+              window.location.hash = prevCard.id;
+            }
+          } else {
+            window.location.hash = cards[cards.length - 1].id;
+          }
+        }
+
+        function jkSave() {
+          if(window.location.hash != '') {
+            var activeCard = document.querySelector(window.location.hash);
+            var saveButton = activeCard.querySelector('a.saveButton');
+            saveButton.click();
+          }
+        }
+
+
+        // Handle keypress
+        var handleKeypress = function (event) {
+          if ( event.keyCode == 74 ) { /* j */
+            jkNavNext();
+          }
+          if ( event.keyCode == 75 ) { /* k */
+            jkNavPrev();
+          }
+          if ( event.keyCode == 76 ) { /* l */
+            jkSave();
+          }
+        };
+
+        // Toggle Left & Right Keypress
+        window.addEventListener('keydown', handleKeypress, false);
+
+
+      }
+    })(window, document);
+
+
   </script>
 
 </body>
