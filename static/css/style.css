@@ -71,3 +71,9 @@ body.template-profile .card .card-header {
 nav.pagination {
   margin: 3rem 0 5rem;
 }
+
+.notification.is-danger {
+    background-color: transparent;
+    border: 1px solid #ff3860;
+    color: #ff3860;
+}

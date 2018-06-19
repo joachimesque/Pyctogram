@@ -1,0 +1,18 @@
+{% extends 'base.html' %}
+
+{% block header %}
+  <h1 class="title">{% block title %}🗄 Import successful{% endblock %}</h1>
+
+
+{% endblock %}
+
+{% block content %}
+  {% if import_count|int > 1 %}
+    <p>{{ import_count }} contacts were imported.</p>
+  {% elif import_count|int > 0 %}
+    <p>{{ import_count }} contacts was imported.</p>
+  {% endif %}
+  
+  <p>See your contacts on the <a href="{{ url_for('index') }}">Feed</a></p>
+
+{% endblock %}

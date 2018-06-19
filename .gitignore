@@ -105,3 +105,4 @@ venv.bak/
 database.db
 static/images/0/*.jpg
 connections.json
+temp/*

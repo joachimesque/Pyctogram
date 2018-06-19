@@ -12,6 +12,7 @@ import datetime
 
 from user import User
 from lists import Lists
+from importer import Importer
 from exporter import Exporter
 from pagination import Pagination
 
@@ -22,8 +23,16 @@ from flask import render_template
 from flask import redirect
 from flask import request
 from flask import url_for
+from flask import flash
+
+from werkzeug.utils import secure_filename
+UPLOAD_FOLDER = './temp/'
+ALLOWED_EXTENSIONS = set(['txt', 'json'])
+
 
 app = Flask(__name__)
+app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
+app.secret_key = 'THIS_SHOULD_BE_CHANGED'
 
 @app.route("/", defaults={'page': 1})
 @app.route("/page/<int:page>")
@@ -551,7 +560,6 @@ def list_feed(shortname, page):
 
     #print(str(the_list), file=sys.stderr)
 
-
     l.close()
     u.close()
     e.close()
@@ -561,12 +569,13 @@ def list_feed(shortname, page):
                                 pagination=pagination)
 
 
-
 @app.route("/list/create", methods=['POST', 'GET'])
 def list_create():
     if request.method == 'POST':
 
         if request.form['list_name'] == '':
+            flash('Please fill in the list name before clicking the button.')
+
             return render_template('lists/create.html', errors = 'The list name must not be empty.')
 
         new_list = {}
@@ -575,6 +584,8 @@ def list_create():
         new_list['description'] = request.form['list_description']
         
         if new_list['shortname'] in ['create','add']:
+            flash('🤔 Ha-ha.')
+
             return render_template('lists/create.html', errors = 'Please don’t use forbidden names.')
 
         l = Lists()
@@ -586,6 +597,7 @@ def list_create():
         return redirect(url_for('list_accounts', shortname = new_list['shortname']))
     else:
         return render_template('lists/create.html')
+
 
 @app.route("/list/<shortname>/accounts")
 def list_accounts(shortname):
@@ -703,25 +715,6 @@ def list_delete(shortname):
     l.close()
 
     return redirect(url_for('list_lists'))
-
-
-def check_if_account_in_list(list_shortname, username):
-    l = Lists()
-    e = Exporter()
-
-    list_id = l.get_list_id_from_shortname(list_shortname)
-    user_id = e.get_user_id_from_username(username)
-
-    result = l.check_if_account_in_list(list_id, user_id)
-
-    l.close()
-    e.close()
-
-    return result
-app.jinja_env.globals['account_is_in_list'] = check_if_account_in_list
-
-
-
 @app.route("/lists")
 def list_lists():
     lists = get_lists()
@@ -729,6 +722,132 @@ def list_lists():
     return render_template('lists/index.html', lists = lists)
 
 
+
+
+@app.route("/import/json", methods=['POST', 'GET'])
+def import_from_json():
+
+    if request.method == 'POST':
+        # check if the post request has the file part
+        if 'file' not in request.files:
+            flash('No file part')
+            return redirect(request.url)
+        file = request.files['file']
+
+        # if user does not select file, browser also
+        # submit an empty part without filename
+        if file.filename == '':
+            flash('No selected file')
+            return redirect(request.url)
+        if file and allowed_file(file.filename):
+            filename = secure_filename(file.filename)
+            file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
+
+            contacts_to_import = []
+            with open(os.path.join(app.config['UPLOAD_FOLDER'], filename), 'r') as f:
+                contacts_to_import = json.loads(f.read().splitlines()[0])
+
+            contacts_to_import = list(contacts_to_import['following'].keys())
+
+            if contacts_to_import == []:
+                flash('No contact to import')
+                return redirect(request.url)
+
+            i = Importer()
+
+            total = 0
+            for contact in contacts_to_import:
+                if not i.user_exists(contact):
+                    contact_info = i.get_user_data(contact)
+                    if i.add_new_user(contact_info):
+                        total += 1 
+
+            i.close()
+
+            return redirect(url_for('import_success', import_count = total))
+
+    return render_template('import/json.html')
+
+
+
+@app.route("/import/text", methods=['POST', 'GET'])
+def import_from_text():
+
+    if request.method == 'POST':
+        # check if the post request has the file part
+        if 'file' not in request.files:
+            flash('No file part')
+            return redirect(request.url)
+        file = request.files['file']
+
+        # if user does not select file, browser also
+        # submit an empty part without filename
+        if file.filename == '':
+            flash('No selected file')
+            return redirect(request.url)
+        if file and allowed_file(file.filename):
+            filename = secure_filename(file.filename)
+            file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
+
+            contacts_to_import = []
+            with open(os.path.join(app.config['UPLOAD_FOLDER'], filename), 'r') as f:
+                contacts_to_import = f.read().splitlines()
+
+            if contacts_to_import == []:
+                flash('No contact to import')
+                return redirect(request.url)
+
+            i = Importer()
+
+            total = 0
+            for contact in contacts_to_import:
+                contact_info = i.get_user_data(contact)
+                if not i.user_exists(contact):
+                    if i.add_new_user(contact_info):
+                        total += 1
+
+            i.close()
+
+            return redirect(url_for('import_success', import_count = total))
+
+    return render_template('import/text.html')
+
+
+
+@app.route("/import", methods=['POST', 'GET'])
+def import_from_form():
+
+    if request.method == 'POST':
+
+        if request.form['contacts'] == '':
+            flash('Please fill in the text area before clicking the button.')
+            return render_template('import/form.html', errors = 'The text area should not be empty.')
+
+        contacts_to_import = request.form['contacts'].splitlines()
+
+        i = Importer()
+
+        total = 0
+        for contact in contacts_to_import:
+            contact_info = i.get_user_data(contact)
+            if not i.user_exists(contact):
+                if i.add_new_user(contact_info):
+                    total += 1
+
+        i.close()
+
+        return redirect(url_for('import_success', import_count = total))
+    else:
+        return render_template('import/form.html')
+
+@app.route("/import/success")
+def import_success():
+    import_count = request.args['import_count']
+
+    return render_template('import/success.html', import_count = import_count)
+
+
+# FUNCTIONS
 
 def get_lists():
     l = Lists()
@@ -747,6 +866,22 @@ def get_lists():
 
     return lists
 app.jinja_env.globals['get_lists'] = get_lists
+
+
+def check_if_account_in_list(list_shortname, username):
+    l = Lists()
+    e = Exporter()
+
+    list_id = l.get_list_id_from_shortname(list_shortname)
+    user_id = e.get_user_id_from_username(username)
+
+    result = l.check_if_account_in_list(list_id, user_id)
+
+    l.close()
+    e.close()
+
+    return result
+app.jinja_env.globals['account_is_in_list'] = check_if_account_in_list
 
 
 def get_redirection(origin, media_shortcode, display_as_feed = False):
@@ -776,6 +911,10 @@ def url_for_other_page(page):
     return url_for(request.endpoint, **args)
 app.jinja_env.globals['url_for_other_page'] = url_for_other_page
 
+
+def allowed_file(filename):
+    return '.' in filename and \
+           filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
 
 
 if __name__ == '__main__':

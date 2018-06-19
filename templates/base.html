@@ -46,6 +46,24 @@
           {% endif %}
         </div>
       </div>
+      <div class="navbar-end">
+        <div class="navbar-item has-dropdown is-hoverable">
+          <div class="navbar-link">
+            <span class="is-size-5" role="img" aria-label="Import">🗄</span>&nbsp;Import contacts
+          </div>
+          <div class="navbar-dropdown is-right">
+            <a class="navbar-item" href="{{ url_for('import_from_json') }}">
+              🗃 Import from&nbsp;<strong>connections.json</strong>
+            </a>
+            <a class="navbar-item" href="{{ url_for('import_from_text') }}">
+              📋 Import from&nbsp;<strong>text file</strong>
+            </a>
+            <a class="navbar-item" href="{{ url_for('import_from_form') }}">
+              📇 Import custom
+            </a>
+          </div>
+        </div>
+      </div>
     </div>
   </nav>
 
@@ -59,6 +77,21 @@
         </div>
       </div>
     </div>
+  {% with messages = get_flashed_messages() %}
+    {% if messages %}
+    <div class="container">
+      <div class="columns is-centered">
+        <div class="column is-half">
+          <ul class=flashes>
+          {% for message in messages %}
+            <li class="notification is-danger"><strong>{{ message }}</strong></li>
+          {% endfor %}
+          </ul>
+        </div>
+      </div>
+    </div>
+    {% endif %}
+  {% endwith %}
   </header>
   <section class="section">
     <div class="container">
