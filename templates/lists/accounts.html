@@ -6,7 +6,10 @@
       <span class="is-size-3" role="img" aria-label="List">🔖</span>&nbsp;
       {% block title %}{{ the_list.longname }}{% endblock %}
     </h1>
-    <div class="level-right"><a href="{{ url_for('list_delete', shortname = the_list.shortname) }}" class="button is-small is-danger is-outlined">Delete list</a></div>
+    <div class="level-right buttons">
+      <a href="{{ url_for('list_edit', shortname = the_list.shortname) }}" class="button is-small is-info is-outlined">Edit</a>
+      <a href="{{ url_for('list_delete', shortname = the_list.shortname) }}" class="button is-small is-danger is-outlined">Delete</a>
+    </div>
   </div>
 
   <p>{{ the_list.description }}</p>

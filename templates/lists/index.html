@@ -1,7 +1,9 @@
 {% extends 'base.html' %}
 
+{% block title %}🔖 Lists{% endblock %}
+
 {% block header %}
-  <h1 class="title"><span class="is-size-3" role="img" aria-label="Your lists">🔖</span>&nbsp;{% block title %}Lists{% endblock %}</h1>
+  <h1 class="title"><span class="is-size-3" role="img" aria-label="Your lists">🔖</span>&nbsp;Lists</h1>
 {% endblock %}
 
 {% block content %}
@@ -12,8 +14,9 @@
         <strong class="is-size-5"><a href="{{ url_for('list_feed', shortname = list.shortname) }}">{{ list.longname }}</a></strong>&nbsp;&nbsp;
         <small>({{ list.count }} accounts followed)</small>
       </span>
-      <span class="level-right">
-        <a href="{{ url_for('list_delete', shortname = list.shortname) }}" class="button is-small is-danger is-outlined">Delete list</a>
+      <span class="level-right buttons">
+        <a href="{{ url_for('list_edit', shortname = list.shortname) }}" class="button is-small is-info is-outlined">Edit</a>
+        <a href="{{ url_for('list_delete', shortname = list.shortname) }}" class="button is-small is-danger is-outlined">Delete</a>
       </span>
     </li>
   {% endfor %}
