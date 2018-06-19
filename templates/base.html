@@ -39,7 +39,7 @@
           {% if get_lists() is defined %}
             {% for list in get_lists() %}
             <a class="navbar-item" href="{{ url_for('list_feed', shortname = list.shortname) }}">
-              {{ list.longname }}
+              {{ list.longname }} &nbsp; <small>({{ list.count }})</small>
             </a>
             {% endfor %}
             <div class="navbar-divider"></div>
@@ -75,7 +75,7 @@
 
 
 
-  <header class="header">
+  <header class="header section">
     <div class="container">
       <div class="columns is-centered">
         <div class="column is-half">
