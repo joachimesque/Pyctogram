@@ -715,6 +715,7 @@ def list_delete(shortname):
 
             return redirect(url_for('list_lists'))
 
+    flash('Are you sure you want to delete this list? There is no turning back.')
     return render_template('lists/confirm.html', shortname = shortname)
 
 

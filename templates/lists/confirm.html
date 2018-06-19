@@ -2,9 +2,6 @@
 
 {% block header %}
   <h1 class="title"><span class="is-size-3" role="img" aria-label="Your lists">🔖</span>&nbsp;{% block title %}You are about to delete a list{% endblock %}</h1>
-
-  <p>Are you sure?</p>
-
 {% endblock %}
 
 {% block content %}
@@ -17,7 +14,7 @@
     <div class="field-body">
       <div class="field">
         <div class="control">
-          <button class="button is-info" type="submit" name="submit" value="submit">
+          <button class="button is-danger" type="submit" name="submit" value="submit">
             Yes, I want to delete this list.
           </button>
         </div>
