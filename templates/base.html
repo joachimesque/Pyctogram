@@ -35,15 +35,21 @@
           <a class="navbar-link" href="{{ url_for('list_lists') }}">
             <span class="is-size-5" role="img" aria-label="Your lists">🔖</span>&nbsp;Lists
           </a>
-          {% if get_lists() is defined %}
           <div class="navbar-dropdown">
+          {% if get_lists() is defined %}
             {% for list in get_lists() %}
             <a class="navbar-item" href="{{ url_for('list_feed', shortname = list.shortname) }}">
               {{ list.longname }}
             </a>
             {% endfor %}
-          </div>
+            <div class="navbar-divider"></div>
           {% endif %}
+            <a class="navbar-item" href="{{ url_for('list_create') }}">
+              <span class="is-size-7" role="img" aria-label="Plus">➕</span>&nbsp;
+              Create a new list
+            </a>
+
+          </div>
         </div>
       </div>
       <div class="navbar-end">
