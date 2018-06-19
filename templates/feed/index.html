@@ -1,8 +1,10 @@
 {% extends 'base.html' %}
 {% import 'macros/pagination.html' as pagination_macro %}
 
+{% block title %}{{ title_emojo }} Feed{% endblock %}
+
 {% block header %}
-  <h1 class="title"><span class="is-size-3" role="img" aria-label="Picture">{{ ['🗾','🎑','🏞','🌅','🌄','🌠','🎇','🎆','🌇','🌆','🏙','🌃','🌌','🌉','🌁']|random }}</span>&nbsp;{% block title %}Feed{% endblock %}</h1>
+  <h1 class="title"><span class="is-size-3" role="img" aria-label="Picture">{{ title_emojo }}</span>&nbsp;Feed</h1>
 {% endblock %}
 
 {% block content %}

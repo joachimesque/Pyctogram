@@ -7,7 +7,9 @@
   <link rel="stylesheet" href="{{ url_for('static', filename='css/bulma.css') }}">
   <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
   <link rel="stylesheet" href="{{ url_for('static', filename='css/slider-css.css') }}">
-  <title>{% block title %}{% endblock %} - 📷 Pyctogram</title>
+
+  {% set title_emojo = ['🗾','🎑','🏞','🌅','🌄','🌠','🎇','🎆','🌇','🌆','🏙','🌃','🌌','🌉','🌁'] | random %} 
+  <title>{% block title %}{% endblock %} - Pyctogram</title>
 
 </head>
 <body class="template-{{ request.url_rule.endpoint }}">
@@ -26,7 +28,7 @@
     <div id="menu" class="navbar-menu">
       <div class="navbar-start">
         <a class="navbar-item" href="{{ url_for('index') }}">
-          <span class="is-size-4" role="img" aria-label="Picture">{{ ['🗾','🎑','🏞','🌅','🌄','🌠','🎇','🎆','🌇','🌆','🏙','🌃','🌌','🌉','🌁']|random }}</span>&nbsp;Feed
+          <span class="is-size-4" role="img" aria-label="Picture">{{ title_emojo }}</span>&nbsp;Feed
         </a>
         <a class="navbar-item" href="{{ url_for('memory') }}">
           <span class="is-size-5" role="img" aria-label="Saved pictures">💾</span>&nbsp;Memory
