@@ -3,7 +3,7 @@
 {% block title %}A photo by {{ post['owner_full_name'] }}{% endblock %}
 
 {% block header %}
-  <h1 class="title">A photo by <a href="{{ url_for('profile', username = post['owner_username']) }}">{{ post['owner_full_name'] }}</a></h1>
+  <h1 class="title">A photo by <a href="{{ url_for('profile', username = post['owner_username']) | replace('%40', '@') }}">{{ post['owner_full_name'] }}</a></h1>
 {% endblock %}
 
 {% block content %}

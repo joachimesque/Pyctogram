@@ -2,14 +2,14 @@
 
       <header class="card-header">
         <div class="is-flex card-header-title">
-          <a href="{{ url_for('profile', username = post['owner_username']) }}">
+          <a href="{{ url_for('profile', username = post['owner_username']) | replace('%40', '@') }}">
             <figure class="profile-picture image is-48x48">
               <img src="{{ post['owner_profile_pic_url'] }}" alt="{{ post['owner_username'] }}">
             </figure>
           </a>
           &nbsp;
           <p>
-            <a href="{{ url_for('profile', username = post['owner_username']) }}">
+            <a href="{{ url_for('profile', username = post['owner_username']) | replace('%40', '@') }}">
               <span class="title is-5">{{ post['owner_full_name'] }}</span>
               <span class="subtitle is-6">@{{ post['owner_username'] }}</span>
             </a>
