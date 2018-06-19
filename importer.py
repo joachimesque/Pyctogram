@@ -238,11 +238,11 @@ class Importer:
 
 
         if user_count > 1:
-            print("We got \033[1m%s\033[0m new media for \033[1m%s\033[0m users" % (total_media_added, user_count))
+            print("We got \033[1m%s\033[0m new media from \033[1m%s\033[0m users" % (total_media_added, user_count))
         elif user_count > 0:
-            print("We got \033[1m%s\033[0m new media for \033[1mone\033[0m user" % total_media_added)
+            print("We got \033[1m%s\033[0m new media from \033[1mone\033[0m user" % total_media_added)
         else:
-            print("No new media was found at this time")
+            print("No new media were found at this time")
 
 
 if __name__ == '__main__':
