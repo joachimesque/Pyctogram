@@ -51,7 +51,13 @@
     </li>
   {% endfor %}
   </ul>
-
+  <hr>
+  <p>
+    <a class="" href="{{ url_for('list_choices_for_user', username = author.username) }}">
+      <strong><span class="is-size-6" role="img" aria-label="Plus">➕</span>
+            Add to a{% if lists|length > 0 %}nother{% endif %} list</strong>
+    </a>
+  </p>
 
 {% endblock %}
 

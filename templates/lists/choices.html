@@ -13,7 +13,11 @@
         <small>({{ list.count }} accounts followed)</small>
       </span>
       <span class="level-right">
+        {% if account_is_in_list(list.shortname, username) %}
+        <a class="button is-small is-static">Already in this list</a>
+        {% else %}
         <a href="{{ url_for('list_add_user', shortname = list.shortname, username = username) }}" class="button is-info is-outlined">Select this list</a>
+        {% endif %}
       </span>
     </li>
   {% endfor %}

@@ -1,0 +1,60 @@
+{% extends 'base.html' %}
+
+{% block header %}
+  <h1 class="title"><span class="is-size-3" role="img" aria-label="Your lists">🔖</span>&nbsp;{% block title %}Create a list{% endblock %}</h1>
+
+  <p>Any character can go in the name, a description is not required.</p>
+
+{% endblock %}
+
+{% block content %}
+
+<form action="{{ url_for('list_create') }}" method="post">
+  <div class="field is-horizontal">
+    <div class="field-label is-normal">
+      <label for="list_name" class="label">List name</label>
+    </div>
+    <div class="field-body">
+      <div class="field">
+        <p class="control is-expanded">
+          <input id="list_name" name="list_name" class="input{% if errors is defined %} is-danger{% endif %}" type="text" placeholder="Name your list here.">
+        </p>
+        {% if errors is defined %}
+        <p class="help is-danger">
+          {{ errors }}
+        </p>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+
+  <div class="field is-horizontal">
+    <div class="field-label is-normal">
+      <label for="list_description"  class="label">Description</label>
+    </div>
+    <div class="field-body">
+      <div class="field">
+        <p class="control is-expanded">
+          <textarea id="list_description" name="list_description" class="textarea" placeholder="You can describe your list here."></textarea>
+        </p>
+      </div>
+    </div>
+  </div>
+
+  <div class="field is-horizontal">
+    <div class="field-label">
+      <!-- Left empty for spacing -->
+    </div>
+    <div class="field-body">
+      <div class="field">
+        <div class="control">
+          <button class="button is-info" type="submit">
+            Create, I say!
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</form>
+
+{% endblock %}

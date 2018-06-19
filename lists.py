@@ -240,12 +240,12 @@ class Lists:
                     0,
                     time.time() )
         
-        try:
-            self.db.cursor.execute("INSERT INTO Lists (shortname, longname, description, last_updated, date_added) VALUES (?, ?, ?, ?, ?)", values)
-            self.db.commit()
-            return True
-        except:
-            exit("Error: Adding %s into the database failed." % list_info["shortname"])
+        #try:
+        self.db.cursor.execute("INSERT INTO Lists (shortname, longname, description, last_updated, date_added) VALUES (?, ?, ?, ?, ?)", values)
+        self.db.commit()
+        return True
+        # except:
+        #     exit("Error: Adding %s into the database failed." % list_info["shortname"])
 
     def delete_list(self, list_id):
 

@@ -15,6 +15,8 @@ from lists import Lists
 from exporter import Exporter
 from pagination import Pagination
 
+from slugify import slugify
+
 from flask import Flask
 from flask import render_template
 from flask import redirect
@@ -321,7 +323,7 @@ def forget(media_shortcode):
       fileaddr = './static/images/' + str(user_id) + '/'
       filename = u.get_saved_filename(media_id, user_id)
       target = fileaddr + filename
-      print(target, file=sys.stderr)
+      #print(target, file=sys.stderr)
 
       u.forget_media(media_id, user_id)
       if os.path.isfile(target):
@@ -547,7 +549,7 @@ def list_feed(shortname, page):
     for k, s in zip(keys, the_list_tup):
         the_list[k] = s
 
-    print(str(the_list), file=sys.stderr)
+    #print(str(the_list), file=sys.stderr)
 
 
     l.close()
@@ -560,9 +562,27 @@ def list_feed(shortname, page):
 
 
 
-@app.route("/list/create")
+@app.route("/list/create", methods=['POST', 'GET'])
 def list_create():
-    return("Page to create a list")
+    if request.method == 'POST':
+
+        if request.form['list_name'] == '':
+            return render_template('lists/create.html', errors = 'The list name must not be empty.')
+
+        new_list = {}
+        new_list['longname'] = request.form['list_name']
+        new_list['description'] = request.form['list_description']
+        new_list['shortname'] = slugify(new_list['longname'], max_length=42, word_boundary=True, save_order=True)
+
+        l = Lists()
+
+        l.create_new_list(new_list)
+
+        l.close()
+
+        return redirect(url_for('list_accounts', shortname = new_list['shortname']))
+    else:
+        return render_template('lists/create.html')
 
 @app.route("/list/<shortname>/accounts")
 def list_accounts(shortname):
@@ -680,6 +700,22 @@ def list_delete(shortname):
     l.close()
 
     return redirect(url_for('list_lists'))
+
+
+def check_if_account_in_list(list_shortname, username):
+    l = Lists()
+    e = Exporter()
+
+    list_id = l.get_list_id_from_shortname(list_shortname)
+    user_id = e.get_user_id_from_username(username)
+
+    result = l.check_if_account_in_list(list_id, user_id)
+
+    l.close()
+    e.close()
+
+    return result
+app.jinja_env.globals['account_is_in_list'] = check_if_account_in_list
 
 
 
