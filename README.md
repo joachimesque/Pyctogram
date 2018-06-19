@@ -50,7 +50,7 @@ You can run the app in Debug mode by launching it that way:
 - ⏬ Calling the scraper from the web interface (with a nice Progress Bar component)
 - 🎪 Better Bulma Customization
 - More emoji
-- 🖖 Some JS to help with the navigation (*j*, *k*, *l*, like on Flickr)
+- ~~🖖 Some JS to help with the navigation (*j*, *k*, *l*, like on Flickr)~~
 - ~~🌊 DRY the templates~~
 - 🚚 Easy Install, esp. on web hosts
 - 📄 Lists ! Like Twitter lists, with the possibility to call for a scrape for a specific list
