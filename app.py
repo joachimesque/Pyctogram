@@ -570,9 +570,12 @@ def list_create():
             return render_template('lists/create.html', errors = 'The list name must not be empty.')
 
         new_list = {}
+        new_list['shortname'] = slugify(request.form['list_name'], max_length=42, word_boundary=True, save_order=True)
         new_list['longname'] = request.form['list_name']
         new_list['description'] = request.form['list_description']
-        new_list['shortname'] = slugify(new_list['longname'], max_length=42, word_boundary=True, save_order=True)
+        
+        if new_list['shortname'] in ['create','add']:
+            return render_template('lists/create.html', errors = 'Please don’t use forbidden names.')
 
         l = Lists()
 
@@ -721,6 +724,13 @@ app.jinja_env.globals['account_is_in_list'] = check_if_account_in_list
 
 @app.route("/lists")
 def list_lists():
+    lists = get_lists()
+
+    return render_template('lists/index.html', lists = lists)
+
+
+
+def get_lists():
     l = Lists()
 
     all_lists = l.get_all_lists_info()
@@ -735,9 +745,8 @@ def list_lists():
 
     l.close()
 
-    return render_template('lists/index.html', lists = lists)
-
-
+    return lists
+app.jinja_env.globals['get_lists'] = get_lists
 
 
 def get_redirection(origin, media_shortcode, display_as_feed = False):
