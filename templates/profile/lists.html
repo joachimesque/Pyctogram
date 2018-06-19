@@ -1,7 +1,6 @@
 {% extends 'base.html' %}
-{% import 'macros/pagination.html' as pagination_macro %}
 
-{% block title %}{{ author['full_name'] }}’s photos{% endblock %}
+{% block title %}{{ author['full_name'] }}’s lists{% endblock %}
 
 {% block header %}
   <div class="media">
@@ -32,30 +31,27 @@
 
   <div class="tabs">
     <ul>
-      <li class="{% if display_as_feed == False %}is-active{% endif %}"><a href="{{ url_for('profile', username = author.username) }}">Grid</a></li>
-      <li class="{% if display_as_feed == True %}is-active{% endif %}"><a href="{{ url_for('profile', username = author.username, display = 'feed') }}">Feed</a></li>
-      <li><a href="{{ url_for('profile_lists', username = author.username) }}">Lists</a></li>
+      <li><a href="{{ url_for('profile', username = author.username) }}">Grid</a></li>
+      <li><a href="{{ url_for('profile', username = author.username, display = 'feed') }}">Feed</a></li>
+      <li class="is-active"><a href="{{ url_for('profile_lists', username = author.username) }}">Lists</a></li>
     </ul>
   </div>
 
 
+  <ul>
+  {% for list in lists %}
+    <li class="level">
+      <span class="level-left">
+        <strong class="is-size-5"><a href="{{ url_for('list_feed', shortname = list.shortname) }}">{{ list.longname }}</a></strong>&nbsp;&nbsp;
+        <small>({{ list.count }} accounts followed)</small>
+      </span>
+      <span class="level-right">
+        <a href="{{ url_for('list_remove_user', shortname = list.shortname, username = author.username) }}" class="button is-small is-danger is-outlined">Remove from list</a>
+      </span>
+    </li>
+  {% endfor %}
+  </ul>
 
-  {% if display_as_feed == True %}
 
-    {% for post in posts %}
-        {% include 'partials/full_card.html' %}
-    {% endfor %}
-
-  {% else %}
-
-    <div class="columns is-multiline">
-    {% for post in posts %}
-      {% include 'partials/mini_card.html' %}
-    {% endfor %}
-    </div>
-
-  {% endif %}
-
-  {{ pagination_macro.render_pagination(pagination) }}
 {% endblock %}
 

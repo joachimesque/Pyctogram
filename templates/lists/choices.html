@@ -1,0 +1,21 @@
+{% extends 'base.html' %}
+
+{% block header %}
+  <h1 class="title"><span class="is-size-3" role="img" aria-label="Your lists">🔖</span>&nbsp;{% block title %}Select a list to add {{ username }}{% endblock %}</h1>
+{% endblock %}
+
+{% block content %}
+  <ul>
+  {% for list in lists %}
+    <li class="level">
+      <span class="level-left">
+        <strong class="is-size-5">{{ list.longname }}</strong>&nbsp;&nbsp;
+        <small>({{ list.count }} accounts followed)</small>
+      </span>
+      <span class="level-right">
+        <a href="{{ url_for('list_add_user', shortname = list.shortname, username = username) }}" class="button is-info is-outlined">Select this list</a>
+      </span>
+    </li>
+  {% endfor %}
+  </ul>
+{% endblock %}

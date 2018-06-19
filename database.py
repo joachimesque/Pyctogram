@@ -32,7 +32,7 @@ class Database:
         #   last_updated INTEGER,
         #   is_private INTEGER,
         #   is_deleted INTEGER
-        self.cursor.execute('CREATE TABLE IF NOT EXISTS Accounts (id INTEGER, username TEXT, full_name TEXT, biography TEXT, profile_pic_url TEXT, profile_pic_url_hd TEXT, external_url TEXT, external_url_linkshimmed TEXT, followed_by INTEGER, follow INTEGER, last_updated INTEGER, is_private INTEGER, is_deleted INTEGER)')
+        self.cursor.execute('CREATE TABLE IF NOT EXISTS Accounts (id INTEGER UNIQUE, username TEXT UNIQUE, full_name TEXT, biography TEXT, profile_pic_url TEXT, profile_pic_url_hd TEXT, external_url TEXT, external_url_linkshimmed TEXT, followed_by INTEGER, follow INTEGER, last_updated INTEGER, is_private INTEGER, is_deleted INTEGER)')
 
         # Media :
         #   id INTEGER,
@@ -49,7 +49,7 @@ class Database:
         #   comments TEXT, # JSON object containing edge_media_to_comment
         #   thumbnails TEXT, # JSON object containing thumbnails
         #   sidecar TEXT # JSON object containing the whole edge_sidecar_to_children.edges
-        self.cursor.execute('CREATE TABLE IF NOT EXISTS Media (id INTEGER, owner INTEGER, media_type TEXT, is_video INTEGER, display_url TEXT, display_resources TEXT, caption TEXT, tagged_users TEXT, shortcode TEXT, timestamp INTEGER, likes TEXT, comments TEXT, thumbnails TEXT, sidecar TEXT)')
+        self.cursor.execute('CREATE TABLE IF NOT EXISTS Media (id INTEGER UNIQUE, owner INTEGER, media_type TEXT, is_video INTEGER, display_url TEXT, display_resources TEXT, caption TEXT, tagged_users TEXT, shortcode TEXT, timestamp INTEGER, likes TEXT, comments TEXT, thumbnails TEXT, sidecar TEXT)')
 
         # Faves :
         #   media_id INTEGER,
@@ -57,6 +57,21 @@ class Database:
         #   filename TEXT,
         #   date_added INTEGER
         self.cursor.execute('CREATE TABLE IF NOT EXISTS Faves (media_id INTEGER, user_id INTEGER, filename TEXT, date_added INTEGER)')
+
+        # Lists :
+        #   id INTEGER,
+        #   shortname TEXT,
+        #   longname TEXT,
+        #   description TEXT,
+        #   last_updated INTEGER
+        #   date_added INTEGER
+        self.cursor.execute('CREATE TABLE IF NOT EXISTS Lists (id INTEGER PRIMARY KEY, shortname TEXT UNIQUE, longname TEXT, description TEXT, last_updated INTEGER, date_added INTEGER)')
+
+        # AccountToList :
+        #   list_id INTEGER,
+        #   account_id INTEGER,
+        #   date_added INTEGER
+        self.cursor.execute('CREATE TABLE IF NOT EXISTS AccountToList (list_id INTEGER, account_id INTEGER, date_added INTEGER)')
 
 
         # TODO

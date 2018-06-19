@@ -1,0 +1,28 @@
+{% extends 'base.html' %}
+{% import 'macros/pagination.html' as pagination_macro %}
+
+{% block header %}
+  <h1 class="title"><span class="is-size-3" role="img" aria-label="List">🔖</span>&nbsp;{% block title %}{{ the_list.longname }}{% endblock %}</h1>
+
+  <p>{{ the_list.description }}</p>
+
+{% endblock %}
+
+{% block content %}
+  <div class="tabs">
+    <ul>
+      <li class="is-active"><a href="{{ url_for('list_feed', shortname = the_list.shortname) }}">Feed</a></li>
+      <li><a href="{{ url_for('list_accounts', shortname = the_list.shortname) }}">Accounts</a></li>
+    </ul>
+  </div>
+
+  {% for post in posts %}
+    {% include 'partials/full_card.html' %}
+  {% endfor %}
+  {{ pagination_macro.render_pagination(pagination) }}
+
+  {% if posts == [] %}
+      There’s nothing to display for now.
+  {% endif %}
+
+{% endblock %}

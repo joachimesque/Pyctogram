@@ -11,6 +11,7 @@ import json
 import datetime
 
 from user import User
+from lists import Lists
 from exporter import Exporter
 from pagination import Pagination
 
@@ -424,6 +425,284 @@ def profile(username, page):
                             posts=posts,
                             pagination=pagination,
                             display_as_feed=display_as_feed)
+
+@app.route("/@<username>/lists")
+def profile_lists(username):
+    e = Exporter()
+    l = Lists()
+
+    #gets
+    user_id = e.get_user_id_from_username(username)
+    profile = e.get_user_profile(user_id)
+
+    the_lists_tup = l.get_lists_info_for_user(user_id)
+
+    #sets
+    author = {}
+
+    author['id'] = user_id
+    author['username'] = username
+    author['full_name'] = profile[2]
+    author['biography'] = profile[3]
+    author['profile_pic_url'] = profile[4]
+    author['profile_pic_url_hd'] = profile[5]
+    author['external_url'] = profile[6]
+    author['external_url_linkshimmed'] = profile[7]
+    author['followed_by'] = profile[8]
+    author['follow'] = profile[9]
+    author['last_updated'] = datetime.datetime.fromtimestamp(profile[10])
+    author['is_private'] = bool(profile[11])
+    # author['is_deleted'] = bool(profile[12])
+
+
+    lists = []
+    for single_list in the_lists_tup:
+        single_dict = {}
+        keys = ('id','shortname','longname','description','last_updated','date_added','count')
+        for k, s in zip(keys, single_list):
+            single_dict[k] = s
+        lists.append(single_dict)
+
+
+
+    e.close()
+    l.close()
+
+
+    return render_template('profile/lists.html',
+                            author=author,
+                            lists=lists)
+
+
+
+
+
+
+@app.route("/list/<shortname>", defaults={'page': 1})
+@app.route("/list/<shortname>/page/<int:page>")
+def list_feed(shortname, page):
+    e = Exporter()
+    u = User()
+    l = Lists()
+
+    list_id = l.get_list_id_from_shortname(shortname)
+
+    # gets
+    count = l.get_list_feed_count(list_id)
+
+    # instances
+    pagination = Pagination(page, config.elements_per_page, count)
+
+    if page > pagination.pages:
+      page = pagination.pages
+
+    feed = l.get_list_feed(list_id, page)
+
+    # sets
+    posts = []
+
+    for media in feed:
+
+        # gets
+        owner_profile = e.get_user_profile(media[1])
+        saved_status = u.get_saved_status(media[0], 0)
+
+        # sets
+        likes = json.loads(media[10])['count']
+        comments = json.loads(media[11])['count']
+
+        post = {}
+
+        post['is_saved'] = saved_status
+
+        post['media_id'] = media[0]
+        post['owner'] = media[1]
+        post['media_type'] = media[2]
+        post['display_url'] = media[4]
+        post['caption'] = media[6]
+        post['tagged_users'] = media[7]
+        post['shortcode'] = media[8]
+        post['timestamp'] = datetime.datetime.fromtimestamp(media[9])
+        post['likes'] = likes
+        post['comments'] = comments
+        
+        if post['media_type'] == 'GraphSidecar':
+            post['sidecar'] = json.loads(media[13])
+        else:
+            post['sidecar'] = []
+
+
+        post['owner_id'] = owner_profile[0]
+        post['owner_username'] = owner_profile[1]
+        post['owner_full_name'] = owner_profile[2]
+        post['owner_profile_pic_url'] = owner_profile[4]
+
+        post['origin'] = 'feed:' + str(page)
+
+        posts.append(post)
+
+    the_list_tup = l.get_list_info(list_id)
+    the_list = {}
+    keys = ('id','shortname','longname','description','last_updated','date_added','count')
+    for k, s in zip(keys, the_list_tup):
+        the_list[k] = s
+
+    print(str(the_list), file=sys.stderr)
+
+
+    l.close()
+    u.close()
+    e.close()
+    return render_template('lists/feed.html',
+                                the_list = the_list,
+                                posts=posts,
+                                pagination=pagination)
+
+
+
+@app.route("/list/create")
+def list_create():
+    return("Page to create a list")
+
+@app.route("/list/<shortname>/accounts")
+def list_accounts(shortname):
+    l = Lists()
+
+    list_id = l.get_list_id_from_shortname(shortname)
+
+
+    the_accounts_tup = l.get_list_accounts_info(list_id)
+
+    the_accounts = []
+    for account in the_accounts_tup:
+        single_dict = {}
+        keys = ('id',
+                'username',
+                'full_name',
+                'biography',
+                'profile_pic_url',
+                'profile_pic_url_hd',
+                'external_url',
+                'external_url_linkshimmed',
+                'followed_by',
+                'follow',
+                'last_updated',
+                'is_private',
+                'is_deleted')
+        for k, a in zip(keys, account):
+            single_dict[k] = a
+        the_accounts.append(single_dict)
+
+    the_list_tup = l.get_list_info(list_id)
+    the_list = {}
+    keys = ('id','shortname','longname','description','last_updated','date_added','count')
+    for k, t in zip(keys, the_list_tup):
+        the_list[k] = t
+
+#print(str(the_list), file=sys.stderr)
+
+    l.close()
+    return render_template('lists/accounts.html',
+                                the_list = the_list,
+                                accounts = the_accounts)
+
+
+
+
+@app.route("/list/<shortname>/edit")
+def list_edit(shortname):
+    return("Edits a list : %s" % shortname)
+
+@app.route("/list/<shortname>/add")
+def list_add(shortname):
+    return("Add user to a list : %s" % shortname)
+
+@app.route("/list/<shortname>/add/<username>")
+def list_add_user(shortname, username):
+    e = Exporter()
+    l = Lists()
+
+    user_id = e.get_user_id_from_username(username)
+    list_id = l.get_list_id_from_shortname(shortname)
+
+    if l.check_if_account_in_list(list_id, user_id) is False:
+        l.add_account_to_list(list_id, user_id)
+
+    e.close()
+    l.close()
+
+    return redirect(url_for('list_feed', shortname = shortname))
+
+@app.route("/list/add/<username>")
+def list_choices_for_user(username):
+    l = Lists()
+
+    all_lists = l.get_all_lists_info()
+
+    lists = []
+    for single_list in all_lists:
+        single_dict = {}
+        keys = ('id','shortname','longname','description','last_updated','date_added','count')
+        for k, s in zip(keys, single_list):
+            single_dict[k] = s
+        lists.append(single_dict)
+
+    l.close()
+
+    return render_template('lists/choices.html',
+                                lists = lists,
+                                username = username)
+
+
+@app.route("/list/<shortname>/remove/<username>")
+def list_remove_user(shortname, username):
+    e = Exporter()
+    l = Lists()
+
+    user_id = e.get_user_id_from_username(username)
+    list_id = l.get_list_id_from_shortname(shortname)
+
+    l.remove_account_from_list(list_id, user_id)
+
+    e.close()
+    l.close()
+
+    return redirect(url_for('list_accounts', shortname = shortname))
+
+@app.route("/list/<shortname>/delete")
+def list_delete(shortname):
+    l = Lists()
+
+    list_id = l.get_list_id_from_shortname(shortname)
+
+    l.delete_list(list_id)
+
+    l.close()
+
+    return redirect(url_for('list_lists'))
+
+
+
+@app.route("/lists")
+def list_lists():
+    l = Lists()
+
+    all_lists = l.get_all_lists_info()
+
+    lists = []
+    for single_list in all_lists:
+        single_dict = {}
+        keys = ('id','shortname','longname','description','last_updated','date_added','count')
+        for k, s in zip(keys, single_list):
+            single_dict[k] = s
+        lists.append(single_dict)
+
+    l.close()
+
+    return render_template('lists/index.html', lists = lists)
+
+
+
 
 def get_redirection(origin, media_shortcode, display_as_feed = False):
     if origin[0] == '@':

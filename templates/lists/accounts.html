@@ -1,0 +1,42 @@
+{% extends 'base.html' %}
+
+{% block header %}
+  <h1 class="title"><span class="is-size-3" role="img" aria-label="List">🔖</span>&nbsp;{% block title %}{{ the_list.longname }}{% endblock %}</h1>
+
+  <p>{{ the_list.description }}</p>
+{% endblock %}
+
+{% block content %}
+
+  <div class="tabs">
+    <ul>
+      <li><a href="{{ url_for('list_feed', shortname = the_list.shortname) }}">Feed</a></li>
+      <li class="is-active"><a href="{{ url_for('list_accounts', shortname = the_list.shortname) }}">Accounts</a></li>
+    </ul>
+  </div>
+
+  <ul>
+  {% for account in accounts %}
+    <li class="level">
+      <span class="level-left">
+      <a href="{{ url_for('profile', username = account.username) }}">
+        <strong>{{ account.full_name }}</strong>
+        <small>@{{ account.username }}</small>
+      </a>
+      </span>
+      <span class="level-right">
+        <a href="{{ url_for('list_remove_user', shortname = the_list.shortname, username = account.username) }}" class="button is-small is-danger is-outlined">Remove from list</a>
+      </span>
+  </li>
+
+
+  {% endfor %}
+  </ul>
+  <hr>
+  <p>
+    <a href="{{ url_for('list_add', shortname = the_list.shortname) }}">
+      <strong><span class="is-size-7" role="img" aria-label="Plus">➕</span>
+            Add new accounts to list</strong>
+    </a>
+  </p>
+{% endblock %}
