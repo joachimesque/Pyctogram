@@ -25,10 +25,15 @@
   {% for account in accounts %}
     <li class="level">
       <span class="level-left">
-      <a href="{{ url_for('profile', username = account.username) }}">
-        <strong>{{ account.full_name }}</strong>
-        <small>@{{ account.username }}</small>
-      </a>
+        <a href="{{ url_for('profile', username = account.username) }}">
+          <figure class="profile-picture image is-48x48">
+              <img src="{{ account.profile_pic_url }}" alt="{{ account.full_name }}"> 
+          </figure>
+        </a> &nbsp;&nbsp;
+        <a href="{{ url_for('profile', username = account.username) }}" class="is-black">
+          <strong>{{ account.full_name }}</strong><br>
+          <small>@{{ account.username }}</small>
+        </a>
       </span>
       <span class="level-right">
         <a href="{{ url_for('list_remove_user', shortname = the_list.shortname, username = account.username) }}" class="button is-small is-danger is-outlined">Remove from list</a>

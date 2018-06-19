@@ -13,10 +13,10 @@ body > section {
   flex: 1 0 auto;
 }
 
-.card .card-content a, .card a .title, .card a .subtitle {
+.card .card-content a, .card a .title, .card a .subtitle, a.is-black {
   color: #000;
 }
-.card .card-content a:hover, .card a:hover .title, .card a:hover .subtitle {
+.card .card-content a:hover, .card a:hover .title, .card a:hover .subtitle, a.is-black:hover {
   color: #3273dc;
 }
 
