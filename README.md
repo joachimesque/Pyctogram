@@ -53,9 +53,10 @@ You can run the app in Debug mode by launching it that way:
 - ~~🖖 Some JS to help with the navigation (*j*, *k*, *l*, like on Flickr)~~
 - ~~🌊 DRY the templates~~
 - 🚚 Easy Install, esp. on web hosts
-- 📄 Lists ! Like Twitter lists, with the possibility to call for a scrape for a specific list
+- ~~📄 Lists ! Like Twitter lists,~~ with the possibility to call for a scrape for a specific list
 - 📔 Albums
 - 📲 Webapp-ify (keep the app on a server, but allow the webapp to download the saved pictures on the phone, to keep a feed of saved photos offline)
+- 🛡 “Hide from feed” if you want a contact to appear in lists, but not in your main feed
 
 ## 📃 Copyrights and License
 
