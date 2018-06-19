@@ -704,17 +704,20 @@ def list_remove_user(shortname, username):
 
     return redirect(url_for('list_accounts', shortname = shortname))
 
-@app.route("/list/<shortname>/delete")
+@app.route("/list/<shortname>/delete", methods = ["GET", "POST"])
 def list_delete(shortname):
-    l = Lists()
+    if request.method == 'POST':
+        if request.form['submit'] == 'submit':
+            l = Lists()
+            list_id = l.get_list_id_from_shortname(shortname)
+            l.delete_list(list_id)
+            l.close()
 
-    list_id = l.get_list_id_from_shortname(shortname)
+            return redirect(url_for('list_lists'))
 
-    l.delete_list(list_id)
+    return render_template('lists/confirm.html', shortname = shortname)
 
-    l.close()
 
-    return redirect(url_for('list_lists'))
 @app.route("/lists")
 def list_lists():
     lists = get_lists()

@@ -1,0 +1,29 @@
+{% extends 'base.html' %}
+
+{% block header %}
+  <h1 class="title"><span class="is-size-3" role="img" aria-label="Your lists">🔖</span>&nbsp;{% block title %}You are about to delete a list{% endblock %}</h1>
+
+  <p>Are you sure?</p>
+
+{% endblock %}
+
+{% block content %}
+
+<form action="{{ url_for('list_delete', shortname = shortname) }}" method="post">
+  <div class="field is-horizontal">
+    <div class="field-label">
+      <!-- Left empty for spacing -->
+    </div>
+    <div class="field-body">
+      <div class="field">
+        <div class="control">
+          <button class="button is-info" type="submit" name="submit" value="submit">
+            Yes, I want to delete this list.
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</form>
+
+{% endblock %}
