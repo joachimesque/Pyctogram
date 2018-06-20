@@ -960,11 +960,11 @@ def hide_account(username):
     destination = request.args['from']
 
     if(destination == 'profile'):
-        return redirect(url_for('profile', username = username))
+        return redirect(url_for('profile', username = username).replace('%40', '@'))
     if(destination == 'profile_feed'):
-        return redirect(url_for('profile', username = username, display = 'feed'))
+        return redirect(url_for('profile', username = username, display = 'feed').replace('%40', '@'))
     if(destination == 'profile_lists'):
-        return redirect(url_for('profile_lists', username = username))
+        return redirect(url_for('profile_lists', username = username).replace('%40', '@'))
 
     return redirect(url_for('index'))
 
@@ -984,11 +984,11 @@ def show_account(username):
     destination = request.args['from']
 
     if(destination == 'profile'):
-        return redirect(url_for('profile', username = username))
+        return redirect(url_for('profile', username = username).replace('%40', '@'))
     if(destination == 'profile_feed'):
-        return redirect(url_for('profile', username = username, display = 'feed'))
+        return redirect(url_for('profile', username = username, display = 'feed')).replace('%40', '@')
     if(destination == 'profile_lists'):
-        return redirect(url_for('profile_lists', username = username))
+        return redirect(url_for('profile_lists', username = username).replace('%40', '@'))
 
     return redirect(url_for('list_hidden_accounts'))
 
@@ -1053,9 +1053,9 @@ def get_redirection(origin, media_shortcode, display_as_feed = False):
         username = origin[1:colonindex]
         page = origin[colonindex+1:]
         if display_as_feed == True:
-            return url_for('profile', page = page, username = username, display = 'feed')
+            return url_for('profile', page = page, username = username, display = 'feed').replace('%40', '@')
         else:
-            return url_for('profile', page = page, username = username)
+            return url_for('profile', page = page, username = username).replace('%40', '@')
     elif origin[0:4] == 'feed':
         colonindex = origin.find(':')
         page = origin[colonindex+1:]

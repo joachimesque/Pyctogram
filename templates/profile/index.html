@@ -48,9 +48,9 @@
 
   <div class="tabs">
     <ul>
-      <li class="{% if display_as_feed == False %}is-active{% endif %}"><a href="{{ url_for('profile', username = author.username) }}">Grid</a></li>
-      <li class="{% if display_as_feed == True %}is-active{% endif %}"><a href="{{ url_for('profile', username = author.username, display = 'feed') }}">Feed</a></li>
-      <li><a href="{{ url_for('profile_lists', username = author.username) }}">Lists</a></li>
+      <li class="{% if display_as_feed == False %}is-active{% endif %}"><a href="{{ url_for('profile', username = author.username) | replace('%40', '@') }}">Grid</a></li>
+      <li class="{% if display_as_feed == True %}is-active{% endif %}"><a href="{{ url_for('profile', username = author.username, display = 'feed') | replace('%40', '@') }}">Feed</a></li>
+      <li><a href="{{ url_for('profile_lists', username = author.username) | replace('%40', '@') }}">Lists</a></li>
     </ul>
   </div>
 
