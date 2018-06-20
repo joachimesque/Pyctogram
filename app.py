@@ -22,6 +22,7 @@ from flask import render_template
 from flask import redirect
 from flask import request
 from flask import url_for
+from flask import abort
 from flask import flash
 
 from werkzeug.utils import secure_filename
@@ -32,6 +33,11 @@ ALLOWED_EXTENSIONS = set(['txt', 'json'])
 app = Flask(__name__)
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 app.secret_key = 'THIS_SHOULD_BE_CHANGED'
+
+@app.errorhandler(404)
+def page_not_found(e):
+    # note that we set the 404 status explicitly
+    return render_template('404.html'), 404
 
 @app.route("/", defaults={'page': 1})
 @app.route("/page/<int:page>")
@@ -198,6 +204,10 @@ def media(media_shortcode):
     
     # gets
     media = e.get_media_from_shortcode(media_shortcode)
+
+    if not media:
+        abort(404)
+
     owner_profile = e.get_user_profile(media[1])
 
     saved_status = u.get_saved_status(media[0], 0)
@@ -260,12 +270,14 @@ def save(media_shortcode):
     if request.args.get('display') == 'feed':
         display_as_feed = True
 
-
     # Main user is 0
     user_id = 0
 
     # gets
     media = e.get_media_from_shortcode(media_shortcode)
+
+    if not media:
+        abort(404)
 
     # Create the filename and download the image
     owner_username = e.get_username_from_user_id(media[1])
@@ -314,10 +326,12 @@ def forget(media_shortcode):
     media_id = e.get_media_id_from_shortcode(media_shortcode)
     e.close()
 
+    if not media_id:
+        abort(404)
+
     # Main user is 0
     user_id = 0
 
-    
     u = User()
     if u.get_saved_status(media_id, user_id) is True:
       fileaddr = './static/images/' + str(user_id) + '/'
@@ -329,7 +343,6 @@ def forget(media_shortcode):
       if os.path.isfile(target):
         os.remove(target)
     u.close()
-
 
     redirection = get_redirection(origin, media_shortcode, display_as_feed)
 
@@ -343,14 +356,15 @@ def profile(username, page):
     e = Exporter()
     u = User()
 
-
     display_as_feed = False
     if request.args.get('display') == 'feed':
         display_as_feed = True
 
-
     # gets
     user_id = e.get_user_id_from_username(username)
+    
+    if not user_id:
+        abort(404)
 
     profile = e.get_user_profile(user_id)
     count = e.get_user_feed_count(user_id)
@@ -435,6 +449,10 @@ def profile_lists(username):
 
     #gets
     user_id = e.get_user_id_from_username(username)
+
+    if not user_id:
+        abort(404)
+
     profile = e.get_user_profile(user_id)
 
     the_lists_tup = l.get_lists_info_for_user(user_id)
@@ -476,10 +494,6 @@ def profile_lists(username):
                             lists=lists)
 
 
-
-
-
-
 @app.route("/list/<shortname>", defaults={'page': 1})
 @app.route("/list/<shortname>/page/<int:page>")
 def list_feed(shortname, page):
@@ -488,6 +502,9 @@ def list_feed(shortname, page):
     l = Lists()
 
     list_id = l.get_list_id_from_shortname(shortname)
+
+    if not list_id:
+        abort(404)
 
     # gets
     count = l.get_list_feed_count(list_id)
@@ -591,6 +608,9 @@ def list_edit(shortname):
 
     list_id = l.get_list_id_from_shortname(shortname)
 
+    if not list_id:
+        abort(404)
+
     if request.method == 'POST':
         returned_list, errors = forms.check_list_form(request_form = request.form)
 
@@ -625,6 +645,8 @@ def list_accounts(shortname):
 
     list_id = l.get_list_id_from_shortname(shortname)
 
+    if not list_id:
+        abort(404)
 
     the_accounts_tup = l.get_list_accounts_info(list_id)
 
@@ -667,6 +689,12 @@ def list_add(shortname):
     l = Lists()
     e = Exporter()
 
+    # Get list ID in case it’s not right
+    list_id = l.get_list_id_from_shortname(shortname)
+
+    if not list_id:
+        abort(404)
+
     # Get the accounts
     the_accounts_tup = e.get_all_accounts_info()
 
@@ -693,7 +721,6 @@ def list_add(shortname):
         the_accounts.append(single_dict)
 
     # Get List Info
-    list_id = l.get_list_id_from_shortname(shortname)
     the_list_tup = l.get_list_info(list_id)
     the_list = {}
     keys = ('id','shortname','longname','description','last_updated','date_added','count')
@@ -716,6 +743,11 @@ def list_add_user(shortname, username):
 
     user_id = e.get_user_id_from_username(username)
     list_id = l.get_list_id_from_shortname(shortname)
+
+    if not user_id:
+        abort(404)
+    if not list_id:
+        abort(404)
 
     if l.check_if_account_in_list(list_id, user_id) is False:
         l.add_account_to_list(list_id, user_id)
@@ -754,6 +786,11 @@ def list_remove_user(shortname, username):
     user_id = e.get_user_id_from_username(username)
     list_id = l.get_list_id_from_shortname(shortname)
 
+    if not user_id:
+        abort(404)
+    if not list_id:
+        abort(404)
+
     l.remove_account_from_list(list_id, user_id)
 
     e.close()
@@ -767,6 +804,10 @@ def list_delete(shortname):
         if request.form['submit'] == 'submit':
             l = Lists()
             list_id = l.get_list_id_from_shortname(shortname)
+
+            if not list_id:
+                abort(404)
+
             l.delete_list(list_id)
             l.close()
 
@@ -952,6 +993,9 @@ def hide_account(username):
     
     user_id = e.get_user_id_from_username(username)
 
+    if not user_id:
+        abort(404)
+
     u.hide_account_from_feed(user_id = 0, account_id = user_id)
 
     u.close()
@@ -975,6 +1019,9 @@ def show_account(username):
     e = Exporter()
     
     user_id = e.get_user_id_from_username(username)
+
+    if not user_id:
+        abort(404)
 
     u.show_account_on_feed(user_id = 0, account_id = user_id)
 
@@ -1026,6 +1073,11 @@ def check_if_account_in_list(list_shortname, username):
 
     list_id = l.get_list_id_from_shortname(list_shortname)
     user_id = e.get_user_id_from_username(username)
+
+    if not user_id:
+        abort(404)
+    if not user_id:
+        abort(404)
 
     result = l.check_if_account_in_list(list_id, user_id)
 
