@@ -17,27 +17,40 @@ class Exporter:
     def close(self):
         self.db.stop_db()
 
-    def get_feed(self, page = 1):
+    def get_feed(self, page = 1, user = 0):
         """
-        Returns the feed.
+        Returns the feed for a user, not counting hidden elements
+        Note : by default, user is 0, because we don't have any user management system yet. Not sure we'll go this route.
         """
         offset = (page - 1) * config.elements_per_page
 
-        try:
-            self.db.cursor.execute("SELECT * FROM Media ORDER BY timestamp DESC LIMIT ? OFFSET ?", (config.elements_per_page, offset,))
-            return(self.db.cursor.fetchall())
-        except:
-            exit("Error: Getting the feed has failed.")
+#SELECT * FROM HiddenFromFeed WHERE ( user_id = ? AND account_id = ? )", (user_id, account_id)
+#       
+        query = """SELECT * FROM Media
+            WHERE NOT EXISTS (SELECT * FROM HiddenFromFeed
+                                WHERE ( HiddenFromFeed.user_id = ? AND HiddenFromFeed.account_id = Media.owner ))
+            ORDER BY timestamp DESC LIMIT ? OFFSET ?"""
 
-    def get_feed_count(self):
+        # try:
+        self.db.cursor.execute(query, (user, config.elements_per_page, offset,))
+        return(self.db.cursor.fetchall())
+        # except:
+            # exit("Error: Getting the feed has failed.")
+
+    def get_feed_count(self, user = 0):
         """
-        Returns the feed count.
+        Returns the feed count for a user, not counting hidden elements
         """
-        try:
-            self.db.cursor.execute("SELECT count(*) FROM Media")
-            return(self.db.cursor.fetchone()[0])
-        except:
-            exit("Error: Getting the feed details has failed.")
+
+        query = """SELECT count(*) FROM Media
+            WHERE NOT EXISTS (SELECT * FROM HiddenFromFeed
+                                WHERE ( HiddenFromFeed.user_id = ? AND HiddenFromFeed.account_id = Media.owner ))"""
+
+        # try:
+        self.db.cursor.execute(query, (user,))
+        return(self.db.cursor.fetchone()[0])
+        # except:
+            # exit("Error: Getting the feed details has failed.")
 
     def get_memory_feed(self, memory_list, page = 1):
         """

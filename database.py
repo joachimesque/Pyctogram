@@ -74,6 +74,12 @@ class Database:
         self.cursor.execute('CREATE TABLE IF NOT EXISTS AccountToList (list_id INTEGER, account_id INTEGER, date_added INTEGER)')
 
 
+        # HiddenFromFeed :
+        #   user_id INTEGER,
+        #   account_id INTEGER,
+        self.cursor.execute('CREATE TABLE IF NOT EXISTS HiddenFromFeed (user_id INTEGER, account_id INTEGER)')
+
+
         # TODO
         # USERS :
         #   id INTEGER,

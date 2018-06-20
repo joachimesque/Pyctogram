@@ -11,13 +11,20 @@
           &nbsp;
           <p>
             <a href="{{ url_for('profile', username = post['owner_username']) | replace('%40', '@') }}">
-              <span class="title is-5">{{ post['owner_full_name'] }}</span>
+              <span class="title is-5">{{ post['owner_full_name'] }}</span><br>
               <span class="subtitle is-6">@{{ post['owner_username'] }}</span>
             </a>
           </p>
         </div>
         <div class="card-header-icon">
+          {% if request.url_rule.endpoint == 'index' %}
+          <span class="has-text-right">
+            <a title="Hide account from feed 🙈" class="button is-small is-outlined is-info" href="{{ url_for('hide_account', username = post.owner_username, from = 'feed') }}">Hide account 🙈</a><br>
+            <a title="Add to list 🔖" class="button is-small is-outlined is-info" href="{{ url_for('list_choices_for_user', username = post.owner_username) }}">Add account to list 🔖</a>
+          </span>
+          {% else %}
           <a class="button is-small is-outlined is-info" href="{{ url_for('list_choices_for_user', username = post.owner_username) }}">Add to list 🔖</a>
+          {% endif %}
         </div>
       </header>
 

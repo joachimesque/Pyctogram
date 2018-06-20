@@ -916,6 +916,97 @@ def import_success():
     return render_template('import/success.html', import_count = import_count)
 
 
+
+@app.route("/feed/hidden-accounts")
+def list_hidden_accounts():
+#TODO
+    u = User()
+
+    # Get the accounts
+    the_accounts_tup = u.get_hidden_account_list(user_id = 0)
+
+    # Set Accounts list
+    the_accounts = []
+    for account in the_accounts_tup:
+        single_dict = {}
+        keys = ('id',
+                'username',
+                'full_name',
+                'biography',
+                'profile_pic_url',
+                'profile_pic_url_hd',
+                'external_url',
+                'external_url_linkshimmed',
+                'followed_by',
+                'follow',
+                'last_updated',
+                'is_private',
+                'is_deleted')
+        for k, a in zip(keys, account):
+            single_dict[k] = a
+
+        the_accounts.append(single_dict)
+
+    u.close()
+
+
+    return render_template('feed/hidden.html', accounts = the_accounts)
+
+
+@app.route("/feed/hide/<username>")
+def hide_account(username):
+    u = User()
+    e = Exporter()
+    
+    user_id = e.get_user_id_from_username(username)
+
+    u.hide_account_from_feed(user_id = 0, account_id = user_id)
+
+    u.close()
+    e.close()
+
+    destination = request.args['from']
+
+    if(destination == 'profile'):
+        return redirect(url_for('profile', username = username))
+    if(destination == 'profile_feed'):
+        return redirect(url_for('profile', username = username, display = 'feed'))
+    if(destination == 'profile_lists'):
+        return redirect(url_for('profile_lists', username = username))
+
+    return redirect(url_for('index'))
+
+
+@app.route("/feed/unhide/<username>")
+def show_account(username):
+    u = User()
+    e = Exporter()
+    
+    user_id = e.get_user_id_from_username(username)
+
+    u.show_account_on_feed(user_id = 0, account_id = user_id)
+
+    u.close()
+    e.close()
+
+    destination = request.args['from']
+
+    if(destination == 'profile'):
+        return redirect(url_for('profile', username = username))
+    if(destination == 'profile_feed'):
+        return redirect(url_for('profile', username = username, display = 'feed'))
+    if(destination == 'profile_lists'):
+        return redirect(url_for('profile_lists', username = username))
+
+    return redirect(url_for('list_hidden_accounts'))
+
+
+
+
+
+
+
+
 # FUNCTIONS
 
 def get_lists():
@@ -951,6 +1042,17 @@ def check_if_account_in_list(list_shortname, username):
 
     return result
 app.jinja_env.globals['account_is_in_list'] = check_if_account_in_list
+
+
+def check_if_account_is_hidden(account_id):
+    u = User()
+
+    result = u.get_hidden_status(user_id = 0, account_id = account_id)
+
+    u.close()
+
+    return result
+app.jinja_env.globals['account_is_hidden'] = check_if_account_is_hidden
 
 
 def get_redirection(origin, media_shortcode, display_as_feed = False):

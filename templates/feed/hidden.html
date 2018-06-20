@@ -1,0 +1,39 @@
+{% extends 'base.html' %}
+
+{% block header %}
+  <div class="level">
+    <h1 class="title is-marginless level-left">
+      <span class="is-size-3" role="img" aria-label="List">🙈</span>&nbsp;
+      {% block title %}Hidden accounts{% endblock %}
+    </h1>
+  </div>
+
+  <p>These accounts are hidden on your Feed, but they can appear in lists, they are not deleted from Pyctogram.</p>
+{% endblock %}
+
+{% block content %}
+
+  <ul>
+  {% for account in accounts %}
+    <li class="level">
+      <span class="level-left">
+        <a href="{{ url_for('profile', username = account.username) }}">
+          <figure class="profile-picture image is-48x48">
+              <img src="{{ account.profile_pic_url }}" alt="{{ account.full_name }}"> 
+          </figure>
+        </a> &nbsp;&nbsp;
+        <a href="{{ url_for('profile', username = account.username) }}" class="is-black">
+          <strong>{{ account.full_name }}</strong><br>
+          <small>@{{ account.username }}</small>
+        </a>
+      </span>
+      <span class="level-right buttons">
+        <a href="{{ url_for('list_choices_for_user', username = account.username) }}" class="button is-small is-info is-outlined">Add to list 🔖</a>
+        <a href="{{ url_for('show_account', username = account.username, from = 'unhide') }}" class="button is-small is-info is-outlined">Unhide 🐵</a>
+      </span>
+  </li>
+
+
+  {% endfor %}
+  </ul>
+{% endblock %}
