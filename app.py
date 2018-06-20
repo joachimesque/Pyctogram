@@ -119,15 +119,7 @@ def memory(page):
     user_id = 0
 
     # gets
-    user_memory_raw = tuple(u.remember(user_id))
-
-    user_memory = ()
-
-    for x in user_memory_raw:
-      user_memory += x
-
-    # return(str(user_memory))
-    count = len(user_memory)
+    count = u.remember_count(user_id)
 
     # instances
     pagination = Pagination(page, config.elements_per_page, count)
@@ -135,7 +127,7 @@ def memory(page):
     if page > pagination.pages:
       page = pagination.pages
 
-    feed = e.get_memory_feed(user_memory, page)
+    feed = u.remember_feed(user_id, page)
 
     # sets
     posts = []
