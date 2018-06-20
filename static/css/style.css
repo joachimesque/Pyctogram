@@ -48,6 +48,9 @@ body.template-profile .card .card-header {
 .profile-picture img {
   border-radius: 50%;
 }
+.profile-picture.image.is-centered {
+    margin: 0 auto;
+}
 
 .card.full-card .card-image img {
   object-fit: contain;
@@ -77,3 +80,11 @@ nav.pagination {
     border: 1px solid #ff3860;
     color: #ff3860;
 }
+
+.title.level-left {
+    flex-shrink: 1;
+    align-items: flex-start;
+}
+
+.user-list-grid li .user-info { min-height: 9rem; }
+.user-list-grid li .user-actions { margin-bottom: 3rem; }

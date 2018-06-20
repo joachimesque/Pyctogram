@@ -15,8 +15,7 @@ from lists import Lists
 from importer import Importer
 from exporter import Exporter
 from pagination import Pagination
-
-from slugify import slugify
+import forms
 
 from flask import Flask
 from flask import render_template
@@ -573,20 +572,14 @@ def list_feed(shortname, page):
 def list_create():
     if request.method == 'POST':
 
-        if request.form['list_name'] == '':
-            flash('Please fill in the list name before clicking the button.')
+        new_list, errors = forms.check_list_form(request_form = request.form)
 
-            return render_template('lists/create.html', errors = 'The list name must not be empty.')
+        if errors != {}:
+            for error in errors.values():
+                flash(str(error))
+            return render_template('lists/create.html', errors = errors)
 
-        new_list = {}
-        new_list['shortname'] = slugify(request.form['list_name'], max_length=42, word_boundary=True, save_order=True)
-        new_list['longname'] = request.form['list_name']
-        new_list['description'] = request.form['list_description']
-        
-        if new_list['shortname'] in ['create','add']:
-            flash('🤔 Ha-ha.')
-
-            return render_template('lists/create.html', errors = 'Please don’t use forbidden names.')
+        #return str(new_list)
 
         l = Lists()
 
@@ -595,8 +588,43 @@ def list_create():
         l.close()
 
         return redirect(url_for('list_accounts', shortname = new_list['shortname']))
+
     else:
         return render_template('lists/create.html')
+
+
+@app.route("/list/<shortname>/edit", methods=['POST', 'GET'])
+def list_edit(shortname):
+    l = Lists()
+
+    list_id = l.get_list_id_from_shortname(shortname)
+
+    if request.method == 'POST':
+        returned_list, errors = forms.check_list_form(request_form = request.form)
+
+        if errors != {}:
+            for error in errors.values():
+                flash(str(error))
+            return render_template('lists/edit.html', errors = errors)
+
+        l = Lists()
+
+        l.modify_list(list_id, returned_list) 
+
+        l.close()
+
+        return redirect(url_for('list_accounts', shortname = returned_list['shortname']))
+
+    else:
+
+        the_list_tup = l.get_list_info(list_id)
+        the_list = {}
+        keys = ('id','shortname','longname','description','last_updated','date_added','count')
+        for k, s in zip(keys, the_list_tup):
+            the_list[k] = s
+
+        return render_template('lists/edit.html', list = the_list)
+
 
 
 @app.route("/list/<shortname>/accounts")
@@ -642,15 +670,52 @@ def list_accounts(shortname):
                                 accounts = the_accounts)
 
 
-
-
-@app.route("/list/<shortname>/edit")
-def list_edit(shortname):
-    return("Edits a list : %s" % shortname)
-
 @app.route("/list/<shortname>/add")
 def list_add(shortname):
-    return("Add user to a list : %s" % shortname)
+    l = Lists()
+    e = Exporter()
+
+    # Get the accounts
+    the_accounts_tup = e.get_all_accounts_info()
+
+    # Set Accounts list
+    the_accounts = []
+    for account in the_accounts_tup:
+        single_dict = {}
+        keys = ('id',
+                'username',
+                'full_name',
+                'biography',
+                'profile_pic_url',
+                'profile_pic_url_hd',
+                'external_url',
+                'external_url_linkshimmed',
+                'followed_by',
+                'follow',
+                'last_updated',
+                'is_private',
+                'is_deleted')
+        for k, a in zip(keys, account):
+            single_dict[k] = a
+        single_dict['is_in_list'] = check_if_account_in_list(list_shortname = shortname, username = single_dict['username'])
+        the_accounts.append(single_dict)
+
+    # Get List Info
+    list_id = l.get_list_id_from_shortname(shortname)
+    the_list_tup = l.get_list_info(list_id)
+    the_list = {}
+    keys = ('id','shortname','longname','description','last_updated','date_added','count')
+    for k, t in zip(keys, the_list_tup):
+        the_list[k] = t
+
+    # Close the DB
+    e.close()
+    l.close()
+
+    return render_template('lists/add_users.html',
+                                the_list = the_list,
+                                accounts = the_accounts)
+
 
 @app.route("/list/<shortname>/add/<username>")
 def list_add_user(shortname, username):

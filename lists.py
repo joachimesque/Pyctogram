@@ -240,8 +240,28 @@ class Lists:
                     0,
                     time.time() )
         
-        #try:
-        self.db.cursor.execute("INSERT INTO Lists (shortname, longname, description, last_updated, date_added) VALUES (?, ?, ?, ?, ?)", values)
+        try:
+            self.db.cursor.execute("INSERT INTO Lists (shortname, longname, description, last_updated, date_added) VALUES (?, ?, ?, ?, ?)", values)
+            self.db.commit()
+            return True
+        except:
+            exit("Error: Adding %s into the database failed." % list_info["shortname"])
+
+    def modify_list(self, list_id, list_info):
+        # Lists :
+        #   id INTEGER,
+        #   shortname TEXT,
+        #   longname TEXT,
+        #   description TEXT,
+        #   last_updated INTEGER
+        #   date_added INTEGER
+
+        values = (  list_info["shortname"],
+                    list_info["longname"],
+                    list_info["description"])
+        
+        # try:
+        self.db.cursor.execute("UPDATE Lists SET shortname = ?, longname = ?, description = ? WHERE id = ?", values + (list_id,))
         self.db.commit()
         return True
         # except:

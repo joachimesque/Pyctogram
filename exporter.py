@@ -167,3 +167,14 @@ class Exporter:
         except:
             exit("Error: Getting the media for %s has failed." % media_shortcode)
 
+
+    def get_all_accounts_info(self):
+        '''
+        Return a tuple of tuples, containing user info for all the users in a list
+        '''
+        try:
+            query = "SELECT * FROM Accounts"
+            self.db.cursor.execute(query)
+            return(self.db.cursor.fetchall())
+        except:
+            exit("Error: Getting the accounts has failed.")

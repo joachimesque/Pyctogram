@@ -3,7 +3,7 @@
 {% block header %}
   <h1 class="title"><span class="is-size-3" role="img" aria-label="Your lists">🔖</span>&nbsp;{% block title %}Create a list{% endblock %}</h1>
 
-  <p>Any character can go in the name, a description is not required.</p>
+  <p>Any character can go in the name with a limit of 100 characters, a description is not required (but it’s limited to 500 characters).</p>
 
 {% endblock %}
 
@@ -17,11 +17,11 @@
     <div class="field-body">
       <div class="field">
         <p class="control is-expanded">
-          <input id="list_name" name="list_name" class="input{% if errors is defined %} is-danger{% endif %}" type="text" placeholder="Name your list here.">
+          <input id="list_name" name="list_name" class="input{% if errors is defined and errors.longname is defined %} is-danger{% endif %}" type="text" placeholder="Name your list here.">
         </p>
-        {% if errors is defined %}
+        {% if errors is defined and errors.longname is defined %}
         <p class="help is-danger">
-          {{ errors }}
+          {{ errors.longname }}
         </p>
         {% endif %}
       </div>
@@ -35,8 +35,14 @@
     <div class="field-body">
       <div class="field">
         <p class="control is-expanded">
-          <textarea id="list_description" name="list_description" class="textarea" placeholder="You can describe your list here."></textarea>
+          <textarea id="list_description" name="list_description" class="textarea{% if errors is defined and errors.description is defined %} is-danger{% endif %}" placeholder="You can describe your list here."></textarea>
         </p>
+        {% if errors is defined and errors.description is defined %}
+        <p class="help is-danger">
+          {{ errors.description }}
+        </p>
+        {% endif %}
+
       </div>
     </div>
   </div>
