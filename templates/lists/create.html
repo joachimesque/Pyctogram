@@ -9,7 +9,7 @@
 
 {% block content %}
 
-<form action="{{ url_for('list_create') }}" method="post">
+<form action="{{ url_for('list_create', account_name = account_name) }}" method="post">
   <div class="field is-horizontal">
     <div class="field-label is-normal">
       <label for="list_name" class="label">List name</label>

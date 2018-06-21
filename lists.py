@@ -35,9 +35,56 @@ class Lists:
         self.db.cursor.execute("SELECT * FROM Lists WHERE id = ?", (list_id,))
         the_list = self.db.cursor.fetchone()
 
-        self.db.cursor.execute("SELECT count(*) FROM AccountToList WHERE list_id = ?", (the_list[0],))
+        self.db.cursor.execute("SELECT count(*) FROM AccountToList WHERE list_id = ?", (list_id,))
 
         return(the_list + (self.db.cursor.fetchone()[0],))
+
+    def get_all_lists_info(self, user_id):
+        """
+        Returns a tuple of tuples as:
+            id INTEGER,
+            shortname TEXT,
+            longname TEXT,
+            description TEXT,
+            last_updated INTEGER,
+            date_added INTEGER,
+            count INTEGER
+        count is the number of accounts present in the list
+        """
+        self.db.cursor.execute("SELECT * FROM Lists WHERE user_id = ? AND is_hidden = 0", (user_id,))
+        all_lists = self.db.cursor.fetchall()
+
+        # This will add the count to the `list` objects
+        final_list = ()
+        for single_list in all_lists:
+            self.db.cursor.execute("SELECT count(*) FROM AccountToList WHERE list_id = ?", (single_list[0],))
+            final_list += (single_list + (self.db.cursor.fetchone()[0],),)
+
+        return(final_list)
+
+
+    def get_lists_info_for_account(self, account_id):
+        """
+        Returns a tuple containing all the lists in which there is a specific account
+        Returns a tuple of `list` objects
+        count is the number of accounts present in the list
+        """
+        query = """SELECT * FROM Lists
+                WHERE ( is_hidden = 0 )
+                AND EXISTS (SELECT * FROM AccountToList
+                                WHERE ( AccountToList.account_id = ? ))"""
+
+        self.db.cursor.execute(query, (account_id,))
+        all_lists = self.db.cursor.fetchall()
+
+        # This will add the count to the `list` objects
+        final_list = ()
+        for single_list in all_lists:
+            self.db.cursor.execute("SELECT count(*) FROM AccountToList WHERE list_id = ?", (single_list[0],))
+            final_list += (single_list + (self.db.cursor.fetchone()[0],),)
+
+        return(final_list)
+
 
 
     def get_list_accounts_info(self, list_id):
@@ -98,52 +145,6 @@ class Lists:
         except:
             print("Error: Getting the ID for %s has failed." % shortname, file=sys.stderr)
 
-
-    def get_all_lists_info(self, user_id):
-        """
-        Returns a tuple of tuples as:
-            id INTEGER,
-            shortname TEXT,
-            longname TEXT,
-            description TEXT,
-            last_updated INTEGER,
-            date_added INTEGER,
-            count INTEGER
-        count is the number of accounts present in the list
-        """
-        self.db.cursor.execute("SELECT * FROM Lists WHERE user_id = ? AND is_hidden = 0", (user_id,))
-        all_lists = self.db.cursor.fetchall()
-
-        # This will add the count to the `list` objects
-        final_list = ()
-        for single_list in all_lists:
-            self.db.cursor.execute("SELECT count(*) FROM AccountToList WHERE list_id = ?", (single_list[0],))
-            final_list += (single_list + (self.db.cursor.fetchone()[0],),)
-
-        return(final_list)
-
-
-    def get_lists_info_for_account(self, account_id):
-        """
-        Returns a tuple containing all the lists in which there is a specific account
-        Returns a tuple of `list` objects
-        count is the number of accounts present in the list
-        """
-        query = """SELECT * FROM Lists
-                WHERE ( is_hidden = 0 )
-                AND EXISTS (SELECT * FROM AccountToList
-                                WHERE ( AccountToList.account_id = ? ))"""
-
-        self.db.cursor.execute(query, (account_id,))
-        all_lists = self.db.cursor.fetchall()
-
-        # This will add the count to the `list` objects
-        final_list = ()
-        for single_list in all_lists:
-            self.db.cursor.execute("SELECT count(*) FROM AccountToList WHERE list_id = ?", (single_list[0],))
-            final_list += (single_list + (self.db.cursor.fetchone()[0],),)
-
-        return(final_list)
 
 
     # MANIPULATE LISTS

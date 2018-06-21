@@ -7,21 +7,26 @@
 {% endblock %}
 
 {% block content %}
-  <ul>
-  {% for list in lists %}
-    <li class="level">
-      <span class="level-left">
-        <strong class="is-size-5">{{ list.longname }}</strong>&nbsp;&nbsp;
-        <small>({{ list.count }} accounts followed)</small>
-      </span>
-      <span class="level-right">
-        {% if account_is_in_list(list.shortname, account_name) %}
-        <a class="button is-small is-static">Already in this list</a>
-        {% else %}
-        <a href="{{ url_for('list_add_user', shortname = list.shortname, account_name = account_name) }}" class="button is-info is-outlined">Select this list</a>
-        {% endif %}
-      </span>
-    </li>
-  {% endfor %}
-  </ul>
+ {% if not lists %}
+    <p class="is-size-4">Oops, you don’t have lists yet. Would you like to create one? {{ account_name }} will be added automatically.</p>
+    <p><a class="button is-info" href="{{ url_for('list_create', account_name = account_name) }}">Yes, I would like to create a new list</a></p>
+ {% else %}
+     <ul>
+    {% for list in lists %}
+      <li class="level">
+        <span class="level-left">
+          <strong class="is-size-5">{{ list.longname }}</strong>&nbsp;&nbsp;
+          <small>({{ list.count }} accounts followed)</small>
+        </span>
+        <span class="level-right">
+          {% if account_is_in_list(list.shortname, account_name) %}
+          <a class="button is-small is-static">Already in this list</a>
+          {% else %}
+          <a href="{{ url_for('list_add_user', shortname = list.shortname, account_name = account_name) }}" class="button is-info is-outlined">Select this list</a>
+          {% endif %}
+        </span>
+      </li>
+    {% endfor %}
+    </ul>
+  {% endif %}
 {% endblock %}

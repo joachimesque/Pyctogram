@@ -319,7 +319,7 @@ def save(media_shortcode):
     e.close()
     u.close()
 
-    redirection = get_redirection(origin, media_shortcode, display_as_feed)
+    redirection = get_memory_redirection(origin, media_shortcode, display_as_feed)
 
     return redirect(redirection)
 
@@ -354,7 +354,7 @@ def forget(media_shortcode):
         os.remove(target)
     u.close()
 
-    redirection = get_redirection(origin, media_shortcode, display_as_feed)
+    redirection = get_memory_redirection(origin, media_shortcode, display_as_feed)
 
     return redirect(redirection)
 
@@ -484,13 +484,7 @@ def profile_lists(account_name):
     author['is_private'] = bool(profile[11])
     # author['is_deleted'] = bool(profile[12])
 
-    lists = []
-    for single_list in the_lists_tup:
-        single_dict = {}
-        keys = ('id','shortname','longname','description','last_updated','date_added','count')
-        for k, s in zip(keys, single_list):
-            single_dict[k] = s
-        lists.append(single_dict)
+    lists = get_lists()
 
     e.close()
     l.close()
@@ -567,13 +561,7 @@ def list_feed(shortname, page):
 
         posts.append(post)
 
-    the_list_tup = l.get_list_info(list_id)
-    the_list = {}
-    keys = ('id','shortname','longname','description','last_updated','date_added','count')
-    for k, s in zip(keys, the_list_tup):
-        the_list[k] = s
-
-    #print(str(the_list), file=sys.stderr)
+    the_list = get_list(list_id)
 
     l.close()
     u.close()
@@ -584,8 +572,9 @@ def list_feed(shortname, page):
                                 pagination=pagination)
 
 
-@app.route("/list/create", methods=['POST', 'GET'])
-def list_create():
+@app.route("/list/create", methods=['POST', 'GET'], defaults = {'account_name' : ''})
+@app.route("/list/create/autoadd/<account_name>", methods=['POST', 'GET'])
+def list_create(account_name):
     if request.method == 'POST':
 
         new_list, errors = forms.check_list_form(request_form = request.form)
@@ -593,7 +582,7 @@ def list_create():
         if errors != {}:
             for error in errors.values():
                 flash(str(error))
-            return render_template('lists/create.html', errors = errors)
+            return redirect(url_for('list_create', shortname = new_list['shortname'], account_name = account_name))
 
         #return str(new_list)
 
@@ -604,10 +593,13 @@ def list_create():
 
         l.close()
 
-        return redirect(url_for('list_accounts', shortname = new_list['shortname']))
+        if account_name != '':
+            return redirect(url_for('list_add_user', shortname = new_list['shortname'], account_name = account_name))
+        else:
+            return redirect(url_for('list_accounts', shortname = new_list['shortname']))
 
     else:
-        return render_template('lists/create.html')
+        return render_template('lists/create.html', account_name = account_name)
 
 
 @app.route("/list/<shortname>/edit", methods=['POST', 'GET'])
@@ -638,11 +630,7 @@ def list_edit(shortname):
 
     else:
 
-        the_list_tup = l.get_list_info(list_id)
-        the_list = {}
-        keys = ('id','shortname','longname','description','last_updated','date_added','count')
-        for k, s in zip(keys, the_list_tup):
-            the_list[k] = s
+        the_list = get_list(list_id)
 
         return render_template('lists/edit.html', list = the_list)
 
@@ -680,13 +668,7 @@ def list_accounts(shortname):
             single_dict[k] = a
         the_accounts.append(single_dict)
 
-    the_list_tup = l.get_list_info(list_id)
-    the_list = {}
-    keys = ('id','shortname','longname','description','last_updated','date_added','count')
-    for k, t in zip(keys, the_list_tup):
-        the_list[k] = t
-
-#print(str(the_list), file=sys.stderr)
+    the_list = get_list(list_id)
 
     l.close()
     return render_template('lists/accounts.html',
@@ -702,11 +684,8 @@ def list_add(shortname):
     user_id = DEFAULT_USER_ID
     list_id = l.get_list_id_from_shortname(shortname, user_id)
 
-    # if not list_id:
-    #     abort(404)
-    #     
-    #     
-
+    if not list_id:
+        abort(404)
 
     # Get the accounts for that user
     the_accounts_tup = e.get_all_accounts_info(user_id)
@@ -735,12 +714,7 @@ def list_add(shortname):
         the_accounts.append(single_dict)
 
 
-    # Get List Info
-    the_list_tup = l.get_list_info(list_id)
-    the_list = {}
-    keys = ('id','shortname','longname','description','last_updated','date_added','count')
-    for k, t in zip(keys, the_list_tup):
-        the_list[k] = t
+    the_list = get_list(list_id)
 
     # Close the DB
     e.close()
@@ -749,6 +723,7 @@ def list_add(shortname):
     return render_template('lists/add_users.html',
                                 the_list = the_list,
                                 accounts = the_accounts)
+
 
 
 @app.route("/list/<shortname>/add/<account_name>")
@@ -772,6 +747,7 @@ def list_add_user(shortname, account_name):
     l.close()
 
     return redirect(url_for('list_feed', shortname = shortname))
+
 
 @app.route("/list/add/<account_name>")
 def list_choices_for_user(account_name):
@@ -803,6 +779,7 @@ def list_remove_user(shortname, account_name):
 
     return redirect(url_for('list_accounts', shortname = shortname))
 
+
 @app.route("/list/<shortname>/delete", methods = ["GET", "POST"])
 def list_delete(shortname):
     if request.method == 'POST':
@@ -829,6 +806,9 @@ def list_lists():
     lists = get_lists()
 
     return render_template('lists/index.html', lists = lists)
+
+
+
 
 
 
@@ -957,6 +937,10 @@ def import_success():
 
 
 
+
+
+
+
 @app.route("/feed/hidden-accounts")
 def list_hidden_accounts():
 #TODO
@@ -1056,11 +1040,24 @@ def show_account(account_name):
 
 
 
-
-
-
-
 # FUNCTIONS
+
+def get_list(list_id):
+    l = Lists()
+
+    user_id = DEFAULT_USER_ID
+
+    the_list_tup = l.get_list_info(list_id)
+    the_list = {}
+    keys = ('id','shortname','longname','description','last_updated','date_added','user_id','is_hidden','count')
+
+    for k, s in zip(keys, the_list_tup):
+        the_list[k] = s
+
+    l.close()
+
+    return the_list
+app.jinja_env.globals['get_list'] = get_list
 
 def get_lists():
     l = Lists()
@@ -1071,7 +1068,7 @@ def get_lists():
     lists = []
     for single_list in all_lists:
         single_dict = {}
-        keys = ('id','shortname','longname','description','last_updated','date_added','user_id','count')
+        keys = ('id','shortname','longname','description','last_updated','date_added','user_id','is_hidden','count')
         for k, s in zip(keys, single_list):
             single_dict[k] = s
         lists.append(single_dict)
@@ -1117,7 +1114,7 @@ def check_if_account_is_hidden(account_id):
 app.jinja_env.globals['account_is_hidden'] = check_if_account_is_hidden
 
 
-def get_redirection(origin, media_shortcode, display_as_feed = False):
+def get_memory_redirection(origin, media_shortcode, display_as_feed = False):
     if origin[0] == '@':
         colonindex = origin.find(':')
         account_name = origin[1:colonindex]
