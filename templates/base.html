@@ -170,16 +170,6 @@
             mySwipe[index].prev();
           };
 
-          // Handle keypress
-          var handleKeypress = function (event) {
-            if ( event.keyCode == 37 ) {
-              mySwipe[index].prev();
-            }
-            if ( event.keyCode == 39) {
-              mySwipe[index].next();
-            }
-          };
-
 
           var checkActiveButtons = function(i,e) {
               btnNext.classList.remove('hidden')
@@ -217,7 +207,6 @@
           }
 
           // Toggle Left & Right Keypress
-          window.addEventListener('keydown', handleKeypress, false);
 
         });
       }
@@ -227,25 +216,50 @@
       'use strict';
 
       // Feature Test
-      if ( 'querySelector' in document && 'addEventListener' in window ) {
+      if ( 'querySelector' in document && 'addEventListener' in window && Array.prototype.forEach ) {
 
         // SELECTORS
         var cards = document.querySelectorAll('article.full-card');
         
         // FUNCTIONS
+        function isAnyPartOfElementInViewport(el) {
+
+            // Percentage of the card height at which it gets detected
+            var threshold = .66;
+
+            const rect = el.getBoundingClientRect();
+            // DOMRect { x: 8, y: 8, width: 100, height: 100, top: 8, right: 108, bottom: 108, left: 8 }
+            const windowHeight = (window.innerHeight || document.documentElement.clientHeight);
+
+            const vertInView = (rect.top <= windowHeight) && ((rect.top + rect.height * threshold) >= 0);
+
+            return (vertInView);
+        }
+
+        function getCurrentlyViewedCard(){
+            var cards = document.querySelectorAll('article.full-card');
+            var activeCards = []
+            Array.prototype.forEach.call(cards, function (card, index) {
+              if(isAnyPartOfElementInViewport(card)) {
+                activeCards.push(card);
+              }
+            })
+            return activeCards[0];
+        }
+
         function jkNavNext() {
           if(window.location.hash != '') {
             var activeCard = document.querySelector(window.location.hash);
             var nextCard = activeCard.nextElementSibling;
             if (nextCard.nodeName == 'NAV') {
-              var destination = document.querySelector('nav.pagination a.is-current').parentElement.nextElementSibling.firstChild;
+              var destination = document.querySelector('nav.pagination .pagination-next');
               destination = destination.href;
               window.location = destination;
             } else {
               window.location.hash = nextCard.id;
             }
           } else {
-            window.location.hash = cards[0].id;
+            window.location.hash = getCurrentlyViewedCard().id;
           }
         }
 
@@ -261,7 +275,12 @@
               window.location.hash = prevCard.id;
             }
           } else {
-            window.location.hash = cards[cards.length - 1].id;
+            var dest = getCurrentlyViewedCard();
+            if(dest == cards[0]) {
+              window.location.hash = cards[cards.length - 1].id;
+            } else {
+              window.location.hash = dest.id;
+            }
           }
         }
 
@@ -272,7 +291,6 @@
             saveButton.click();
           }
         }
-
 
         // Handle keypress
         var handleKeypress = function (event) {
@@ -285,6 +303,13 @@
           if ( event.keyCode == 76 ) { /* l */
             jkSave();
           }
+          if ( event.keyCode == 37 ) { /* left arrow */
+            getCurrentlyViewedCard().querySelector('[data-slider-nav-prev]').click();
+          }
+          if ( event.keyCode == 39) { /* right arrow */
+            getCurrentlyViewedCard().querySelector('[data-slider-nav-next]').click();
+          }
+
         };
 
         // Toggle Left & Right Keypress
