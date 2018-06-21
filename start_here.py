@@ -3,11 +3,16 @@ import os
 import json
 import config
 from importer import Importer
+from lists import Lists
 
 import argparse
 
+DEFAULT_USER_ID = 0
+DEFAULT_LIST_INFO = {'shortname': '_feed',
+                     'longname': 'Feed',
+                     'description': 'Default Feed List'}
 
-def get_user_list_from_textfile(text_file):
+def get_account_list_from_textfile(text_file):
     # This function gets the list of accounts to check
     # from config.account_list_file
     # Returns an object with all the accounts
@@ -20,7 +25,7 @@ def get_user_list_from_textfile(text_file):
         exit('Error: Account list file (%s) was not found' % text_file)
 
 
-def get_user_list_from_insta_export(instagram_export_path):
+def get_account_list_from_insta_export(instagram_export_path):
     # This function first asks which file to take
     # then parses it
     # Returns an object with all the accounts
@@ -35,7 +40,7 @@ def get_user_list_from_insta_export(instagram_export_path):
             x = f.read().splitlines()
     except:
         print('The Instagram export file (\033[1m%s\033[0m) was not found.' % file_path)
-        print('It could look like /Users/your_name/Downloads/your_instagram/%s' % file_path)
+        print('It could look like /accounts/your_name/Downloads/your_instagram/%s' % file_path)
         print('Please enter the path at which we can access your Instagram export file.')
         path = input('--> ')
         try:
@@ -49,40 +54,53 @@ def get_user_list_from_insta_export(instagram_export_path):
 
 
 
-def import_user_list(from_text_file = None, from_list = None, from_instagram = None):
+def import_account_list(from_text_file = None, from_list = None, from_instagram = None):
     importer = Importer()
     importer.init_db()
+    lists = Lists()
 
     if from_text_file is not None:
-      user_list = get_user_list_from_textfile(from_text_file)
+      account_list = get_account_list_from_textfile(from_text_file)
     elif from_list is not None:
-      user_list = from_list
+      account_list = from_list
     else:
-      user_list = get_user_list_from_insta_export(from_instagram)
+      account_list = get_account_list_from_insta_export(from_instagram)
 
-    print("\033[1mImporting users:\033[0m")
+    print("\033[1mImporting accounts:\033[0m")
 
-    user_count = 0
+    account_count = 0
 
-    for user in user_list:
-        if importer.user_exists(user) is False:
-            user_data = importer.get_user_data(user)
+    if account_list != []:
+        lists.create_new_list(list_info = DEFAULT_LIST_INFO, user_id = DEFAULT_USER_ID, is_hidden = 1)
+        _feed_list = lists.get_list_id_from_shortname(shortname = DEFAULT_LIST_INFO['shortname'], user_id = DEFAULT_USER_ID)
 
-            if user_data is None:
-                print('Warning: user %s has returned no data. You should check if an account still exists by that name.' % user)
+    for account in account_list:
+        if importer.account_exists(account) is False:
+            account_data = importer.get_account_data(account)
+
+            if account_data is None:
+                print('Warning: account %s has returned no data. You should check if an account still exists by that name.' % account)
 
             else:
-                importer.add_new_user(user_data)
-                user_count += 1
+                importer.add_new_account(account_data = account_data)
+                importer.link_account_to_user(user_id = DEFAULT_USER_ID, account_id = account_data["id"])
+                lists.add_account_to_list(list_id = _feed_list, account_id = account_data["id"])
 
-    if user_count > 1:
-        print("\033[1m%s\033[0m new users were added" % user_count)
-    elif user_count > 0:
-        print("\033[1mOne\033[0m new user was added")
+                if account_data['is_private'] is False and account_data['edge_owner_to_timeline_media']['count'] > 0:
+                    media_added = importer.add_data_to_db(account_data)
+                    if media_added > 0:
+                        print("%d new media added for account %s" % (media_added, account_data['username']))
+
+                account_count += 1
+
+    if account_count > 1:
+        print("\033[1m%s\033[0m new accounts were added" % account_count)
+    elif account_count > 0:
+        print("\033[1mOne\033[0m new account was added")
     else:
-        print("No new users were added")
+        print("No new accounts were added")
 
-    importer.import_media(from_users=user_list)
+    # importer.import_media(from_accounts=account_list)
     importer.close()
 
 
@@ -94,7 +112,7 @@ def file_exists(string):
 
 
 if __name__ == '__main__':
-    parser = argparse.ArgumentParser(description='Start up your Pyctogram installation by adding some users.', prog='Pyctogram')
+    parser = argparse.ArgumentParser(description='Start up your Pyctogram installation by adding some accounts.', prog='Pyctogram')
     parser.add_argument('-i','--from_instagram',help='''Import from the `connections.json` export file from Instagram.
       Please supply a valid path to the file.''', type=file_exists)
     parser.add_argument('-t','--from_text_file',help='''Import from a text file containing one username per line.
@@ -105,16 +123,16 @@ if __name__ == '__main__':
 
     if args.from_instagram:
         print("Importing from source: %s" % args.from_instagram)
-        import_user_list(from_instagram=args.from_instagram)
+        import_account_list(from_instagram = args.from_instagram)
 
     if args.from_text_file:
         print("Importing from source: %s" % args.from_text_file)
-        import_user_list(from_text_file=args.from_text_file)
+        import_account_list(from_text_file = args.from_text_file)
 
     if args.from_list:
         print("Importing from list: %s" % args.from_list)
         list_value = args.from_list.split(',')
-        import_user_list(from_list=list_value)
+        import_account_list(from_list = list_value)
 
     if not any(vars(args).values()):
-        import_user_list()
+        import_account_list()

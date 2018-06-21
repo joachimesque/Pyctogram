@@ -2,28 +2,28 @@
 
       <header class="card-header">
         <div class="is-flex card-header-title">
-          <a href="{{ url_for('profile', username = post['owner_username']) | replace('%40', '@') }}">
+          <a href="{{ url_for('profile', account_name = post['owner_account_name']) | replace('%40', '@') }}">
             <figure class="profile-picture image is-64x64">
-              <img src="{{ post['owner_profile_pic_url'] }}" alt="{{ post['owner_username'] }}">
+              <img src="{{ post['owner_profile_pic_url'] }}" alt="{{ post['owner_account_name'] }}">
             </figure>
           </a>
           &nbsp;
           &nbsp;
           <p>
-            <a href="{{ url_for('profile', username = post['owner_username']) | replace('%40', '@') }}">
+            <a href="{{ url_for('profile', account_name = post['owner_account_name']) | replace('%40', '@') }}">
               <span class="title is-5">{{ post['owner_full_name'] }}</span><br>
-              <span class="subtitle is-6">@{{ post['owner_username'] }}</span>
+              <span class="subtitle is-6">@{{ post['owner_account_name'] }}</span>
             </a>
           </p>
         </div>
         <div class="card-header-icon">
           {% if request.url_rule.endpoint == 'index' %}
           <span class="has-text-right">
-            <a title="Hide account from feed 🙈" class="button is-small is-outlined is-info" href="{{ url_for('hide_account', username = post.owner_username, from = 'feed') }}">Hide account 🙈</a><br>
-            <a title="Add to list 🔖" class="button is-small is-outlined is-info" href="{{ url_for('list_choices_for_user', username = post.owner_username) }}">Add account to list 🔖</a>
+            <a title="Hide account from feed 🙈" class="button is-small is-outlined is-info" href="{{ url_for('hide_account', account_name = post.owner_account_name, from = 'feed') }}">Hide account 🙈</a><br>
+            <a title="Add to list 🔖" class="button is-small is-outlined is-info" href="{{ url_for('list_choices_for_user', account_name = post.owner_account_name) }}">Add account to list 🔖</a>
           </span>
           {% else %}
-          <a class="button is-small is-outlined is-info" href="{{ url_for('list_choices_for_user', username = post.owner_username) }}">Add to list 🔖</a>
+          <a class="button is-small is-outlined is-info" href="{{ url_for('list_choices_for_user', account_name = post.owner_account_name) }}">Add to list 🔖</a>
           {% endif %}
         </div>
       </header>

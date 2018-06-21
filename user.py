@@ -78,7 +78,7 @@ class User:
 
     def remember_feed(self, user_id, page):
         """
-        Returns the feed from Memory.
+        Returns the Memory feed.
         """
         offset = (page - 1) * config.elements_per_page
 
@@ -94,48 +94,56 @@ class User:
             print("Error: Getting the feed has failed.", file=sys.stderr)
 
 
-    def hide_account_from_feed(self, user_id, account_id):
-        """
-        Hides an account from the feed
-        """
-        try:
-          self.db.cursor.execute("INSERT INTO HiddenFromFeed VALUES (?,?)", (user_id, account_id))
-          return(True)
-        except:
-            print("Error: Account not hidden.", file=sys.stderr)
-
-
-    def show_account_on_feed(self, user_id, account_id):
-        """
-        De-hide an account from the feed
-        """
-        try:
-            self.db.cursor.execute("DELETE FROM HiddenFromFeed WHERE ( user_id = ? AND account_id = ? )", (user_id, account_id))
-            return(True)
-        except:
-            print("Error: Hidden account not de-hidden.", file=sys.stderr)
-
-
-    def get_hidden_account_list(self, user_id):
+    def get_hidden_account_list(self, list_shortname, user_id):
         """
         Lists all accounts hidden from the feed
+        It means :
+            Lists all accounts
+                - That belong to 'user_id' (from AccountToUser)
+                - That do not belong to one list… (from AccountToList)
+                        - …that is named 'list_shortname' and belongs to 'user_id'
+
+        This is a monstruosity of a request. The hardest yet.
+
+        In effect, a reverse `Lists.get_list_accounts_info()`
         Returns a list containing all accounts
         """
-        query = ('''SELECT * FROM Accounts
-            WHERE EXISTS (SELECT * FROM HiddenFromFeed
-                                WHERE ( HiddenFromFeed.user_id = ? AND HiddenFromFeed.account_id = Accounts.id ))''')
+
+        query = """SELECT * FROM Accounts
+                   WHERE (EXISTS (SELECT account_id FROM AccountToUser
+                                 WHERE AccountToUser.user_id = ? AND AccountToUser.account_id = Accounts.id)
+                          AND NOT EXISTS (SELECT account_id FROM AccountToList
+                                       WHERE AccountToList.account_id = Accounts.id
+                                       AND EXISTS (SELECT id FROM Lists
+                                                   WHERE (shortname = ? AND user_id = ? AND AccountToList.list_id = Lists.id))))"""
+
         try:
-            self.db.cursor.execute(query, (user_id,))
-            return(self.db.cursor)
+            self.db.cursor.execute(query, (user_id, list_shortname, user_id,))
+            return(self.db.cursor.fetchall())
         except:
-            print("Error: We could not fetch the list of hidden accounts.", file=sys.stderr)
+            print("Error: Getting the accounts has failed.", file=sys.stderr)
 
 
-    def get_hidden_status(self, user_id, account_id):
+    def get_hidden_status(self, list_shortname, user_id, account_id):
         """
-        Checks if account is hidden
+        Checks if account is hidden :
+            - Gets the number of accounts,
+                - That have account_id as id and belong to the user_id
+                - That do not belong to one list…
+                        - … that is named 'list_shortname' and belongs to 'user_id'
+        That one is monstruous-er than the previous one.
         """
-        self.db.cursor.execute("SELECT count(*) FROM HiddenFromFeed WHERE ( user_id = ? AND account_id = ? )", (user_id, account_id))
+
+        query = """SELECT count(*) FROM Accounts
+           WHERE id = ?
+           AND (EXISTS (SELECT account_id FROM AccountToUser
+                         WHERE AccountToUser.user_id = ? AND AccountToUser.account_id = Accounts.id)
+                  AND NOT EXISTS (SELECT account_id FROM AccountToList
+                               WHERE AccountToList.account_id = Accounts.id
+                               AND EXISTS (SELECT id FROM Lists
+                                           WHERE (shortname = ? AND user_id = ? AND AccountToList.list_id = Lists.id))))"""
+
+        self.db.cursor.execute(query, (account_id, user_id, list_shortname, user_id))
         data = self.db.cursor.fetchone()[0]
         if data == 0:
             # not hidden

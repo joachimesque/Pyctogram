@@ -1,7 +1,9 @@
 {% extends 'base.html' %}
 
+{% block title %}🔖 Select a list to add {{ account_name }}{% endblock %}</h1>
+
 {% block header %}
-  <h1 class="title"><span class="is-size-3" role="img" aria-label="Your lists">🔖</span>&nbsp;{% block title %}Select a list to add {{ username }}{% endblock %}</h1>
+  <h1 class="title"><span class="is-size-3" role="img" aria-label="Your lists">🔖</span>&nbsp;Select a list to add {{ account_name }}</h1>
 {% endblock %}
 
 {% block content %}
@@ -13,10 +15,10 @@
         <small>({{ list.count }} accounts followed)</small>
       </span>
       <span class="level-right">
-        {% if account_is_in_list(list.shortname, username) %}
+        {% if account_is_in_list(list.shortname, account_name) %}
         <a class="button is-small is-static">Already in this list</a>
         {% else %}
-        <a href="{{ url_for('list_add_user', shortname = list.shortname, username = username) }}" class="button is-info is-outlined">Select this list</a>
+        <a href="{{ url_for('list_add_user', shortname = list.shortname, account_name = account_name) }}" class="button is-info is-outlined">Select this list</a>
         {% endif %}
       </span>
     </li>

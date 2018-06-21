@@ -17,7 +17,7 @@ class Lists:
 
     def close(self):
         self.db.stop_db()
-        
+
 
     def get_list_info(self, list_id):
         """
@@ -42,7 +42,7 @@ class Lists:
 
     def get_list_accounts_info(self, list_id):
         """
-        Return a tuple of tuples, containing user info for all the users in a list
+        Return a tuple of tuples, containing account info for all the accounts in a list
         """
         query = """SELECT * FROM Accounts
             WHERE EXISTS (SELECT * FROM AccountToList
@@ -81,8 +81,6 @@ class Lists:
             WHERE EXISTS (SELECT * FROM AccountToList
                             WHERE (AccountToList.list_id = ? AND AccountToList.account_id = Media.owner))"""
 
-        print("Error: Getting the feed details has failed.", file=sys.stderr)
-        
         try:
             self.db.cursor.execute(query, (list_id,))
             return(self.db.cursor.fetchone()[0])
@@ -90,23 +88,18 @@ class Lists:
             print("Error: Getting the feed details has failed.", file=sys.stderr)
 
 
-    def get_list_id_from_shortname(self, shortname):
+    def get_list_id_from_shortname(self, shortname, user_id):
         """
-        Gets the list id (int) from the list shortname
+        Gets the list id (int) from the list shortname and the user_id
         """
         try:
-            shortname
-        except:
-            print("Error : shortname not supplied", file=sys.stderr)
-
-        try:
-            self.db.cursor.execute("SELECT * FROM Lists WHERE shortname = ?", (shortname,))
+            self.db.cursor.execute("SELECT * FROM Lists WHERE ( shortname = ? AND user_id = ?)", (shortname,user_id))
             return(self.db.cursor.fetchone()[0])
         except:
             print("Error: Getting the ID for %s has failed." % shortname, file=sys.stderr)
 
 
-    def get_all_lists_info(self):
+    def get_all_lists_info(self, user_id):
         """
         Returns a tuple of tuples as:
             id INTEGER,
@@ -118,7 +111,7 @@ class Lists:
             count INTEGER
         count is the number of accounts present in the list
         """
-        self.db.cursor.execute("SELECT * FROM Lists")
+        self.db.cursor.execute("SELECT * FROM Lists WHERE user_id = ? AND is_hidden = 0", (user_id,))
         all_lists = self.db.cursor.fetchall()
 
         # This will add the count to the `list` objects
@@ -127,18 +120,18 @@ class Lists:
             self.db.cursor.execute("SELECT count(*) FROM AccountToList WHERE list_id = ?", (single_list[0],))
             final_list += (single_list + (self.db.cursor.fetchone()[0],),)
 
-
         return(final_list)
 
 
-    def get_lists_info_for_user(self, account_id):
+    def get_lists_info_for_account(self, account_id):
         """
-        Returns a tuple containing all the lists for a given user
+        Returns a tuple containing all the lists in which there is a specific account
         Returns a tuple of `list` objects
         count is the number of accounts present in the list
         """
         query = """SELECT * FROM Lists
-                WHERE EXISTS (SELECT * FROM AccountToList
+                WHERE ( is_hidden = 0 )
+                AND EXISTS (SELECT * FROM AccountToList
                                 WHERE ( AccountToList.account_id = ? ))"""
 
         self.db.cursor.execute(query, (account_id,))
@@ -157,7 +150,7 @@ class Lists:
 
     def check_if_account_in_list(self, list_id, account_id):
         """
-        Checks if username exists, returns boolean
+        Checks if account exists in a list, returns boolean
         """
         
         self.db.cursor.execute("SELECT count(*) FROM AccountToList WHERE list_id = ? AND account_id = ?", (list_id, account_id,))
@@ -171,7 +164,23 @@ class Lists:
             # user exists
             return True
 
+
+    def check_if_list_name_unique_for_user(self, list_id, user_id):
+        """
+        Checks if list name exists, returns boolean
+        """
         
+        self.db.cursor.execute("SELECT count(*) FROM Lists WHERE list_id = ? AND user_id = ? AND is_hidden = 0", (list_id, user_id,))
+        data = self.db.cursor.fetchone()[0]
+        self.db.commit()
+
+        if data == 0:
+            # user does not exist
+            return False
+        else:
+            # user exists
+            return True
+
 
     def add_account_to_list(self, list_id, account_id):
         """
@@ -186,6 +195,7 @@ class Lists:
         except:
             print("Error: Adding %s into the database failed." % account_id, file=sys.stderr)
         
+
     def remove_account_from_list(self, list_id, account_id):
         """
         Removes one account from a list
@@ -215,7 +225,7 @@ class Lists:
             self.remove_account_from_list(list_id, account)
         
 
-    def create_new_list(self, list_info):
+    def create_new_list(self, list_info, user_id, is_hidden = 0):
         """
         Creates a new list
         """
@@ -223,12 +233,13 @@ class Lists:
                     list_info["longname"],
                     list_info["description"],
                     0,
-                    time.time() )
+                    time.time(),
+                    user_id,
+                    is_hidden )
         
         try:
-            self.db.cursor.execute("INSERT INTO Lists (shortname, longname, description, last_updated, date_added) VALUES (?, ?, ?, ?, ?)", values)
+            self.db.cursor.execute("INSERT INTO Lists (shortname, longname, description, last_updated, date_added, user_id, is_hidden) VALUES (?, ?, ?, ?, ?, ?, ?)", values)
             self.db.commit()
-            return True
         except:
             print("Error: Adding %s into the database failed." % list_info["shortname"], file=sys.stderr)
 

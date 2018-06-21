@@ -29,7 +29,7 @@ def check_list_form(request_form):
     returned_list['longname'] = request_form['list_name']
     returned_list['description'] = request_form['list_description']
     
-    if returned_list['shortname'] in ['create','add']:
+    if returned_list['shortname'] in ['create','add','_feed']:
         errors['longname'] = '🤔 Ha-ha. Please don’t use forbidden names.'
 
     return(returned_list, errors)

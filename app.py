@@ -30,6 +30,11 @@ UPLOAD_FOLDER = './temp/'
 ALLOWED_EXTENSIONS = set(['txt', 'json'])
 
 
+DEFAULT_USER_ID = 0
+DEFAULT_LIST_INFO = {'shortname': '_feed',
+                     'longname': 'Feed',
+                     'description': 'Default Feed List'}
+
 app = Flask(__name__)
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 app.secret_key = 'THIS_SHOULD_BE_CHANGED'
@@ -43,10 +48,15 @@ def page_not_found(e):
 @app.route("/page/<int:page>")
 def index(page):
     e = Exporter()
+    l = Lists()
     u = User()
 
+    shortname = DEFAULT_LIST_INFO['shortname']
+    user_id = DEFAULT_USER_ID
+    list_id = l.get_list_id_from_shortname(shortname, user_id)
+
     # gets
-    count = e.get_feed_count()
+    count = l.get_list_feed_count(list_id = list_id)
 
     # instances
     pagination = Pagination(page, config.elements_per_page, count)
@@ -54,7 +64,7 @@ def index(page):
     if page > pagination.pages:
       page = pagination.pages
 
-    feed = e.get_feed(page)
+    feed = l.get_list_feed(list_id = list_id, page = page)
 
     # sets
     posts = []
@@ -62,7 +72,7 @@ def index(page):
     for media in feed:
 
         # gets
-        owner_profile = e.get_user_profile(media[1])
+        owner_profile = e.get_account_profile(media[1])
         saved_status = u.get_saved_status(media[0], 0)
 
         # sets
@@ -94,7 +104,7 @@ def index(page):
 
 
         post['owner_id'] = owner_profile[0]
-        post['owner_username'] = owner_profile[1]
+        post['owner_account_name'] = owner_profile[1]
         post['owner_full_name'] = owner_profile[2]
         # post['owner_biography'] = owner_profile[3]
         post['owner_profile_pic_url'] = owner_profile[4]
@@ -122,7 +132,7 @@ def memory(page):
     u = User()
 
     # Main user is 0
-    user_id = 0
+    user_id = DEFAULT_USER_ID
 
     # gets
     count = u.remember_count(user_id)
@@ -141,7 +151,7 @@ def memory(page):
     for media in feed:
 
         # gets
-        owner_profile = e.get_user_profile(media[1])
+        owner_profile = e.get_account_profile(media[1])
         saved_status = u.get_saved_status(media[0], 0)
 
         # sets
@@ -150,9 +160,9 @@ def memory(page):
 
         post = {}
 
-        owner_username = e.get_username_from_user_id(media[1])
+        owner_account_name = e.get_account_name_from_account_id(media[1])
         date = datetime.datetime.fromtimestamp(media[9]).strftime('%Y-%m-%d_%H-%M')
-        post['filename'] = 'images/' + str(user_id) + '/' + date + '_' + media[8] + '_by-' + owner_username + '.jpg'
+        post['filename'] = 'images/' + str(user_id) + '/' + date + '_' + media[8] + '_by-' + owner_account_name + '.jpg'
         post['is_saved'] = saved_status
 
         post['media_id'] = media[0]
@@ -176,7 +186,7 @@ def memory(page):
 
 
         post['owner_id'] = owner_profile[0]
-        post['owner_username'] = owner_profile[1]
+        post['owner_account_name'] = owner_profile[1]
         post['owner_full_name'] = owner_profile[2]
         # post['owner_biography'] = owner_profile[3]
         post['owner_profile_pic_url'] = owner_profile[4]
@@ -208,7 +218,7 @@ def media(media_shortcode):
     if not media:
         abort(404)
 
-    owner_profile = e.get_user_profile(media[1])
+    owner_profile = e.get_account_profile(media[1])
 
     saved_status = u.get_saved_status(media[0], 0)
 
@@ -243,7 +253,7 @@ def media(media_shortcode):
 
 
     media_export['owner_id'] = owner_profile[0]
-    media_export['owner_username'] = owner_profile[1]
+    media_export['owner_account_name'] = owner_profile[1]
     media_export['owner_full_name'] = owner_profile[2]
     # media_export['owner_biography'] = owner_profile[3]
     media_export['owner_profile_pic_url'] = owner_profile[4]
@@ -271,7 +281,7 @@ def save(media_shortcode):
         display_as_feed = True
 
     # Main user is 0
-    user_id = 0
+    user_id = DEFAULT_USER_ID
 
     # gets
     media = e.get_media_from_shortcode(media_shortcode)
@@ -280,9 +290,9 @@ def save(media_shortcode):
         abort(404)
 
     # Create the filename and download the image
-    owner_username = e.get_username_from_user_id(media[1])
+    owner_account_name = e.get_account_name_from_account_id(media[1])
     date = datetime.datetime.fromtimestamp(media[9]).strftime('%Y-%m-%d_%H-%M')
-    filename = date + '_' + media_shortcode + '_by-' + owner_username + '.jpg'
+    filename = date + '_' + media_shortcode + '_by-' + owner_account_name + '.jpg'
     fileaddr = './static/images/' + str(user_id) + '/'
 
     media_url = media[4]
@@ -330,7 +340,7 @@ def forget(media_shortcode):
         abort(404)
 
     # Main user is 0
-    user_id = 0
+    user_id = DEFAULT_USER_ID
 
     u = User()
     if u.get_saved_status(media_id, user_id) is True:
@@ -350,9 +360,9 @@ def forget(media_shortcode):
 
 
 
-@app.route("/@<username>", defaults={'page': 1})
-@app.route("/@<username>/page/<int:page>")
-def profile(username, page):
+@app.route("/@<account_name>", defaults={'page': 1})
+@app.route("/@<account_name>/page/<int:page>")
+def profile(account_name, page):
     e = Exporter()
     u = User()
 
@@ -361,13 +371,13 @@ def profile(username, page):
         display_as_feed = True
 
     # gets
-    user_id = e.get_user_id_from_username(username)
+    account_id = e.get_account_id_from_account_name(account_name)
     
-    if not user_id:
+    if not account_id:
         abort(404)
 
-    profile = e.get_user_profile(user_id)
-    count = e.get_user_feed_count(user_id)
+    profile = e.get_account_profile(account_id)
+    count = e.get_account_feed_count(account_id)
 
     # instances
     pagination = Pagination(page, config.elements_per_page, count)
@@ -375,13 +385,13 @@ def profile(username, page):
     if page > pagination.pages:
       page = pagination.pages
 
-    feed = e.get_user_feed(user_id, page)
+    feed = e.get_account_feed(account_id, page)
 
     #sets
     author = {}
 
-    author['id'] = user_id
-    author['username'] = username
+    author['id'] = account_id
+    author['account_name'] = account_name
     author['full_name'] = profile[2]
     author['biography'] = profile[3]
     author['profile_pic_url'] = profile[4]
@@ -405,7 +415,7 @@ def profile(username, page):
 
         post = {}
 
-        post['owner_username'] = author['username']
+        post['owner_account_name'] = author['account_name']
         post['owner_profile_pic_url'] = author['profile_pic_url']
         post['owner_full_name'] = author['full_name']
 
@@ -430,7 +440,7 @@ def profile(username, page):
         else:
             post['sidecar'] = []
 
-        post['origin'] = '@' + username + ':' + str(page)
+        post['origin'] = '@' + account_name + ':' + str(page)
 
         posts.append(post)
 
@@ -442,26 +452,26 @@ def profile(username, page):
                             pagination=pagination,
                             display_as_feed=display_as_feed)
 
-@app.route("/@<username>/lists")
-def profile_lists(username):
+@app.route("/@<account_name>/lists")
+def profile_lists(account_name):
     e = Exporter()
     l = Lists()
 
     #gets
-    user_id = e.get_user_id_from_username(username)
+    account_id = e.get_account_id_from_account_name(account_name)
 
-    if not user_id:
+    if not account_id:
         abort(404)
 
-    profile = e.get_user_profile(user_id)
+    profile = e.get_account_profile(account_id)
 
-    the_lists_tup = l.get_lists_info_for_user(user_id)
+    the_lists_tup = l.get_lists_info_for_account(account_id)
 
     #sets
     author = {}
 
-    author['id'] = user_id
-    author['username'] = username
+    author['id'] = account_id
+    author['account_name'] = account_name
     author['full_name'] = profile[2]
     author['biography'] = profile[3]
     author['profile_pic_url'] = profile[4]
@@ -474,7 +484,6 @@ def profile_lists(username):
     author['is_private'] = bool(profile[11])
     # author['is_deleted'] = bool(profile[12])
 
-
     lists = []
     for single_list in the_lists_tup:
         single_dict = {}
@@ -483,11 +492,8 @@ def profile_lists(username):
             single_dict[k] = s
         lists.append(single_dict)
 
-
-
     e.close()
     l.close()
-
 
     return render_template('profile/lists.html',
                             author=author,
@@ -501,7 +507,8 @@ def list_feed(shortname, page):
     u = User()
     l = Lists()
 
-    list_id = l.get_list_id_from_shortname(shortname)
+    user_id = DEFAULT_USER_ID
+    list_id = l.get_list_id_from_shortname(shortname, user_id)
 
     if not list_id:
         abort(404)
@@ -523,7 +530,7 @@ def list_feed(shortname, page):
     for media in feed:
 
         # gets
-        owner_profile = e.get_user_profile(media[1])
+        owner_profile = e.get_account_profile(media[1])
         saved_status = u.get_saved_status(media[0], 0)
 
         # sets
@@ -552,7 +559,7 @@ def list_feed(shortname, page):
 
 
         post['owner_id'] = owner_profile[0]
-        post['owner_username'] = owner_profile[1]
+        post['owner_account_name'] = owner_profile[1]
         post['owner_full_name'] = owner_profile[2]
         post['owner_profile_pic_url'] = owner_profile[4]
 
@@ -592,7 +599,8 @@ def list_create():
 
         l = Lists()
 
-        l.create_new_list(new_list)
+        user_id = DEFAULT_USER_ID
+        l.create_new_list(new_list, user_id)
 
         l.close()
 
@@ -606,7 +614,8 @@ def list_create():
 def list_edit(shortname):
     l = Lists()
 
-    list_id = l.get_list_id_from_shortname(shortname)
+    user_id = DEFAULT_USER_ID
+    list_id = l.get_list_id_from_shortname(shortname, user_id)
 
     if not list_id:
         abort(404)
@@ -643,7 +652,8 @@ def list_edit(shortname):
 def list_accounts(shortname):
     l = Lists()
 
-    list_id = l.get_list_id_from_shortname(shortname)
+    user_id = DEFAULT_USER_ID
+    list_id = l.get_list_id_from_shortname(shortname, user_id)
 
     if not list_id:
         abort(404)
@@ -654,7 +664,7 @@ def list_accounts(shortname):
     for account in the_accounts_tup:
         single_dict = {}
         keys = ('id',
-                'username',
+                'account_name',
                 'full_name',
                 'biography',
                 'profile_pic_url',
@@ -686,24 +696,28 @@ def list_accounts(shortname):
 
 @app.route("/list/<shortname>/add")
 def list_add(shortname):
-    l = Lists()
     e = Exporter()
+    l = Lists()
 
-    # Get list ID in case it’s not right
-    list_id = l.get_list_id_from_shortname(shortname)
+    user_id = DEFAULT_USER_ID
+    list_id = l.get_list_id_from_shortname(shortname, user_id)
 
-    if not list_id:
-        abort(404)
+    # if not list_id:
+    #     abort(404)
+    #     
+    #     
 
-    # Get the accounts
-    the_accounts_tup = e.get_all_accounts_info()
+
+    # Get the accounts for that user
+    the_accounts_tup = e.get_all_accounts_info(user_id)
+
 
     # Set Accounts list
     the_accounts = []
     for account in the_accounts_tup:
         single_dict = {}
         keys = ('id',
-                'username',
+                'account_name',
                 'full_name',
                 'biography',
                 'profile_pic_url',
@@ -713,12 +727,13 @@ def list_add(shortname):
                 'followed_by',
                 'follow',
                 'last_updated',
-                'is_private',
-                'is_deleted')
+                'is_private')
         for k, a in zip(keys, account):
             single_dict[k] = a
-        single_dict['is_in_list'] = check_if_account_in_list(list_shortname = shortname, username = single_dict['username'])
+
+        single_dict['is_in_list'] = l.check_if_account_in_list(list_id = list_id, account_id = single_dict['id'])
         the_accounts.append(single_dict)
+
 
     # Get List Info
     the_list_tup = l.get_list_info(list_id)
@@ -736,62 +751,52 @@ def list_add(shortname):
                                 accounts = the_accounts)
 
 
-@app.route("/list/<shortname>/add/<username>")
-def list_add_user(shortname, username):
+@app.route("/list/<shortname>/add/<account_name>")
+def list_add_user(shortname, account_name):
     e = Exporter()
     l = Lists()
 
-    user_id = e.get_user_id_from_username(username)
-    list_id = l.get_list_id_from_shortname(shortname)
+    account_id = e.get_account_id_from_account_name(account_name)
+    user_id = DEFAULT_USER_ID
+    list_id = l.get_list_id_from_shortname(shortname, user_id)
 
-    if not user_id:
+    if not account_id:
         abort(404)
     if not list_id:
         abort(404)
 
-    if l.check_if_account_in_list(list_id, user_id) is False:
-        l.add_account_to_list(list_id, user_id)
+    if l.check_if_account_in_list(list_id, account_id) is False:
+        l.add_account_to_list(list_id, account_id)
 
     e.close()
     l.close()
 
     return redirect(url_for('list_feed', shortname = shortname))
 
-@app.route("/list/add/<username>")
-def list_choices_for_user(username):
-    l = Lists()
-
-    all_lists = l.get_all_lists_info()
-
-    lists = []
-    for single_list in all_lists:
-        single_dict = {}
-        keys = ('id','shortname','longname','description','last_updated','date_added','count')
-        for k, s in zip(keys, single_list):
-            single_dict[k] = s
-        lists.append(single_dict)
-
-    l.close()
+@app.route("/list/add/<account_name>")
+def list_choices_for_user(account_name):
+    lists = get_lists()
 
     return render_template('lists/choices.html',
                                 lists = lists,
-                                username = username)
+                                account_name = account_name)
 
 
-@app.route("/list/<shortname>/remove/<username>")
-def list_remove_user(shortname, username):
+@app.route("/list/<shortname>/remove/<account_name>")
+def list_remove_user(shortname, account_name):
     e = Exporter()
     l = Lists()
 
-    user_id = e.get_user_id_from_username(username)
-    list_id = l.get_list_id_from_shortname(shortname)
+    account_id = e.get_account_id_from_account_name(account_name)
+    user_id = DEFAULT_USER_ID
+    list_id = l.get_list_id_from_shortname(shortname, user_id)
 
-    if not user_id:
+    if not account_id:
         abort(404)
     if not list_id:
         abort(404)
 
-    l.remove_account_from_list(list_id, user_id)
+    l.remove_account_from_list(list_id, account_id)
 
     e.close()
     l.close()
@@ -803,7 +808,9 @@ def list_delete(shortname):
     if request.method == 'POST':
         if request.form['submit'] == 'submit':
             l = Lists()
-            list_id = l.get_list_id_from_shortname(shortname)
+            
+            user_id = DEFAULT_USER_ID
+            list_id = l.get_list_id_from_shortname(shortname, user_id)
 
             if not list_id:
                 abort(404)
@@ -860,7 +867,7 @@ def import_from_json():
             total = 0
             for contact in contacts_to_import:
                 if not i.user_exists(contact):
-                    contact_info = i.get_user_data(contact)
+                    contact_info = i.get_account_data(contact)
                     if i.add_new_user(contact_info):
                         total += 1 
 
@@ -903,7 +910,7 @@ def import_from_text():
 
             total = 0
             for contact in contacts_to_import:
-                contact_info = i.get_user_data(contact)
+                contact_info = i.get_account_data(contact)
                 if not i.user_exists(contact):
                     if i.add_new_user(contact_info):
                         total += 1
@@ -931,7 +938,7 @@ def import_from_form():
 
         total = 0
         for contact in contacts_to_import:
-            contact_info = i.get_user_data(contact)
+            contact_info = i.get_account_data(contact)
             if not i.user_exists(contact):
                 if i.add_new_user(contact_info):
                     total += 1
@@ -955,15 +962,17 @@ def list_hidden_accounts():
 #TODO
     u = User()
 
+    list_shortname = DEFAULT_LIST_INFO['shortname']
+
     # Get the accounts
-    the_accounts_tup = u.get_hidden_account_list(user_id = 0)
+    the_accounts_tup = u.get_hidden_account_list(list_shortname = list_shortname, user_id = DEFAULT_USER_ID)
 
     # Set Accounts list
     the_accounts = []
     for account in the_accounts_tup:
         single_dict = {}
         keys = ('id',
-                'username',
+                'account_name',
                 'full_name',
                 'biography',
                 'profile_pic_url',
@@ -986,56 +995,61 @@ def list_hidden_accounts():
     return render_template('feed/hidden.html', accounts = the_accounts)
 
 
-@app.route("/feed/hide/<username>")
-def hide_account(username):
-    u = User()
+@app.route("/feed/hide/<account_name>")
+def hide_account(account_name):
     e = Exporter()
+    l = Lists()
     
-    user_id = e.get_user_id_from_username(username)
+    list_id = l.get_list_id_from_shortname(shortname = DEFAULT_LIST_INFO['shortname'], user_id = DEFAULT_USER_ID)
+    account_id = e.get_account_id_from_account_name(account_name)
 
-    if not user_id:
+    if not account_id:
         abort(404)
 
-    u.hide_account_from_feed(user_id = 0, account_id = user_id)
+    l.remove_account_from_list(list_id = list_id, account_id = account_id)
+    #u.hide_account_from_feed(user_id = DEFAULT_USER_ID, account_id = account_id)
 
-    u.close()
+
+    l.close()
     e.close()
 
     destination = request.args['from']
 
     if(destination == 'profile'):
-        return redirect(url_for('profile', username = username).replace('%40', '@'))
+        return redirect(url_for('profile', account_name = account_name).replace('%40', '@'))
     if(destination == 'profile_feed'):
-        return redirect(url_for('profile', username = username, display = 'feed').replace('%40', '@'))
+        return redirect(url_for('profile', account_name = account_name, display = 'feed').replace('%40', '@'))
     if(destination == 'profile_lists'):
-        return redirect(url_for('profile_lists', username = username).replace('%40', '@'))
+        return redirect(url_for('profile_lists', account_name = account_name).replace('%40', '@'))
 
     return redirect(url_for('index'))
 
 
-@app.route("/feed/unhide/<username>")
-def show_account(username):
-    u = User()
+@app.route("/feed/unhide/<account_name>")
+def show_account(account_name):
     e = Exporter()
+    l = Lists()
     
-    user_id = e.get_user_id_from_username(username)
+    list_id = l.get_list_id_from_shortname(shortname = DEFAULT_LIST_INFO['shortname'], user_id = DEFAULT_USER_ID)
+    account_id = e.get_account_id_from_account_name(account_name)
 
-    if not user_id:
+    if not account_id:
         abort(404)
 
-    u.show_account_on_feed(user_id = 0, account_id = user_id)
+    l.add_account_to_list(list_id = list_id, account_id = account_id)
+    #u.show_account_on_feed(user_id = DEFAULT_USER_ID, account_id = account_id)
 
-    u.close()
+    l.close()
     e.close()
 
     destination = request.args['from']
 
     if(destination == 'profile'):
-        return redirect(url_for('profile', username = username).replace('%40', '@'))
+        return redirect(url_for('profile', account_name = account_name).replace('%40', '@'))
     if(destination == 'profile_feed'):
-        return redirect(url_for('profile', username = username, display = 'feed')).replace('%40', '@')
+        return redirect(url_for('profile', account_name = account_name, display = 'feed')).replace('%40', '@')
     if(destination == 'profile_lists'):
-        return redirect(url_for('profile_lists', username = username).replace('%40', '@'))
+        return redirect(url_for('profile_lists', account_name = account_name).replace('%40', '@'))
 
     return redirect(url_for('list_hidden_accounts'))
 
@@ -1051,12 +1065,13 @@ def show_account(username):
 def get_lists():
     l = Lists()
 
-    all_lists = l.get_all_lists_info()
+    user_id = DEFAULT_USER_ID
+    all_lists = l.get_all_lists_info(user_id)
 
     lists = []
     for single_list in all_lists:
         single_dict = {}
-        keys = ('id','shortname','longname','description','last_updated','date_added','count')
+        keys = ('id','shortname','longname','description','last_updated','date_added','user_id','count')
         for k, s in zip(keys, single_list):
             single_dict[k] = s
         lists.append(single_dict)
@@ -1067,19 +1082,20 @@ def get_lists():
 app.jinja_env.globals['get_lists'] = get_lists
 
 
-def check_if_account_in_list(list_shortname, username):
+def check_if_account_in_list(list_shortname, account_name):
     l = Lists()
     e = Exporter()
 
-    list_id = l.get_list_id_from_shortname(list_shortname)
-    user_id = e.get_user_id_from_username(username)
+    user_id = DEFAULT_USER_ID
+    list_id = l.get_list_id_from_shortname(list_shortname, user_id)
+    account_id = e.get_account_id_from_account_name(account_name)
 
-    if not user_id:
+    if not account_id:
         abort(404)
-    if not user_id:
+    if not account_id:
         abort(404)
 
-    result = l.check_if_account_in_list(list_id, user_id)
+    result = l.check_if_account_in_list(list_id, account_id)
 
     l.close()
     e.close()
@@ -1091,7 +1107,9 @@ app.jinja_env.globals['account_is_in_list'] = check_if_account_in_list
 def check_if_account_is_hidden(account_id):
     u = User()
 
-    result = u.get_hidden_status(user_id = 0, account_id = account_id)
+    result = u.get_hidden_status(list_shortname = DEFAULT_LIST_INFO['shortname'],
+                                 user_id = DEFAULT_USER_ID,
+                                 account_id = account_id)
 
     u.close()
 
@@ -1102,12 +1120,12 @@ app.jinja_env.globals['account_is_hidden'] = check_if_account_is_hidden
 def get_redirection(origin, media_shortcode, display_as_feed = False):
     if origin[0] == '@':
         colonindex = origin.find(':')
-        username = origin[1:colonindex]
+        account_name = origin[1:colonindex]
         page = origin[colonindex+1:]
         if display_as_feed == True:
-            return url_for('profile', page = page, username = username, display = 'feed').replace('%40', '@')
+            return url_for('profile', page = page, account_name = account_name, display = 'feed').replace('%40', '@')
         else:
-            return url_for('profile', page = page, username = username).replace('%40', '@')
+            return url_for('profile', page = page, account_name = account_name).replace('%40', '@')
     elif origin[0:4] == 'feed':
         colonindex = origin.find(':')
         page = origin[colonindex+1:]
