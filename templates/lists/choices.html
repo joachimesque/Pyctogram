@@ -28,5 +28,16 @@
       </li>
     {% endfor %}
     </ul>
+
+    <hr>
+    <p>
+
+      <a href="{{ url_for('list_create', account_name = account_name) }}">
+        <strong><span class="is-size-7" role="img" aria-label="Plus">➕</span>
+        Create a new list and add {{ account_name }}
+      </a>
+    </p>
+
+
   {% endif %}
 {% endblock %}
