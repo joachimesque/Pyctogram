@@ -1,5 +1,10 @@
 # 📷 Pyctogram
 
+![](https://img.shields.io/badge/please-help-yellow.svg)
+![](https://img.shields.io/badge/trapped_in-SVG_factory-red.svg)
+![](https://img.shields.io/badge/running_out-of_XML-yellow.svg)
+![](https://img.shields.io/badge/send-tags-orange.svg)
+
 A scrapper & viewer for Instagram, written in Python.
 
 ## ❓ What’s the deal?
