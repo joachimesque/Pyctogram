@@ -17,6 +17,9 @@ class Importer:
     def init_db(self):
         self.db.init_db()
 
+    def commit(self):
+        self.db.commit()
+
     def close(self):
         self.db.stop_db()
 
@@ -41,10 +44,11 @@ class Importer:
         url = 'https://instagram.com/%s' % account_name
         try:
             response = get(url, headers={'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10.13; rv:62.0) Gecko/20100101 Firefox/62.0'})
+        except Exception:
+            print("Error: Something happened with the connection that prevented us to get %s’s info" % account_name)
+            return None
         except:
-            print("Error: Something happened with the connection")
-            self.db.stop_db()
-            exit("The DB has been saved")
+            exit("Interrupted by user")
 
         soup = BeautifulSoup(response.text, 'html.parser')
 
@@ -107,7 +111,8 @@ class Importer:
             self.db.commit()
             return True
         except:
-            exit("Error: Adding %s into the database failed." % account_data["username"])
+            print("Error: Adding %s into the database failed." % account_data["username"])
+            return False
         
 
     def link_account_to_user(self, user_id, account_id):
@@ -202,6 +207,8 @@ class Importer:
 
         self.set_account_timestamp(account_data['id'], latest_timestamp)
 
+        self.db.commit()
+
         return media_count
 
     def tag_account_as_deleted(self, account):
@@ -256,6 +263,49 @@ class Importer:
             print("We got \033[1m%s\033[0m new media from \033[1mone\033[0m account" % total_media_added)
         else:
             print("No new media were found at this time")
+
+
+    def create_new_list(self, list_info, user_id, is_hidden = 0):
+        """
+        Creates a new list
+        """
+        values = (  list_info["shortname"],
+                    list_info["longname"],
+                    list_info["description"],
+                    0,
+                    time.time(),
+                    user_id,
+                    is_hidden )
+        
+        try:
+            self.db.cursor.execute("INSERT INTO Lists (shortname, longname, description, last_updated, date_added, user_id, is_hidden) VALUES (?, ?, ?, ?, ?, ?, ?)", values)
+            self.db.commit()
+        except:
+            print("Error: Adding %s into the database failed." % list_info["shortname"], file=sys.stderr)
+
+    def get_list_id_from_shortname(self, shortname, user_id):
+        """
+        Gets the list id (int) from the list shortname and the user_id
+        """
+        try:
+            self.db.cursor.execute("SELECT * FROM Lists WHERE ( shortname = ? AND user_id = ?)", (shortname,user_id))
+            return(self.db.cursor.fetchone()[0])
+        except:
+            print("Error: Getting the ID for %s has failed." % shortname, file=sys.stderr)
+
+    def add_account_to_list(self, list_id, account_id):
+        """
+        Adds an account to a list
+        """
+        values = (list_id, account_id, time.time())
+
+        try:
+            self.db.cursor.execute("INSERT INTO AccountToList VALUES (?, ?, ?)", values)
+            self.db.commit()
+
+        except:
+            print("Error: Adding %s into the database failed." % account_id, file=sys.stderr)
+
 
 
 if __name__ == '__main__':

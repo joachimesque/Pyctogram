@@ -10,11 +10,11 @@ class Database:
     """
 
     def __init__(self):
-        self.db = sqlite3.connect(config.database_file)
+        self.db = sqlite3.connect(config.database_file, timeout=10)
         self.cursor = self.db.cursor()
 
     def init_db(self):
-        self.db = sqlite3.connect(config.database_file)
+        self.db = sqlite3.connect(config.database_file, timeout=10)
         self.cursor = self.db.cursor()
 
         # Create all the DB structure if it doesn't already exist

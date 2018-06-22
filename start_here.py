@@ -57,7 +57,6 @@ def get_account_list_from_insta_export(instagram_export_path):
 def import_account_list(from_text_file = None, from_list = None, from_instagram = None):
     importer = Importer()
     importer.init_db()
-    lists = Lists()
 
     if from_text_file is not None:
       account_list = get_account_list_from_textfile(from_text_file)
@@ -71,27 +70,34 @@ def import_account_list(from_text_file = None, from_list = None, from_instagram 
     account_count = 0
 
     if account_list != []:
-        lists.create_new_list(list_info = DEFAULT_LIST_INFO, user_id = DEFAULT_USER_ID, is_hidden = 1)
-        _feed_list = lists.get_list_id_from_shortname(shortname = DEFAULT_LIST_INFO['shortname'], user_id = DEFAULT_USER_ID)
+        importer.create_new_list(list_info = DEFAULT_LIST_INFO, user_id = DEFAULT_USER_ID, is_hidden = 1)
+        _feed_list = importer.get_list_id_from_shortname(shortname = DEFAULT_LIST_INFO['shortname'], user_id = DEFAULT_USER_ID)
 
-    for account in account_list:
+    failed_accounts = []
+
+    for index, account in enumerate(account_list):
         if importer.account_exists(account) is False:
             account_data = importer.get_account_data(account)
 
             if account_data is None:
                 print('Warning: account %s has returned no data. You should check if an account still exists by that name.' % account)
-
+                failed_accounts.append(account)
             else:
-                importer.add_new_account(account_data = account_data)
-                importer.link_account_to_user(user_id = DEFAULT_USER_ID, account_id = account_data["id"])
-                lists.add_account_to_list(list_id = _feed_list, account_id = account_data["id"])
+                if importer.add_new_account(account_data = account_data):
+                    importer.link_account_to_user(user_id = DEFAULT_USER_ID, account_id = account_data["id"])
+                    importer.add_account_to_list(list_id = _feed_list, account_id = account_data["id"])
 
-                if account_data['is_private'] is False and account_data['edge_owner_to_timeline_media']['count'] > 0:
-                    media_added = importer.add_data_to_db(account_data)
-                    if media_added > 0:
-                        print("%d new media added for account %s" % (media_added, account_data['username']))
+                    if account_data['is_private'] is False and account_data['edge_owner_to_timeline_media']['count'] > 0:
+                        media_added = importer.add_data_to_db(account_data)
+                        if media_added > 0:
+                          print("%d/%d : %d new media added for account %s" % (index + 1, len(account_list), media_added, account_data['username']))
 
-                account_count += 1
+                    account_count += 1
+
+                else:
+                    failed_accounts.append(account)
+
+                importer.commit()
 
     if account_count > 1:
         print("\033[1m%s\033[0m new accounts were added" % account_count)
@@ -100,7 +106,14 @@ def import_account_list(from_text_file = None, from_list = None, from_instagram 
     else:
         print("No new accounts were added")
 
-    # importer.import_media(from_accounts=account_list)
+    if failed_accounts != []:
+        error_file_name = 'missed_connections.txt'
+        print("%s accounts could not be imported." % len(failed_accounts))
+        with open(error_file_name, 'w') as file:
+            file.write('\n'.join(failed_accounts))
+            print("To try importing them again, you can run the script again,"\
+                  " with the argument: \033[1m-t %s\033[0m" % error_file_name)
+
     importer.close()
 
 
