@@ -5,7 +5,7 @@
 ![](https://img.shields.io/badge/running_out-of_XML-yellow.svg)
 ![](https://img.shields.io/badge/send-tags-orange.svg)
 
-A scrapper & viewer for Instagram, written in Python.
+A scraper & viewer for Instagram, written in Python.
 
 ## ❓ What’s the deal?
 
