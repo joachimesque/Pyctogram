@@ -9,4 +9,9 @@
   {% include 'partials/full_card_feed.html' %}
 
   {{ pagination_macro.render_pagination(pagination) }}
+
+  {% if posts == [] %}
+      There’s nothing to display for now.
+  {% endif %}
+
 {% endblock %}

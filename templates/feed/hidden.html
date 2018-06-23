@@ -32,8 +32,9 @@
         <a href="{{ url_for('show_account', account_name = account.account_name, from = 'unhide') }}" class="button is-small is-info is-outlined">Unhide 🐵</a>
       </span>
   </li>
-
-
   {% endfor %}
   </ul>
+  {% if accounts is defined %}
+    <p>🐵 Nothing to see here yet!</p>
+  {% endif %}
 {% endblock %}
