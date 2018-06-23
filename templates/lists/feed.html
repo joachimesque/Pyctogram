@@ -1,11 +1,12 @@
 {% extends 'base.html' %}
 {% import 'macros/pagination.html' as pagination_macro %}
 
+{% block title %}{{ the_list.longname }}{% endblock %}
+
 {% block header %}
   <div class="level">
     <h1 class="title is-marginless level-left">
-      <span class="is-size-3" role="img" aria-label="List">🔖</span>&nbsp;
-      {% block title %}{{ the_list.longname }}{% endblock %}
+      {{ the_list.longname }}
     </h1>
     <div class="level-right buttons">
       <a href="{{ url_for('list_edit', shortname = the_list.shortname) }}" class="button is-small is-info is-outlined">Edit</a>

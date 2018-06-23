@@ -1,5 +1,10 @@
 {% for post in posts %}
 
+  {% if posts == [] %}
+      There’s nothing to display for now.
+  {% endif %}
+
+
   {% set the_endpoint = request.url_rule.endpoint %}
   {% if display_as_feed == True %}
      {% set the_endpoint = 'profile_feed' %}
