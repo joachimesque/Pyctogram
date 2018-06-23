@@ -34,7 +34,7 @@
         {% elif post['media_type'] == 'GraphSidecar' %}
           <div class="sidecar slider" data-slider>
             <div class="slides">
-              {% for image in post['sidecar']['edges'] %}
+              {% for image in post['sidecar'] %}
               <div class="">
                 <figure class="image is-square"><img src="{{ image['node']['display_url'] }}" alt="A photo by {{ post['owner_full_name'] }}"></figure>
               </div>
@@ -47,7 +47,13 @@
       </div>
 
       <div class="card-content">
-        <div class="content" style="white-space: pre-line;">{{ post['caption'] }}</div>
+        <div class="content pre-line">
+          {%- if request.url_rule.endpoint == 'media' -%}
+            {{ post['caption']|safe }}
+          {%- else -%}
+            {{ post['caption_short']|safe }}
+          {%- endif -%}
+        </div>
         <p class="is-size-7 is-marginless">
           <a href="{{ url_for('media', media_shortcode = post['shortcode']) }}">
             <time datetime="{{ post['timestamp'].strftime('%Y-%m-%d') }}">{{ post['timestamp'].strftime('%Y-%m-%d %H:%m') }}</time>

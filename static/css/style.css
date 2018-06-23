@@ -20,16 +20,7 @@ body > section {
   color: #3273dc;
 }
 
-.card .content {
-  max-height: 4.5em;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
-body.template-media .card .content {
-  max-height: unset;
-  overflow: auto;
+.pre-line {
   white-space: pre-line;
 }
 body.template-profile .card .card-header {
