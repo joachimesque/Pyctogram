@@ -11,19 +11,16 @@
       </figure>
       <br>
       <ul class="has-text-centered">
-        <li><a class="button is-small is-outlined is-info" href="{{ url_for('list_choices_for_user', account_name = author.account_name) }}">Add to list 🔖</a></li><br>
-
-        {% if display_as_feed == False %}
-            {% set from = 'profile' %}
-        {% endif %}
+        {% set origin = 'profile:@' ~ author.account_name ~ ':' ~ pagination.page %}
         {% if display_as_feed == True %}
-            {% set from = 'profile_feed' %}
+            {% set origin = 'profile_feed:@' ~ author.account_name ~ ':' ~ pagination.page %}
         {% endif %}
 
+        <li><a class="button is-small is-outlined is-info" href="{{ url_for('list_choices_for_user', account_name = author.account_name, origin = origin) }}">Add to list 🔖</a></li><br>
         {% if account_is_hidden(author.id) %}
-          <li><a title="Unhide from feed 🐵" href="{{ url_for('show_account', account_name = author.account_name, from = from) }}" class="button is-small is-info is-outlined">Unhide 🐵</a></li>
+          <li><a title="Unhide from feed 🐵" href="{{ url_for('show_account', account_name = author.account_name, origin = origin) }}" class="button is-small is-info is-outlined">Unhide 🐵</a></li>
         {% else %}
-          <li><a title="Hide from feed 🙈" href="{{ url_for('hide_account', account_name = author.account_name, from = from) }}" class="button is-small is-info is-outlined">Hide 🙈</a></li>
+          <li><a title="Hide from feed 🙈" href="{{ url_for('hide_account', account_name = author.account_name, origin = origin) }}" class="button is-small is-info is-outlined">Hide 🙈</a></li>
         {% endif %}
       </ul>
     </div>
@@ -58,9 +55,7 @@
 
   {% if display_as_feed == True %}
 
-    {% for post in posts %}
-        {% include 'partials/full_card.html' %}
-    {% endfor %}
+      {% include 'partials/full_card_feed.html' %}
 
   {% else %}
 

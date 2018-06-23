@@ -17,14 +17,12 @@
           </p>
         </div>
         <div class="card-header-icon">
-          {% if request.url_rule.endpoint == 'index' %}
           <span class="has-text-right">
-            <a title="Hide account from feed 🙈" class="button is-small is-outlined is-info" href="{{ url_for('hide_account', account_name = post.owner_account_name, from = 'feed') }}">Hide account 🙈</a><br>
-            <a title="Add to list 🔖" class="button is-small is-outlined is-info" href="{{ url_for('list_choices_for_user', account_name = post.owner_account_name) }}">Add account to list 🔖</a>
-          </span>
-          {% else %}
-          <a class="button is-small is-outlined is-info" href="{{ url_for('list_choices_for_user', account_name = post.owner_account_name) }}">Add to list 🔖</a>
+          {% if request.url_rule.endpoint == 'index' %}
+            <a title="Hide account from feed 🙈" class="button is-small is-outlined is-info" href="{{ url_for('hide_account', account_name = post.owner_account_name, origin = origin_delete) }}">Hide account 🙈</a><br>
           {% endif %}
+            <a class="button is-small is-outlined is-info" href="{{ url_for('list_choices_for_user', account_name = post.owner_account_name, origin = origin) }}">Add account to list 🔖</a>
+          </span>
         </div>
       </header>
 
@@ -49,12 +47,12 @@
       </div>
 
       <div class="card-content">
-        <a href="{{ url_for('media', media_shortcode = post['shortcode']) }}">
-          <div class="content" style="white-space: pre-line;">{{ post['caption'] }}</div>
-          <p class="is-size-7 is-marginless">
+        <div class="content" style="white-space: pre-line;">{{ post['caption'] }}</div>
+        <p class="is-size-7 is-marginless">
+          <a href="{{ url_for('media', media_shortcode = post['shortcode']) }}">
             <time datetime="{{ post['timestamp'].strftime('%Y-%m-%d') }}">{{ post['timestamp'].strftime('%Y-%m-%d %H:%m') }}</time>
-          </p>
-        </a>
+          </a>
+        </p>
       </div>
       <footer class="card-footer">
         <p class="card-footer-item is-centered">
@@ -67,10 +65,13 @@
           {{ post['comments'] }} 💬
         </p>
         <p class="card-footer-item is-centered">
+          {% if request.url_rule.endpoint == 'memory' %}
+            {% set origin = origin_delete %}
+          {% endif %}
           {% if post['is_saved'] == False %}
-          <a class="saveButton" href="{{ url_for('save', media_shortcode = post['shortcode'], origin = post['origin'], display = 'feed') }}#{{ post['shortcode'] }}">Save 💾</a>
+          <a class="saveButton" href="{{ url_for('save', media_shortcode = post['shortcode'], origin = origin) }}">Save 💾</a>
           {% else %}
-          <a class="saveButton" href="{{ url_for('forget', media_shortcode = post['shortcode'], origin = post['origin'], display = 'feed') }}#{{ post['shortcode'] }}">Forget 💾</a>
+          <a class="saveButton" href="{{ url_for('forget', media_shortcode = post['shortcode'], origin = origin) }}">Forget 💾</a>
           {% endif %}
         </p>
       </footer>

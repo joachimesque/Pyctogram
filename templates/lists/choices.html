@@ -22,7 +22,7 @@
           {% if account_is_in_list(list.shortname, account_name) %}
           <a class="button is-small is-static">Already in this list</a>
           {% else %}
-          <a href="{{ url_for('list_add_user', shortname = list.shortname, account_name = account_name) }}" class="button is-info is-outlined">Select this list</a>
+          <a href="{{ url_for('list_add_user', shortname = list.shortname, account_name = account_name, origin = origin) }}" class="button is-info is-outlined">Select this list</a>
           {% endif %}
         </span>
       </li>
@@ -32,7 +32,7 @@
     <hr>
     <p>
 
-      <a href="{{ url_for('list_create', account_name = account_name) }}">
+      <a href="{{ url_for('list_create', account_name = account_name, origin = origin) }}">
         <strong><span class="is-size-7" role="img" aria-label="Plus">➕</span>
         Create a new list and add {{ account_name }}
       </a>

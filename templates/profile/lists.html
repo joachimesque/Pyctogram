@@ -1,4 +1,5 @@
 {% extends 'base.html' %}
+{% set origin = 'profile_lists:@' ~ author.account_name ~ ':0' %}
 
 {% block title %}{{ author['full_name'] }}’s lists{% endblock %}
 
@@ -9,15 +10,15 @@
           <img src="{{ author['profile_pic_url'] }}" alt="{{ author.account_name }}">
       </figure>
       <br>
-      <ul class="has-text-centered">      
+      <ul class="has-text-centered">
         <li>
-          <a class="button is-small is-outlined is-info" href="{{ url_for('list_choices_for_user', account_name = author.account_name) }}">Add to list 🔖</a>
+          <a class="button is-small is-outlined is-info" href="{{ url_for('list_choices_for_user', account_name = author.account_name, origin = origin) }}">Add to list 🔖</a>
         </li>
         <br>
         {% if account_is_hidden(author.id) %}
-          <li><a title="Unhide from feed 🐵" href="{{ url_for('show_account', account_name = author.account_name, from = 'profile_lists') }}" class="button is-small is-info is-outlined">Unhide 🐵</a></li>
+          <li><a title="Unhide from feed 🐵" href="{{ url_for('show_account', account_name = author.account_name, origin = origin) }}" class="button is-small is-info is-outlined">Unhide 🐵</a></li>
         {% else %}
-          <li><a title="Hide from feed 🙈" href="{{ url_for('hide_account', account_name = author.account_name, from = 'profile_lists') }}" class="button is-small is-info is-outlined">Hide 🙈</a></li>
+          <li><a title="Hide from feed 🙈" href="{{ url_for('hide_account', account_name = author.account_name, origin = origin) }}" class="button is-small is-info is-outlined">Hide 🙈</a></li>
         {% endif %}
       </ul>
     </div>
@@ -57,14 +58,14 @@
         <small>({{ list.count }} accounts followed)</small>
       </span>
       <span class="level-right">
-        <a href="{{ url_for('list_remove_user', shortname = list.shortname, account_name = author.account_name) }}" class="button is-small is-danger is-outlined">Remove from list</a>
+        <a href="{{ url_for('list_remove_user', shortname = list.shortname, account_name = author.account_name, origin = origin) }}" class="button is-small is-danger is-outlined">Remove from list</a>
       </span>
     </li>
   {% endfor %}
   </ul>
   <hr>
   <p>
-    <a class="" href="{{ url_for('list_choices_for_user', account_name = author.account_name) }}">
+    <a class="" href="{{ url_for('list_choices_for_user', account_name = author.account_name, origin = origin) }}">
       <strong><span class="is-size-6" role="img" aria-label="Plus">➕</span>
             Add to a{% if lists|length > 0 %}nother{% endif %} list</strong>
     </a>

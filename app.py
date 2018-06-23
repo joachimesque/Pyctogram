@@ -199,7 +199,7 @@ def memory(page):
         # post['owner_is_private'] = bool(owner_profile[11])
         # post['owner_is_deleted'] = bool(owner_profile[12])
         
-        post['origin'] = 'memory:' + str(page)
+        # post['origin'] = 'memory:' + str(page)
 
         posts.append(post)
 
@@ -276,10 +276,6 @@ def save(media_shortcode):
     origin = request.args.get('origin', default='')
     e = Exporter()
 
-    display_as_feed = False
-    if request.args.get('display') == 'feed':
-        display_as_feed = True
-
     # Main user is 0
     user_id = DEFAULT_USER_ID
 
@@ -319,7 +315,7 @@ def save(media_shortcode):
     e.close()
     u.close()
 
-    redirection = get_memory_redirection(origin, media_shortcode, display_as_feed)
+    redirection = get_redirection(origin = origin, media_shortcode = media_shortcode, media_owner = owner_account_name)
 
     return redirect(redirection)
 
@@ -328,12 +324,11 @@ def forget(media_shortcode):
     origin = request.args.get('origin', default='')
     e = Exporter()
 
-    display_as_feed = False
-    if request.args.get('display') == 'feed':
-        display_as_feed = True
-
     # gets
     media_id = e.get_media_id_from_shortcode(media_shortcode)
+
+    owner_account_name = e.get_owner_account_name_from_media_id(media_id)
+
     e.close()
 
     if not media_id:
@@ -347,14 +342,13 @@ def forget(media_shortcode):
       fileaddr = './static/images/' + str(user_id) + '/'
       filename = u.get_saved_filename(media_id, user_id)
       target = fileaddr + filename
-      #print(target, file=sys.stderr)
 
       u.forget_media(media_id, user_id)
       if os.path.isfile(target):
         os.remove(target)
     u.close()
 
-    redirection = get_memory_redirection(origin, media_shortcode, display_as_feed)
+    redirection = get_redirection(origin = origin, media_shortcode = media_shortcode, media_owner = owner_account_name)
 
     return redirect(redirection)
 
@@ -440,7 +434,7 @@ def profile(account_name, page):
         else:
             post['sidecar'] = []
 
-        post['origin'] = '@' + account_name + ':' + str(page)
+        # post['origin'] = '@' + account_name + ':' + str(page)
 
         posts.append(post)
 
@@ -465,7 +459,17 @@ def profile_lists(account_name):
 
     profile = e.get_account_profile(account_id)
 
-    the_lists_tup = l.get_lists_info_for_account(account_id)
+    user_id = DEFAULT_USER_ID
+
+    the_lists_tup = l.get_lists_info_for_account(user_id =user_id, account_id =account_id)
+
+    lists = []
+    for single_list in the_lists_tup:
+        single_dict = {}
+        keys = ('id','shortname','longname','description','last_updated','date_added','user_id','is_hidden','count')
+        for k, s in zip(keys, single_list):
+            single_dict[k] = s
+        lists.append(single_dict)
 
     #sets
     author = {}
@@ -483,8 +487,6 @@ def profile_lists(account_name):
     author['last_updated'] = datetime.datetime.fromtimestamp(profile[10])
     author['is_private'] = bool(profile[11])
     # author['is_deleted'] = bool(profile[12])
-
-    lists = get_lists()
 
     e.close()
     l.close()
@@ -575,16 +577,17 @@ def list_feed(shortname, page):
 @app.route("/list/create", methods=['POST', 'GET'], defaults = {'account_name' : ''})
 @app.route("/list/create/autoadd/<account_name>", methods=['POST', 'GET'])
 def list_create(account_name):
+    origin = request.args.get('origin', default='')
+
     if request.method == 'POST':
 
+        origin = request.args.get('origin', default='')
         new_list, errors = forms.check_list_form(request_form = request.form)
 
         if errors != {}:
             for error in errors.values():
                 flash(str(error))
             return redirect(url_for('list_create', shortname = new_list['shortname'], account_name = account_name))
-
-        #return str(new_list)
 
         l = Lists()
 
@@ -594,12 +597,12 @@ def list_create(account_name):
         l.close()
 
         if account_name != '':
-            return redirect(url_for('list_add_user', shortname = new_list['shortname'], account_name = account_name))
+            return redirect(url_for('list_add_user', shortname = new_list['shortname'], account_name = account_name, origin = origin))
         else:
             return redirect(url_for('list_accounts', shortname = new_list['shortname']))
 
     else:
-        return render_template('lists/create.html', account_name = account_name)
+        return render_template('lists/create.html', account_name = account_name, origin = origin)
 
 
 @app.route("/list/<shortname>/edit", methods=['POST', 'GET'])
@@ -728,6 +731,7 @@ def list_add(shortname):
 
 @app.route("/list/<shortname>/add/<account_name>")
 def list_add_user(shortname, account_name):
+    origin = request.args.get('origin', default='')
     e = Exporter()
     l = Lists()
 
@@ -746,20 +750,32 @@ def list_add_user(shortname, account_name):
     e.close()
     l.close()
 
-    return redirect(url_for('list_feed', shortname = shortname))
+
+
+    if origin == '':
+        redirection = url_for('list_feed', shortname = shortname)
+    else:
+        redirection = get_redirection(origin = origin, media_shortcode = '', media_owner = account_name)
+
+    return redirect(redirection)
 
 
 @app.route("/list/add/<account_name>")
 def list_choices_for_user(account_name):
+    origin = request.args.get('origin', default='')
+
     lists = get_lists()
 
     return render_template('lists/choices.html',
                                 lists = lists,
-                                account_name = account_name)
+                                account_name = account_name,
+                                origin = origin)
 
 
 @app.route("/list/<shortname>/remove/<account_name>")
 def list_remove_user(shortname, account_name):
+    origin = request.args.get('origin', default='')
+
     e = Exporter()
     l = Lists()
 
@@ -777,7 +793,12 @@ def list_remove_user(shortname, account_name):
     e.close()
     l.close()
 
-    return redirect(url_for('list_accounts', shortname = shortname))
+    if origin == '' or origin == 'list_accounts':
+        redirection = url_for('list_accounts', shortname = shortname)
+    else:
+        redirection = url_for('profile_lists', account_name = account_name)
+
+    return redirect(redirection)
 
 
 @app.route("/list/<shortname>/delete", methods = ["GET", "POST"])
@@ -981,9 +1002,11 @@ def list_hidden_accounts():
 
 @app.route("/feed/hide/<account_name>")
 def hide_account(account_name):
+    origin = request.args.get('origin', default='')
     e = Exporter()
     l = Lists()
     
+
     list_id = l.get_list_id_from_shortname(shortname = DEFAULT_LIST_INFO['shortname'], user_id = DEFAULT_USER_ID)
     account_id = e.get_account_id_from_account_name(account_name)
 
@@ -991,26 +1014,25 @@ def hide_account(account_name):
         abort(404)
 
     l.remove_account_from_list(list_id = list_id, account_id = account_id)
-    #u.hide_account_from_feed(user_id = DEFAULT_USER_ID, account_id = account_id)
 
+    # We're gonna transform that one to get the right page.
+    media_shortcode = origin.split(':')[1]
+    new_page = l.get_page_number_where_shortcode_is_displayed_in_list(list_id = list_id, media_shortcode = media_shortcode)
+
+    origin = origin[:origin.rfind(':') + 1] + str(int(new_page / config.elements_per_page) + 1)
 
     l.close()
     e.close()
 
-    destination = request.args['from']
+    redirection = get_redirection(origin = origin, media_shortcode = media_shortcode, media_owner = account_name)
 
-    if(destination == 'profile'):
-        return redirect(url_for('profile', account_name = account_name).replace('%40', '@'))
-    if(destination == 'profile_feed'):
-        return redirect(url_for('profile', account_name = account_name, display = 'feed').replace('%40', '@'))
-    if(destination == 'profile_lists'):
-        return redirect(url_for('profile_lists', account_name = account_name).replace('%40', '@'))
-
-    return redirect(url_for('index'))
+    return redirect(redirection)
 
 
 @app.route("/feed/unhide/<account_name>")
 def show_account(account_name):
+    origin = request.args.get('origin', default='')
+
     e = Exporter()
     l = Lists()
     
@@ -1021,21 +1043,16 @@ def show_account(account_name):
         abort(404)
 
     l.add_account_to_list(list_id = list_id, account_id = account_id)
-    #u.show_account_on_feed(user_id = DEFAULT_USER_ID, account_id = account_id)
 
     l.close()
     e.close()
 
-    destination = request.args['from']
+    if origin[0:7] == 'profile':
+        redirection = get_redirection(origin, '')
+    else:
+        redirection = url_for('list_hidden_accounts')
 
-    if(destination == 'profile'):
-        return redirect(url_for('profile', account_name = account_name).replace('%40', '@'))
-    if(destination == 'profile_feed'):
-        return redirect(url_for('profile', account_name = account_name, display = 'feed')).replace('%40', '@')
-    if(destination == 'profile_lists'):
-        return redirect(url_for('profile_lists', account_name = account_name).replace('%40', '@'))
-
-    return redirect(url_for('list_hidden_accounts'))
+    return redirect(redirection)
 
 
 
@@ -1114,25 +1131,48 @@ def check_if_account_is_hidden(account_id):
 app.jinja_env.globals['account_is_hidden'] = check_if_account_is_hidden
 
 
-def get_memory_redirection(origin, media_shortcode, display_as_feed = False):
-    if origin[0] == '@':
-        colonindex = origin.find(':')
-        account_name = origin[1:colonindex]
-        page = origin[colonindex+1:]
-        if display_as_feed == True:
-            return url_for('profile', page = page, account_name = account_name, display = 'feed').replace('%40', '@')
+def get_redirection(origin, media_shortcode, media_owner = ''):
+
+    origin_list = origin.split(':')
+    endpoint = origin_list[0]
+    destination_page = int(origin_list[-1]) if origin_list[-1] != '' else 0
+    destination = origin_list[1] if len(origin_list) > 2 else ''
+
+    if endpoint[0:7] == 'profile':
+        if destination[0] == '@': # link from the header
+            media_owner = destination[1:]
+            destination = 'top'
+
+        if endpoint == 'profile_lists':
+            return url_for('profile_lists', account_name = media_owner).replace('%40', '@')
+        elif endpoint == 'profile_feed':
+            return url_for('profile', page = destination_page, account_name = media_owner, display = 'feed', _anchor = destination).replace('%40', '@')
         else:
-            return url_for('profile', page = page, account_name = account_name).replace('%40', '@')
-    elif origin[0:4] == 'feed':
-        colonindex = origin.find(':')
-        page = origin[colonindex+1:]
-        return url_for('index', page = page)
-    elif origin[0:6] == 'memory':
-        colonindex = origin.find(':')
-        page = origin[colonindex+1:]
-        return url_for('memory', page = page)
-    elif origin == 'media' or origin is '':
+            return url_for('profile', page = destination_page, account_name = media_owner, _anchor = destination).replace('%40', '@')
+
+    elif endpoint == 'profile_lists':
+        return url_for(endpoint, account_name = destination[1:])
+
+    elif endpoint == 'index':
+        # Get the shortcode of the previous item BEFORE CALLING THE FUNCTION, pass as media_shortcode
+        if media_shortcode == '':
+            media_shortcode = destination
+        return url_for(endpoint, page = destination_page, _anchor = media_shortcode)
+
+    elif endpoint == 'memory':
+        # Get the shortcode of the previous item BEFORE CALLING THE FUNCTION, pass as media_shortcode
+        return url_for(endpoint, page = destination_page, _anchor = destination)
+
+
+    elif endpoint == 'media':
         return url_for('media', media_shortcode = media_shortcode)
+
+    elif endpoint == 'list_feed':
+        print(('ok', destination, media_shortcode), file=sys.stderr)
+        return url_for(endpoint, shortname = destination, _anchor = media_shortcode)
+
+    else:
+        return url_for(endpoint, page = destination_page, _anchor = destination)
 
 
 def url_for_other_page(page):

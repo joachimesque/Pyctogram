@@ -1,0 +1,30 @@
+{% for post in posts %}
+
+  {% set the_endpoint = request.url_rule.endpoint %}
+  {% if display_as_feed == True %}
+     {% set the_endpoint = 'profile_feed' %}
+  {% endif %}
+
+  {% set destination = post.shortcode %}
+  {# If we're in a list, we display the list name #}
+  {% if request.url_rule.endpoint == 'list_feed' %}
+     {% set destination = the_list.shortname %}
+  {% endif %}
+
+  {% set origin = the_endpoint ~ ':' ~ destination ~ ':' ~ pagination.page %}
+
+  {# if we’re in Memory or in Index, the destination ain’t the same, babe
+  (because deleting a thing from a list makes it not here anymore. Yeah.) #}
+  {% if request.url_rule.endpoint == 'memory' or request.url_rule.endpoint == 'index' %}
+    {% if loop.first and loop.length > 1 %}
+      {% set destination = loop.nextitem.shortcode %}
+    {% elif loop.length > 1 %}
+      {% set destination = loop.previtem.shortcode %}
+    {% endif %}
+    {% set origin_delete = the_endpoint ~ ':' ~ destination ~ ':' ~ pagination.page %}
+  {% endif %}
+ 
+
+  {% include 'partials/full_card.html' %}
+
+{% endfor %}

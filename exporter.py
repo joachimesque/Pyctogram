@@ -88,13 +88,30 @@ class Exporter:
 
     def get_media_from_shortcode(self, media_shortcode):
         """
-        Returns a media object from ID.
+        Returns a media object from shortcode.
         """
         try:
             self.db.cursor.execute("SELECT * FROM Media WHERE shortcode = ?", (media_shortcode,))
             return(self.db.cursor.fetchone())
         except:
             print("Error: Getting the media for %s has failed." % media_shortcode, file=sys.stderr)
+
+
+
+
+    def get_owner_account_name_from_media_id(self, media_id):
+        """
+        Returns a media object from shortcode.
+        """
+        try:
+            self.db.cursor.execute("""SELECT account_name FROM Accounts
+                                    WHERE EXISTS (SELECT * FROM Media
+                                                    WHERE Accounts.id = Media.owner AND Media.id = ?) """, (media_id,))
+            return(self.db.cursor.fetchone()[0])
+        except:
+            print("Error: Getting the media for %s has failed." % media_id, file=sys.stderr)
+
+
 
 
     def get_all_accounts_info(self, user_id):
@@ -109,4 +126,5 @@ class Exporter:
             return(self.db.cursor.fetchall())
         except:
             print("Error: Getting the accounts has failed.", file=sys.stderr)
+
 

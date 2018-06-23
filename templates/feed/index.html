@@ -17,8 +17,6 @@
 {% endblock %}
 
 {% block content %}
-  {% for post in posts %}
-    {% include 'partials/full_card.html' %}
-  {% endfor %}
+  {% include 'partials/full_card_feed.html' %}
   {{ pagination_macro.render_pagination(pagination) }}
 {% endblock %}

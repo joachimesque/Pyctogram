@@ -63,18 +63,18 @@ class Lists:
         return(final_list)
 
 
-    def get_lists_info_for_account(self, account_id):
+    def get_lists_info_for_account(self, user_id, account_id):
         """
         Returns a tuple containing all the lists in which there is a specific account
         Returns a tuple of `list` objects
         count is the number of accounts present in the list
         """
         query = """SELECT * FROM Lists
-                WHERE ( is_hidden = 0 )
-                AND EXISTS (SELECT * FROM AccountToList
-                                WHERE ( AccountToList.account_id = ? ))"""
+                WHERE user_id = ? AND is_hidden = 0
+                    AND EXISTS (SELECT * FROM AccountToList
+                                WHERE ( AccountToList.account_id = ? AND AccountToList.list_id = Lists.id))"""
 
-        self.db.cursor.execute(query, (account_id,))
+        self.db.cursor.execute(query, (user_id, account_id,))
         all_lists = self.db.cursor.fetchall()
 
         # This will add the count to the `list` objects
@@ -273,4 +273,24 @@ class Lists:
         except:
            print("Error: Deleting %s from the database failed." % list_id, file=sys.stderr)
 
+
+    def get_page_number_where_shortcode_is_displayed_in_list(self, list_id, media_shortcode):
+        """
+        Returns the value of the page in a feed where a media is located
+        It gets the count of elements (selected from the right list)
+                                    that have a timestamp superior to the timestamp
+                                        of the element that has `media_shortcode`
+        """
+        query = """SELECT count(*) FROM Media
+                    WHERE EXISTS (SELECT * FROM AccountToList
+                                    WHERE (AccountToList.list_id = ?
+                                            AND AccountToList.account_id = Media.owner))
+                    AND timestamp > (SELECT timestamp FROM Media WHERE shortcode = ?)"""
+        try:
+            self.db.cursor.execute(query, (list_id, media_shortcode))
+            count = self.db.cursor.fetchone()[0]
+        except:
+           print("Error: Duuuuuude.", file=sys.stderr)
+
+        return count
 

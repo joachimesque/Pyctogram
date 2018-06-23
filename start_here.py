@@ -125,12 +125,13 @@ def file_exists(string):
 
 
 if __name__ == '__main__':
-    parser = argparse.ArgumentParser(description='Start up your Pyctogram installation by adding some accounts.', prog='Pyctogram')
+    parser = argparse.ArgumentParser(description='Start up your Pyctogram installation by adding some accounts.',
+                                      prog='Pyctogram')
     parser.add_argument('-i','--from_instagram',help='''Import from the `connections.json` export file from Instagram.
       Please supply a valid path to the file.''', type=file_exists)
     parser.add_argument('-t','--from_text_file',help='''Import from a text file containing one username per line.
       Please supply a valid path to the file.''', type=file_exists)
-    parser.add_argument('-l','--from_list',help='Import from a list of usernames, separated by commas : joachimrobert,instagram')
+    parser.add_argument('-l','--from_list',help='Import from a list of usernames, separated by commas: joachimrobert,instagram')
 
     args = parser.parse_args()
 

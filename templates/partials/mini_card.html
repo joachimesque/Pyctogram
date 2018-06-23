@@ -1,3 +1,4 @@
+    {% set origin = request.url_rule.endpoint ~ ':' ~ post.shortcode ~ ':' ~ pagination.page %}
     <div class=" column is-one-third" id="{{ post['shortcode'] }}">
       <article class="card">
 
@@ -15,9 +16,9 @@
           </p>
           <p href="#" class="card-footer-item is-centered">
             {% if post['is_saved'] == False %}
-            <a href="{{ url_for('save', media_shortcode = post['shortcode'], origin = post['origin']) }}#{{ post['shortcode'] }}">💾<br>Save</a>
+            <a href="{{ url_for('save', media_shortcode = post['shortcode'], origin = origin) }}">💾<br>Save</a>
             {% else %}
-            <a href="{{ url_for('forget', media_shortcode = post['shortcode'], origin = post['origin']) }}#{{ post['shortcode'] }}">💾<br>Forget</a>
+            <a href="{{ url_for('forget', media_shortcode = post['shortcode'], origin = origin) }}">💾<br>Forget</a>
             {% endif %}
           </p>
 
