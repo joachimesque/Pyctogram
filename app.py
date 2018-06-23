@@ -2,13 +2,14 @@
 
 import config
 
+import re
 import os
 import sys
-import requests
-
 import time
 import json
+import requests
 import datetime
+
 
 from user import User
 from lists import Lists
@@ -75,49 +76,7 @@ def index(page):
         owner_profile = e.get_account_profile(media[1])
         saved_status = u.get_saved_status(media[0], 0)
 
-        # sets
-        likes = json.loads(media[10])['count']
-        comments = json.loads(media[11])['count']
-
-        post = {}
-
-        post['is_saved'] = saved_status
-
-        post['media_id'] = media[0]
-        post['owner'] = media[1]
-        post['media_type'] = media[2]
-        # post['is_video'] = bool(media[3])
-        post['display_url'] = media[4]
-        # post['display_resources'] = media[5]
-        post['caption'] = media[6]
-        post['tagged_users'] = media[7]
-        post['shortcode'] = media[8]
-        post['timestamp'] = datetime.datetime.fromtimestamp(media[9])
-        post['likes'] = likes
-        post['comments'] = comments
-        #post['thumbnails'] = json.loads(media[12])
-        
-        if post['media_type'] == 'GraphSidecar':
-            post['sidecar'] = json.loads(media[13])
-        else:
-            post['sidecar'] = []
-
-
-        post['owner_id'] = owner_profile[0]
-        post['owner_account_name'] = owner_profile[1]
-        post['owner_full_name'] = owner_profile[2]
-        # post['owner_biography'] = owner_profile[3]
-        post['owner_profile_pic_url'] = owner_profile[4]
-        # post['owner_profile_pic_url_hd'] = owner_profile[5]
-        # post['owner_external_url'] = owner_profile[6]
-        # post['owner_external_url_linkshimmed'] = owner_profile[7]
-        # post['owner_followed_by'] = owner_profile[8]
-        # post['owner_follow'] = owner_profile[9]
-        # post['owner_last_updated'] = time.gmtime(owner_profile[10])
-        # post['owner_is_private'] = bool(owner_profile[11])
-        # post['owner_is_deleted'] = bool(owner_profile[12])
-
-        post['origin'] = 'feed:' + str(page)
+        post = build_post_dict(media = media, owner_profile = owner_profile, saved_status = saved_status)
 
         posts.append(post)
 
@@ -154,52 +113,7 @@ def memory(page):
         owner_profile = e.get_account_profile(media[1])
         saved_status = u.get_saved_status(media[0], 0)
 
-        # sets
-        likes = json.loads(media[10])['count']
-        comments = json.loads(media[11])['count']
-
-        post = {}
-
-        owner_account_name = e.get_account_name_from_account_id(media[1])
-        date = datetime.datetime.fromtimestamp(media[9]).strftime('%Y-%m-%d_%H-%M')
-        post['filename'] = 'images/' + str(user_id) + '/' + date + '_' + media[8] + '_by-' + owner_account_name + '.jpg'
-        post['is_saved'] = saved_status
-
-        post['media_id'] = media[0]
-        post['owner'] = media[1]
-        post['media_type'] = media[2]
-        # post['is_video'] = bool(media[3])
-        post['display_url'] = media[4]
-        # post['display_resources'] = media[5]
-        post['caption'] = media[6]
-        post['tagged_users'] = media[7]
-        post['shortcode'] = media[8]
-        post['timestamp'] = datetime.datetime.fromtimestamp(media[9])
-        post['likes'] = likes
-        post['comments'] = comments
-        #post['thumbnails'] = json.loads(media[12])
-        
-        if post['media_type'] == 'GraphSidecar':
-            post['sidecar'] = json.loads(media[13])
-        else:
-            post['sidecar'] = []
-
-
-        post['owner_id'] = owner_profile[0]
-        post['owner_account_name'] = owner_profile[1]
-        post['owner_full_name'] = owner_profile[2]
-        # post['owner_biography'] = owner_profile[3]
-        post['owner_profile_pic_url'] = owner_profile[4]
-        # post['owner_profile_pic_url_hd'] = owner_profile[5]
-        # post['owner_external_url'] = owner_profile[6]
-        # post['owner_external_url_linkshimmed'] = owner_profile[7]
-        # post['owner_followed_by'] = owner_profile[8]
-        # post['owner_follow'] = owner_profile[9]
-        # post['owner_last_updated'] = time.gmtime(owner_profile[10])
-        # post['owner_is_private'] = bool(owner_profile[11])
-        # post['owner_is_deleted'] = bool(owner_profile[12])
-        
-        # post['origin'] = 'memory:' + str(page)
+        post = build_post_dict(media = media, owner_profile = owner_profile, saved_status = saved_status)
 
         posts.append(post)
 
@@ -224,52 +138,12 @@ def media(media_shortcode):
 
     u.close()
 
+    post = build_post_dict(media = media, owner_profile = owner_profile, saved_status = saved_status)
 
-    # sets
-    media_likes = json.loads(media[10])['count']
-    media_comments = json.loads(media[11])['count']
-
-    media_export = {}
-
-    media_export['is_saved'] = saved_status
-
-    media_export['media_id'] = media[0]
-    # media_export['owner'] = media[1]
-    media_export['media_type'] = media[2]
-    # media_export['is_video'] = bool(media[3])
-    media_export['display_url'] = media[4]
-    # media_export['display_resources'] = media[5]
-    media_export['caption'] = media[6]
-    media_export['tagged_users'] = media[7]
-    media_export['shortcode'] = media[8]
-    media_export['timestamp'] = datetime.datetime.fromtimestamp(media[9])
-    media_export['likes'] = media_likes
-    media_export['comments'] = media_comments
-
-    if media_export['media_type'] == 'GraphSidecar':
-        media_export['sidecar'] = json.loads(media[13])
-    else:
-        media_export['sidecar'] = []
-
-
-    media_export['owner_id'] = owner_profile[0]
-    media_export['owner_account_name'] = owner_profile[1]
-    media_export['owner_full_name'] = owner_profile[2]
-    # media_export['owner_biography'] = owner_profile[3]
-    media_export['owner_profile_pic_url'] = owner_profile[4]
-    # media_export['owner_profile_pic_url_hd'] = owner_profile[5]
-    # media_export['owner_external_url'] = owner_profile[6]
-    # media_export['owner_external_url_linkshimmed'] = owner_profile[7]
-    # media_export['owner_followed_by'] = owner_profile[8]
-    # media_export['owner_follow'] = owner_profile[9]
-    # media_export['owner_last_updated'] = time.gmtime(owner_profile[10])
-    # media_export['owner_is_private'] = bool(owner_profile[11])
-    # media_export['owner_is_deleted'] = bool(owner_profile[12]
-
-    media_export['origin'] = media[8]
+    post['origin'] = media[6]
 
     e.close()
-    return render_template('media/index.html', post=media_export)
+    return render_template('media/index.html', post=post)
 
 @app.route("/save/<media_shortcode>")
 def save(media_shortcode):
@@ -348,7 +222,9 @@ def forget(media_shortcode):
         os.remove(target)
     u.close()
 
-    redirection = get_redirection(origin = origin, media_shortcode = media_shortcode, media_owner = owner_account_name)
+    redirection = get_redirection(origin = origin,
+                                  media_shortcode = media_shortcode,
+                                  media_owner = owner_account_name)
 
     return redirect(redirection)
 
@@ -402,39 +278,9 @@ def profile(account_name, page):
     for media in feed:
         saved_status = u.get_saved_status(media[0], 0)
 
-        #sets
-        media_likes = json.loads(media[10])['count']
-        media_comments = json.loads(media[11])['count']
-        media_thumbnail_320 = json.loads(media[12])[3]['src']
+        post = build_post_dict(media = media, owner_profile = profile, saved_status = saved_status)
 
-        post = {}
-
-        post['owner_account_name'] = author['account_name']
-        post['owner_profile_pic_url'] = author['profile_pic_url']
-        post['owner_full_name'] = author['full_name']
-
-        post['is_saved'] = saved_status
-
-        post['media_id'] = media[0]
-        post['owner'] = media[1]
-        post['media_type'] = media[2]
-        # post['is_video'] = bool(media[3])
-        post['display_url'] = media[4]
-        # post['display_resources'] = media[5]
-        post['caption'] = media[6]
-        post['tagged_users'] = media[7]
-        post['shortcode'] = media[8]
-        post['timestamp'] = datetime.datetime.fromtimestamp(media[9])
-        post['likes'] = media_likes
-        post['comments'] = media_comments
-        post['thumbnail_320'] = media_thumbnail_320
-        
-        if post['media_type'] == 'GraphSidecar':
-            post['sidecar'] = json.loads(media[13])
-        else:
-            post['sidecar'] = []
-
-        # post['origin'] = '@' + account_name + ':' + str(page)
+        post['thumbnail_320'] = json.loads(media[10])[3]['src']
 
         posts.append(post)
 
@@ -445,6 +291,7 @@ def profile(account_name, page):
                             posts=posts,
                             pagination=pagination,
                             display_as_feed=display_as_feed)
+
 
 @app.route("/@<account_name>/lists")
 def profile_lists(account_name):
@@ -529,37 +376,7 @@ def list_feed(shortname, page):
         owner_profile = e.get_account_profile(media[1])
         saved_status = u.get_saved_status(media[0], 0)
 
-        # sets
-        likes = json.loads(media[10])['count']
-        comments = json.loads(media[11])['count']
-
-        post = {}
-
-        post['is_saved'] = saved_status
-
-        post['media_id'] = media[0]
-        post['owner'] = media[1]
-        post['media_type'] = media[2]
-        post['display_url'] = media[4]
-        post['caption'] = media[6]
-        post['tagged_users'] = media[7]
-        post['shortcode'] = media[8]
-        post['timestamp'] = datetime.datetime.fromtimestamp(media[9])
-        post['likes'] = likes
-        post['comments'] = comments
-        
-        if post['media_type'] == 'GraphSidecar':
-            post['sidecar'] = json.loads(media[13])
-        else:
-            post['sidecar'] = []
-
-
-        post['owner_id'] = owner_profile[0]
-        post['owner_account_name'] = owner_profile[1]
-        post['owner_full_name'] = owner_profile[2]
-        post['owner_profile_pic_url'] = owner_profile[4]
-
-        post['origin'] = 'feed:' + str(page)
+        post = build_post_dict(media = media, owner_profile = owner_profile, saved_status = saved_status)
 
         posts.append(post)
 
@@ -1058,6 +875,63 @@ def show_account(account_name):
 
 
 # FUNCTIONS
+
+def build_post_dict(media, owner_profile, saved_status):
+    # sets
+ 
+    # 0  id INTEGER,
+    # 1  owner INTEGER,
+    # 2  media_type TEXT,
+    # 3  is_video INTEGER, # boolean
+    # 4  display_url TEXT,
+    # 5  caption TEXT,
+    # 6  shortcode TEXT,
+    # 7  timestamp INTEGER,
+    # 8  likes INTEGER,
+    # 9  comments INTEGER,
+    #10  thumbnails TEXT, # JSON object containing thumbnails
+    #11  sidecar TEXT # JSON object containing the whole edge_sidecar_to_children.edges
+
+    post = {}
+
+    post['is_saved'] = saved_status
+
+    post['media_id']      = media[0]
+    post['owner']         = media[1]
+    post['media_type']    = media[2]
+    post['is_video']      = bool(media[3])
+    post['display_url']   = media[4]
+    post['caption']       = parse_text(media[5])
+    post['caption_short'] = parse_text(smart_truncate(content = media[5], length = 180))
+    post['shortcode']     = media[6]
+    post['timestamp']     = datetime.datetime.fromtimestamp(media[7])
+    post['likes']         = media[8]
+    post['comments']      = media[9]
+    post['thumbnails']    = json.loads(media[10])
+
+    if post['media_type'] == 'GraphSidecar' and json.loads(media[11]) != '':
+        post['sidecar'] = json.loads(media[11])
+    else:
+        post['sidecar'] = []
+
+    post['owner_id']              = owner_profile[0]
+    post['owner_account_name']    = owner_profile[1]
+    post['owner_full_name']       = owner_profile[2]
+    post['owner_profile_pic_url'] = owner_profile[4]
+
+    return post
+
+def parse_text(text):
+    tweet = re.sub(r'(\b(https?|ftp|file):\/\/[-A-Z0-9+&@#\/%?=~_|!:,.;]*[-A-Z0-9+&@#\/%=~_|])', r'<a href="\1" target="_blank">\1</a>', text)
+    tweet = re.sub(r'(\A|\s)@(\w+)', r'\1@<a href="http://www.instagram.com/\2">\2</a>', tweet)
+    tweet = re.sub(r'(\A|\s)#(\w+)', r'\1#<a href="https://www.instagram.com/explore/tags/\2/">\2</a>', tweet) 
+    return tweet
+
+def smart_truncate(content, length=100, suffix='…'):
+    if len(content) <= length:
+        return content
+    else:
+        return ' '.join(content[:length+1].split(' ')[0:-1]) + suffix
 
 def get_list(list_id):
     l = Lists()

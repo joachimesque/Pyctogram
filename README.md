@@ -50,7 +50,7 @@ You can run the app in Debug mode by launching it that way:
 ## 🛠 To Do
 
 - ~~🖼 Display the "Sidecar" objects (when there’s many photos in a single post)~~
-- 👍 Display latest likes and comments on Media view
+- ~~👍 Display latest likes and comments on Media view~~ Following changes by Instagram, it won’t work.
 - ~~📇 Importing Instagram-exported accounts lists~~
 - ⏬ Calling the scraper from the web interface (with a nice Progress Bar component)
 - 🎪 Better Bulma Customization

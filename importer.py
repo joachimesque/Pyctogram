@@ -44,7 +44,7 @@ class Importer:
 
         url = 'https://instagram.com/%s' % account_name
         try:
-            response = get(url, headers={'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10.13; rv:62.0) Gecko/20100101 Firefox/62.0'})
+            response = get(url, headers = config.default_headers, timeout=5)
         except Exception:
             print("Error: Something happened with the connection that prevented us to get %s’s info" % account_name)
             return None
@@ -68,6 +68,38 @@ class Importer:
                 try:
                     account_data = data['entry_data']['ProfilePage'][0]['graphql']['user']
                     return(account_data)
+                except KeyError:
+                    #exit('Error: account_name returned no data, check if valid')
+                    return None
+
+    def get_media_sidecar(self, media_shortcode):
+
+        url = 'https://instagram.com/p/%s' % media_shortcode
+        try:
+            response = get(url, headers = config.default_headers, timeout=5)
+        except Exception:
+            print("Error: Something happened with the connection that prevented us to get %s’s info" % media_shortcode)
+            return None
+        except:
+            exit("Interrupted by user")
+
+        soup = BeautifulSoup(response.text, 'html.parser')
+
+        scripts = soup.find_all('script')
+        for script in scripts:
+            if script.text.startswith('window._sharedData'):
+                json_start = script.text.find('{')
+                json_end = script.text.rfind('}')+1
+                obj = script.text[json_start:json_end]
+
+                try:
+                    data = json.loads(obj)
+                except:
+                    exit('Error: could not load account data')
+
+                try:
+                    sidecar_data = data['entry_data']['PostPage'][0]['graphql']['shortcode_media']['edge_sidecar_to_children']['edges']
+                    return(sidecar_data)
                 except KeyError:
                     #exit('Error: account_name returned no data, check if valid')
                     return None
@@ -168,36 +200,30 @@ class Importer:
                 for caption_edge in node['edge_media_to_caption']['edges']:
                     caption += caption_edge['node']['text']
 
-                # list tagged accounts in a simple list
-                tagged_accounts = []
-                if 'edge_media_to_tagged_user' in node:
-                    for tagged_account in node['edge_media_to_tagged_user']['edges']:
-                        tagged_accounts.append(tagged_account['node']['user']['username'])
+                #get thumbnails
+                thumbnails = json.dumps(node['thumbnail_resources']) if 'thumbnail_resources' in node else ''
 
                 # check if there are some "sidecar" images
+                sidecar = ''
                 if node['__typename'] == 'GraphSidecar':
-                    sidecar = json.dumps(node['edge_sidecar_to_children']) if 'edge_sidecar_to_children' in node else ''
-                else:
-                    sidecar = ''
-
+                    sidecar = json.dumps(self.get_media_sidecar(media_shortcode = node['shortcode']))
+                
                 values = (    node['id'],
                               node['owner']['id'],
                               node['__typename'],
                               int(node['is_video']),             # boolean
                               node['display_url'],
-                              json.dumps(node['display_resources']) if 'display_resources' in node else '',
                               caption,
-                              json.dumps(tagged_accounts),                     # JSON object with list of account_names tagged in the photo
                               node['shortcode'],
                               node['taken_at_timestamp'],
-                              json.dumps(node['edge_media_preview_like']) if 'edge_media_preview_like' in node else '',  # JSON object containing edge_media_preview_like
-                              json.dumps(node['edge_media_to_comment']) if 'edge_media_to_comment' in node else '',    # JSON object containing edge_media_to_comment
-                              json.dumps(node['thumbnail_resources']) if 'thumbnail_resources' in node else '',      # JSON object containing thumbnails
-                              sidecar                                       # JSON object containing the whole edge_sidecar_to_children.edges
+                              node['edge_media_to_comment']['count'],
+                              node['edge_liked_by']['count'],
+                              thumbnails,      # JSON object containing thumbnails
+                              sidecar          # JSON object containing the whole edge_sidecar_to_children.edges
                               )
 
                 try:
-                    self.db.cursor.execute("INSERT INTO Media VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)", values)
+                    self.db.cursor.execute("INSERT INTO Media VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)", values)
                     self.db.commit()
                     media_count += 1
                 except:
@@ -209,6 +235,7 @@ class Importer:
         self.db.commit()
 
         return media_count
+
 
     def tag_account_as_deleted(self, account):
         # Tags account as DELETED

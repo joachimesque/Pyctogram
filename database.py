@@ -52,13 +52,11 @@ class Database:
         #   media_type TEXT,
         #   is_video INTEGER, # boolean
         #   display_url TEXT,
-        #   display_resources TEXT,
         #   caption TEXT,
-        #   tagged_users TEXT, # JSON object with list of account_names tagged in the photo
         #   shortcode TEXT,
         #   timestamp INTEGER,
-        #   likes TEXT, # JSON object containing edge_media_preview_like
-        #   comments TEXT, # JSON object containing edge_media_to_comment
+        #   likes INTEGER,
+        #   comments INTEGER,
         #   thumbnails TEXT, # JSON object containing thumbnails
         #   sidecar TEXT # JSON object containing the whole edge_sidecar_to_children.edges
         self.cursor.execute('''CREATE TABLE IF NOT EXISTS Media (
@@ -67,13 +65,11 @@ class Database:
                                         media_type TEXT,
                                         is_video INTEGER,
                                         display_url TEXT,
-                                        display_resources TEXT,
                                         caption TEXT,
-                                        tagged_users TEXT,
                                         shortcode TEXT,
                                         timestamp INTEGER,
-                                        likes TEXT,
-                                        comments TEXT,
+                                        likes INTEGER,
+                                        comments INTEGER,
                                         thumbnails TEXT,
                                         sidecar TEXT)''')
 
