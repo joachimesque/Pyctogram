@@ -78,9 +78,13 @@ def import_account_list(from_text_file = None, from_list = None, from_instagram 
     for index, account in enumerate(account_list):
         if importer.account_exists(account) is False:
             account_data = importer.get_account_data(account)
+            i = index + 1
 
             if account_data is None:
-                print('Warning: account %s has returned no data. You should check if an account still exists by that name.' % account)
+                status = '🤷‍♀ Account %s has returned no data' % account
+                importer.progress(i, len(account_list), status = status)
+
+                # print('Warning: account %s has returned no data. You should check if an account still exists by that name.' % account)
                 failed_accounts.append(account)
             else:
                 if importer.add_new_account(account_data = account_data):
@@ -90,11 +94,18 @@ def import_account_list(from_text_file = None, from_list = None, from_instagram 
                     if account_data['is_private'] is False and account_data['edge_owner_to_timeline_media']['count'] > 0:
                         media_added = importer.add_data_to_db(account_data)
                         if media_added > 0:
-                          print("%d/%d : %d new media added for account %s" % (index + 1, len(account_list), media_added, account_data['username']))
+                          status = '🙋‍♀ Added %s media for %s' % (media_added, account)
+                          importer.progress(i, len(account_list), status = status)
+                          #print("%d/%d : %d new media added for account %s" % (index + 1, len(account_list), media_added, account_data['username']))
+                    else:
+                        status = '🙅‍♀ No new media for %s' % account
+                        importer.progress(i, len(account_list), status = status)
 
                     account_count += 1
 
                 else:
+                    status = '🤦‍♀ Could not save %s’s info' % account
+                    importer.progress(i, len(account_list), status = status)
                     failed_accounts.append(account)
 
                 importer.commit()

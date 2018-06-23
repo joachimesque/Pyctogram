@@ -5,6 +5,7 @@ from requests import get
 from bs4 import BeautifulSoup
 import json
 import time
+import sys
 
 from database import Database
 
@@ -90,8 +91,6 @@ class Importer:
     def add_new_account(self, account_data):
         # Adds a new account to the DB
         # username is account_name in DB
-
-        print("New account added to database : %s" % account_data["username"]) 
         
         values = (  account_data["id"],
                     account_data["username"],
@@ -242,29 +241,49 @@ class Importer:
         account_count = 0
         total_media_added = 0
 
+        failed_accounts = []
+
         for index, account in enumerate(account_list):
             account_data = self.get_account_data(account)
+            i = index + 1
 
-            if account_data is None:
-                print('Warning: account %s has returned no data. You should check if an account still exists by that name.' % account)
+            if account_data is None:                
+                status = '🤷‍♀ Account %s has returned no data' % account
+                self.progress(i, len(account_list), status = status)
+                failed_accounts.append(account)
 
             else:
                 if account_data['is_private'] is False and account_data['edge_owner_to_timeline_media']['count'] > 0:
                     media_added = self.add_data_to_db(account_data)
                     if media_added > 0:
-                        print("%d/%d : %d new media added for account %s" % (index + 1, len(account_list), media_added, account_data['username']))
+                        status = '🙋‍♀ Added %s media for %s' % (media_added, account)
+                        self.progress(i, len(account_list), status = status)
                         account_count += 1
+                    else: 
+                        status = '🙅‍♀ No new media for %s' % account
+                        self.progress(i, len(account_list), status = status)
+
                     total_media_added += media_added
+                else:
+                    status = '🙅‍♀ %s’s account has no visible media' % account
+                    self.progress(i, len(account_list), status = status)
 
 
         if account_count > 1:
-            print("We got \033[1m%s\033[0m new media from \033[1m%s\033[0m accounts" % (total_media_added, account_count))
+            print("\nWe got \033[1m%s\033[0m new media from \033[1m%s\033[0m accounts" % (total_media_added, account_count))
         elif account_count > 0:
-            print("We got \033[1m%s\033[0m new media from \033[1mone\033[0m account" % total_media_added)
+            print("\nWe got \033[1m%s\033[0m new media from \033[1mone\033[0m account" % total_media_added)
         else:
-            print("No new media were found at this time")
+            print("\nNo new media were found at this time")
+
+        return failed_accounts
 
 
+    """
+    These following functions normally belong to lists.py
+    Using two DB-related classes in start_here.py was causing the sqlite3 to lock the db file.
+    This is a hack.
+    """
     def create_new_list(self, list_info, user_id, is_hidden = 0):
         """
         Creates a new list
@@ -308,8 +327,37 @@ class Importer:
 
 
 
+    def progress(self, count, total, status=''):
+        """
+        Taken from: https://gist.github.com/vladignatyev/06860ec2040cb497f0f3
+        Released under MIT License, which can be read at the provided link.
+        """
+        bar_len = 50
+        filled_len = int(round(bar_len * count / float(total)))
+
+        percents = round(100.0 * count / float(total), 1)
+        bar = '=' * filled_len + '-' * (bar_len - filled_len)
+
+        sys.stdout.write("\033[K")
+        sys.stdout.write('[%s] %s%s ...%s\r' % (bar, percents, '%', status))
+        sys.stdout.flush() # As suggested by Rom Ruben (see: http://stackoverflow.com/questions/3173320/text-progress-bar-in-the-console/27871113#comment50529068_27871113)
+
 if __name__ == '__main__':
     i = Importer()
     # i.init_db()
-    i.import_media()
+    failed_accounts = i.import_media()
+
+    if failed_accounts != []:
+        print("\033[1mSome accounts failed to be imported, it might be due to bad internet. We’re trying again:\033[0m")
+        really_failed_accounts = i.import_media(from_accounts = failed_accounts)
+
+    if really_failed_accounts != []:
+        error_file_name = 'bad_accounts.txt'
+        print("%s accounts could not be imported even when we tried." % len(failed_accounts))
+        with open(error_file_name, 'w') as file:
+            file.write('\n'.join(failed_accounts))
+            print("The list has been saved in the file: \033[1m%s\033[0m" % error_file_name)
+            print("You will soon be able to delete them from the database with the file.")
+
+
     i.close()
