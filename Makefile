@@ -12,5 +12,8 @@ install:
 init-data:
 	$(PYTHON) start_here.py
 
+lint:
+	$(PYTEST) --flake8 --isort -m "flake8 or isort"
+
 serve:
 	$(FLASK) run --with-threads -h $(HOST) -p $(PORT)
