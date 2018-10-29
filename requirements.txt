@@ -1,5 +1,14 @@
 beautifulsoup4==4.6.0
+certifi==2018.10.15
+chardet==3.0.4
+Click==7.0
 Flask==1.0.2
+idna==2.6
+itsdangerous==1.1.0
 Jinja2==2.10
-requests==2.18.4
+MarkupSafe==1.0
 python-slugify==1.2.5
+requests==2.18.4
+Unidecode==1.0.22
+urllib3==1.22
+Werkzeug==0.14.1
