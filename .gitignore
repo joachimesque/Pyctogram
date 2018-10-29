@@ -107,3 +107,5 @@ static/images/0/*.jpg
 connections.json
 temp/*
 missed_connections.txt
+
+.idea
