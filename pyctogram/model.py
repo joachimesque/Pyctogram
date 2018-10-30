@@ -12,7 +12,7 @@ accounts2lists = db.Table(
     db.Column('account_id',
               db.Integer,
               db.ForeignKey('accounts.id'), primary_key=True),
-    db.Column('date_added', db.DateTime)
+    db.Column('date_added', db.DateTime, default=datetime.datetime.utcnow())
 )
 
 accounts2users = db.Table(
@@ -23,7 +23,7 @@ accounts2users = db.Table(
     db.Column('account_id',
               db.Integer,
               db.ForeignKey('accounts.id'), primary_key=True),
-    db.Column('date_added', db.DateTime)
+    db.Column('date_added', db.DateTime, default=datetime.datetime.utcnow())
 )
 
 user_faves = db.Table(
@@ -94,6 +94,10 @@ class Account(db.Model):
                             lazy=True,
                             backref=db.backref('accounts', lazy='joined'))
 
+    def __init__(self, id, account_name):
+        self.id = id
+        self.account_name = account_name
+
 
 class List(db.Model):
     __tablename__ = "lists"
@@ -114,6 +118,14 @@ class List(db.Model):
                                secondary=accounts2lists,
                                lazy='subquery',
                                backref=db.backref('lists', lazy=True))
+
+    def __init__(self, user_id, shortname, longname, description="",
+                 date_added=datetime.datetime.utcnow()):
+        self.user_id = user_id
+        self.shortname = shortname
+        self.longname = longname
+        self.description = description
+        self.date_added = date_added
 
 
 class Media(db.Model):

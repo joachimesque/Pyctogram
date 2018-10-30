@@ -12,7 +12,15 @@
   {% elif import_count|int > 0 %}
     <p>{{ import_count }} contacts was imported.</p>
   {% endif %}
-  
-  <p>See your contacts on the <a href="{{ url_for('index') }}">Feed</a></p>
+  {% if contacts_not_ok|count > 1 %}
+    <p>Import for the follonwing accounts failed:</p>
+    <ul>
+    {% for contact in contacts_not_ok %}
+      <li>{{ contact }}</li>
+    {% endfor %}
+    </ul>
+  {% endif %}
+
+  <p>See your contacts on the <a href="{{ url_for('feed.index') }}">Feed</a></p>
 
 {% endblock %}
