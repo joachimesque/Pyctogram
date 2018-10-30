@@ -27,6 +27,8 @@ def create_app():
         migrate.init_app(app, db)
         login_manager.init_app(app)
         login_manager.login_view = 'users.login'
+        login_manager.login_message = ('Veuillez vous connecter ou vous '
+                                       'enregistrer pour accéder à cette page')
 
     if app.debug:
         logging.getLogger('sqlalchemy').setLevel(logging.WARNING)

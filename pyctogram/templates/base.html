@@ -66,7 +66,7 @@
         </a>
         {% else %}
         <a class="navbar-item" href="{{ url_for('users.logout') }}">
-          Se deconnecter
+          Se déconnecter ({{ current_user.username }})
         </a>
         {% endif %}
         <div class="navbar-item has-dropdown is-hoverable">
@@ -99,14 +99,20 @@
         </div>
       </div>
     </div>
-  {% with messages = get_flashed_messages() %}
+  {% with messages = get_flashed_messages(with_categories=true) %}
     {% if messages %}
     <div class="container">
       <div class="columns is-centered">
         <div class="column is-half">
           <ul class=flashes>
-          {% for message in messages %}
+          {% for category, message in messages %}
+            {% if category == 'error' %}
             <li class="notification is-danger"><strong>{{ message }}</strong></li>
+            {% elif category == 'success' %}
+            <li class="notification is-success"><strong>{{ message }}</strong></li>
+            {% else %}
+            <li class="notification is-info"><strong>{{ message }}</strong></li>
+            {% endif %}
           {% endfor %}
           </ul>
         </div>
