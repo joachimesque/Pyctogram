@@ -7,8 +7,10 @@ chardet==3.0.4
 Click==7.0
 flake8==3.6.0
 Flask==1.0.2
+Flask-Login==0.4.1
 Flask-Migrate==2.3.0
 Flask-SQLAlchemy==2.3.2
+Flask-WTF==0.14.2
 idna==2.6
 isort==4.3.4
 itsdangerous==1.1.0
@@ -33,3 +35,4 @@ SQLAlchemy==1.2.12
 Unidecode==1.0.22
 urllib3==1.22
 Werkzeug==0.14.1
+WTForms==2.2.1

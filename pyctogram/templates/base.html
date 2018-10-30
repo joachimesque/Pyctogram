@@ -30,26 +30,26 @@
         <a class="navbar-item" href="{{ url_for('index') }}">
           <span class="is-size-4" role="img" aria-label="Picture">{{ title_emojo }}</span>&nbsp;Feed
         </a>
-        <a class="navbar-item" href="{{ url_for('memory') }}">
-          <span class="is-size-5" role="img" aria-label="Saved pictures">💾</span>&nbsp;Memory
-        </a>
+{#        <a class="navbar-item" href="{{ url_for('memory') }}">#}
+{#          <span class="is-size-5" role="img" aria-label="Saved pictures">💾</span>&nbsp;Memory#}
+{#        </a>#}
         <div class="navbar-item has-dropdown is-hoverable">
-          <a class="navbar-link" href="{{ url_for('list_lists') }}">
-            <span class="is-size-5" role="img" aria-label="Your lists">🔖</span>&nbsp;Lists
-          </a>
+{#          <a class="navbar-link" href="{{ url_for('list_lists') }}">#}
+{#            <span class="is-size-5" role="img" aria-label="Your lists">🔖</span>&nbsp;Lists#}
+{#          </a>#}
           <div class="navbar-dropdown">
-          {% if get_lists() is defined and get_lists()|length > 0 %}
-            {% for list in get_lists() %}
-            <a class="navbar-item" href="{{ url_for('list_feed', shortname = list.shortname) }}">
-              {{ list.longname }} &nbsp; <small>({{ list.count }})</small>
-            </a>
-            {% endfor %}
-            <div class="navbar-divider"></div>
-          {% endif %}
-            <a class="navbar-item" href="{{ url_for('list_create') }}">
-              <span class="is-size-7" role="img" aria-label="Plus">➕</span>&nbsp;
-              Create a new list
-            </a>
+{#          {% if get_lists() is defined and get_lists()|length > 0 %}#}
+{#            {% for list in get_lists() %}#}
+{#            <a class="navbar-item" href="{{ url_for('list_feed', shortname = list.shortname) }}">#}
+{#              {{ list.longname }} &nbsp; <small>({{ list.count }})</small>#}
+{#            </a>#}
+{#            {% endfor %}#}
+{#            <div class="navbar-divider"></div>#}
+{#          {% endif %}#}
+{#            <a class="navbar-item" href="{{ url_for('list_create') }}">#}
+{#              <span class="is-size-7" role="img" aria-label="Plus">➕</span>&nbsp;#}
+{#              Create a new list#}
+{#            </a>#}
 
           </div>
         </div>
@@ -60,15 +60,15 @@
             <span class="is-size-5" role="img" aria-label="Import">🗄</span>&nbsp;Import contacts
           </div>
           <div class="navbar-dropdown is-right">
-            <a class="navbar-item" href="{{ url_for('import_from_json') }}">
-              🗃 Import from&nbsp;<strong>connections.json</strong>
-            </a>
-            <a class="navbar-item" href="{{ url_for('import_from_text') }}">
-              📋 Import from&nbsp;<strong>text file</strong>
-            </a>
-            <a class="navbar-item" href="{{ url_for('import_from_form') }}">
-              📇 Import custom
-            </a>
+{#            <a class="navbar-item" href="{{ url_for('import_from_json') }}">#}
+{#              🗃 Import from&nbsp;<strong>connections.json</strong>#}
+{#            </a>#}
+{#            <a class="navbar-item" href="{{ url_for('import_from_text') }}">#}
+{#              📋 Import from&nbsp;<strong>text file</strong>#}
+{#            </a>#}
+{#            <a class="navbar-item" href="{{ url_for('import_from_form') }}">#}
+{#              📇 Import custom#}
+{#            </a>#}
           </div>
         </div>
       </div>

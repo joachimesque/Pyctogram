@@ -3,11 +3,13 @@ import os
 from urllib.parse import urlparse
 
 from flask import Flask, render_template
+from flask_login import LoginManager
 from flask_migrate import Migrate
 from flask_sqlalchemy import SQLAlchemy
 
 db = SQLAlchemy()
 migrate = Migrate()
+login_manager = LoginManager()
 appLog = logging.getLogger('pyctogram')
 
 
@@ -20,9 +22,10 @@ def create_app():
         app_settings = os.getenv('APP_SETTINGS')
         app.config.from_object(app_settings)
 
-    # set up extensions
-    db.init_app(app)
-    migrate.init_app(app, db)
+        # set up extensions
+        db.init_app(app)
+        migrate.init_app(app, db)
+        login_manager.init_app(app)
 
     if app.debug:
         logging.getLogger('sqlalchemy').setLevel(logging.WARNING)
@@ -34,9 +37,15 @@ def create_app():
 
     from .model import Account, List, Media, User  # noqa
 
+    from .users.auth import users_blueprint  # noqa
+    app.register_blueprint(users_blueprint)
+
+    @login_manager.user_loader
+    def load_user(user_id):
+        return User.query.get(user_id)
+
     @app.errorhandler(404)
     def page_not_found(e):
-        # note that we set the 404 status explicitly
         return render_template('404.html'), 404
 
     @app.route("/")
