@@ -26,6 +26,7 @@ def create_app():
         db.init_app(app)
         migrate.init_app(app, db)
         login_manager.init_app(app)
+        login_manager.login_view = 'users.login'
 
     if app.debug:
         logging.getLogger('sqlalchemy').setLevel(logging.WARNING)
@@ -37,7 +38,9 @@ def create_app():
 
     from .model import Account, List, Media, User  # noqa
 
+    from .feed.home import feed_blueprint  # noqa
     from .users.auth import users_blueprint  # noqa
+    app.register_blueprint(feed_blueprint)
     app.register_blueprint(users_blueprint)
 
     @login_manager.user_loader
@@ -48,9 +51,6 @@ def create_app():
     def page_not_found(e):
         return render_template('404.html'), 404
 
-    @app.route("/")
-    def index():
-        return 'rewriting in progress'
 
     @app.cli.command()
     def dropdb():

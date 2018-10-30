@@ -8,14 +8,14 @@
   <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
   <link rel="stylesheet" href="{{ url_for('static', filename='css/slider-css.css') }}">
 
-  {% set title_emojo = ['🗾','🎑','🏞','🌅','🌄','🌠','🎇','🎆','🌇','🌆','🏙','🌃','🌌','🌉','🌁'] | random %} 
+  {% set title_emojo = ['🗾','🎑','🏞','🌅','🌄','🌠','🎇','🎆','🌇','🌆','🏙','🌃','🌌','🌉','🌁'] | random %}
   <title>{% block title %}{% endblock %} - Pyctogram</title>
 
 </head>
 <body class="template-{{ request.url_rule.endpoint }}">
   <nav class="navbar" id="top">
     <div class="navbar-brand">
-      <a class="navbar-item" href="{{ url_for('index') }}">
+      <a class="navbar-item" href="{{ url_for('feed.index') }}">
         <p class="is-size-3"><strong><span role="img" aria-label="Picture">📷</span> Pyctogram</strong></p>
       </a>
       <div class="navbar-burger burger" data-target="menu">
@@ -27,9 +27,11 @@
 
     <div id="menu" class="navbar-menu">
       <div class="navbar-start">
-        <a class="navbar-item" href="{{ url_for('index') }}">
+        {% if not current_user.is_anonymous %}
+        <a class="navbar-item" href="{{ url_for('feed.index') }}">
           <span class="is-size-4" role="img" aria-label="Picture">{{ title_emojo }}</span>&nbsp;Feed
         </a>
+        {% endif %}
 {#        <a class="navbar-item" href="{{ url_for('memory') }}">#}
 {#          <span class="is-size-5" role="img" aria-label="Saved pictures">💾</span>&nbsp;Memory#}
 {#        </a>#}
@@ -55,6 +57,18 @@
         </div>
       </div>
       <div class="navbar-end">
+        {% if current_user.is_anonymous %}
+        <a class="navbar-item" href="{{ url_for('users.login') }}">
+          Se connecter
+        </a>
+        <a class="navbar-item" href="{{ url_for('users.register') }}">
+          S'enregistrer
+        </a>
+        {% else %}
+        <a class="navbar-item" href="{{ url_for('users.logout') }}">
+          Se deconnecter
+        </a>
+        {% endif %}
         <div class="navbar-item has-dropdown is-hoverable">
           <div class="navbar-link">
             <span class="is-size-5" role="img" aria-label="Import">🗄</span>&nbsp;Import contacts
@@ -220,7 +234,7 @@
 
         // SELECTORS
         var cards = document.querySelectorAll('article.full-card');
-        
+
         // FUNCTIONS
         function isAnyPartOfElementInViewport(el) {
 

@@ -90,6 +90,9 @@ class Account(db.Model):
     follow = db.Column(db.Integer)
     last_updated = db.Column(db.Integer)
     is_private = db.Column(db.Boolean)
+    media = db.relationship('Media',
+                            lazy=True,
+                            backref=db.backref('accounts', lazy='joined'))
 
 
 class List(db.Model):

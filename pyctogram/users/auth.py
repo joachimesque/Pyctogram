@@ -1,5 +1,5 @@
 from flask import Blueprint, flash, redirect, render_template, request, url_for
-from flask_login import current_user, login_user
+from flask_login import current_user, login_user, logout_user
 
 from pyctogram import db
 from pyctogram.model import User
@@ -11,7 +11,7 @@ users_blueprint = Blueprint('users', __name__)
 @users_blueprint.route('/login', methods=['GET', 'POST'])
 def login():
     if current_user.is_authenticated:
-        return redirect(url_for('index'))
+        return redirect(url_for('feed.index'))
 
     form = LoginForm(request.form)
     if request.method == 'POST' and form.validate():
@@ -20,7 +20,7 @@ def login():
             login_user(user)
             flash('Connecté en tant que \'{}\''.format(user.username))
             next = request.args.get('next')
-            return redirect(next or url_for('index'))
+            return redirect(next or url_for('feed.index'))
         else:
             flash(
                 'Login ou mot de passe incorrect, veuillez réessayer.'
@@ -32,7 +32,7 @@ def login():
 @users_blueprint.route('/register', methods=['GET', 'POST'])
 def register():
     if current_user.is_authenticated:
-        return redirect(url_for('index'))
+        return redirect(url_for('fedd.index'))
 
     form = RegisterForm()
     if form.validate_on_submit():
@@ -42,6 +42,12 @@ def register():
         db.session.add(user)
         db.session.commit()
         flash('Vous êtes enregistré.')
-        return redirect(url_for('index'))
+        return redirect(url_for('feed.index'))
 
     return render_template('user/register.html', title='Register', form=form)
+
+
+@users_blueprint.route('/logout')
+def logout():
+    logout_user()
+    return redirect(url_for('users.login'))
