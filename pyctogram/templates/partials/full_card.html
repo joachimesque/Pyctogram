@@ -1,19 +1,19 @@
-    <article class="card full-card" id="{{ post['shortcode'] }}">
+    <article class="card full-card" id="{{ post.shortcode }}">
 
       <header class="card-header">
         <div class="is-flex card-header-title">
-          <a href="{{ url_for('profile', account_name = post['owner_account_name']) | replace('%40', '@') }}">
+{#          <a href="{{ url_for('profile', account_name = post.account.account_name) | replace('%40', '@') }}">#}
             <figure class="profile-picture image is-64x64">
-              <img src="{{ post['owner_profile_pic_url'] }}" alt="{{ post['owner_account_name'] }}">
+              <img src="{{ post.account.profile_pic_url }}" alt="{{ post.account.account_name }}">
             </figure>
-          </a>
+{#          </a>#}
           &nbsp;
           &nbsp;
           <p>
-            <a href="{{ url_for('profile', account_name = post['owner_account_name']) | replace('%40', '@') }}">
-              <span class="title is-5">{{ post['owner_full_name'] }}</span><br>
-              <span class="subtitle is-6">@{{ post['owner_account_name'] }}</span>
-            </a>
+{#            <a href="{{ url_for('profile', account_name = post['owner_account_name']) | replace('%40', '@') }}">#}
+              <span class="title is-5">{{ post.account.full_name }}</span><br>
+              <span class="subtitle is-6">@{{ post.account.account_name }}</span>
+{#            </a>#}
           </p>
         </div>
         <div class="card-header-icon">
@@ -21,22 +21,24 @@
           {% if request.url_rule.endpoint == 'index' %}
             <a title="Hide account from feed 🙈" class="button is-small is-outlined is-info" href="{{ url_for('hide_account', account_name = post.owner_account_name, origin = origin_delete) }}">Hide account 🙈</a><br>
           {% endif %}
-            <a class="button is-small is-outlined is-info" href="{{ url_for('list_choices_for_user', account_name = post.owner_account_name, origin = origin) }}">Add account to list 🔖</a>
+{#            <a class="button is-small is-outlined is-info" href="{{ url_for('list_choices_for_user', account_name = post.owner_account_name, origin = origin) }}">#}
+                Add account to list 🔖
+{#            </a>#}
           </span>
         </div>
       </header>
 
       <div class="card-image">
-        {% if post['media_type'] == 'GraphImage' %}
+        {% if post.media_type == 'GraphImage' %}
         <figure class="image is-square">
-          <img src="{{ post['display_url'] }}" alt="A photo by {{ post['owner_full_name'] }}">
+          <img src="{{ post.display_url }}" alt="A photo by {{ post.account.full_name }}">
         </figure>
-        {% elif post['media_type'] == 'GraphSidecar' %}
+        {% elif post.media_type == 'GraphSidecar' %}
           <div class="sidecar slider" data-slider>
             <div class="slides">
-              {% for image in post['sidecar'] %}
+              {% for image in post.sidecar|json_loads %}
               <div class="">
-                <figure class="image is-square"><img src="{{ image['node']['display_url'] }}" alt="A photo by {{ post['owner_full_name'] }}"></figure>
+                <figure class="image is-square"><img src="{{ image['node']['display_url'] }}" alt="A photo by {{ post.account.full_name }}"></figure>
               </div>
               {% endfor %}
             </div>
@@ -48,36 +50,36 @@
 
       <div class="card-content">
         <div class="content pre-line">
-          {%- if request.url_rule.endpoint == 'media' -%}
-            {{ post['caption']|safe }}
-          {%- else -%}
-            {{ post['caption_short']|safe }}
-          {%- endif -%}
+            {{ post.caption|parse_text|safe }}
         </div>
         <p class="is-size-7 is-marginless">
-          <a href="{{ url_for('media', media_shortcode = post['shortcode']) }}">
-            <time datetime="{{ post['timestamp'].strftime('%Y-%m-%d') }}">{{ post['timestamp'].strftime('%Y-%m-%d %H:%m') }}</time>
-          </a>
+{#          <a href="{{ url_for('media', media_shortcode = post['shortcode']) }}">#}
+            <time datetime="{{ post.timestamp|format_timestamp }}">{{ post.timestamp|format_timestamp('%Y-%m-%d %H:%m') }}</time>
+{#          </a>#}
         </p>
       </div>
       <footer class="card-footer">
         <p class="card-footer-item is-centered">
-          <a href="https://instagram.com/p/{{ post['shortcode'] }}" target="_blank" noopener>View original ↗</a>
+          <a href="https://instagram.com/p/{{ post.shortcode }}" target="_blank" noopener>View original ↗</a>
         </p>
         <p class="card-footer-item is-centered">
-          {{ post['likes'] }} 👍
+          {{ post.likes }} 👍
         </p>
         <p class="card-footer-item is-centered">
-          {{ post['comments'] }} 💬
+          {{ post.comments }} 💬
         </p>
         <p class="card-footer-item is-centered">
           {% if request.url_rule.endpoint == 'memory' %}
             {% set origin = origin_delete %}
           {% endif %}
-          {% if post['is_saved'] == False %}
-          <a class="saveButton" href="{{ url_for('save', media_shortcode = post['shortcode'], origin = origin) }}">Save 💾</a>
+          {% if post.is_saved == False %}
+{#          <a class="saveButton" href="{{ url_for('save', media_shortcode = post.shortcode, origin = origin) }}">#}
+              Save 💾
+{#          </a>#}
           {% else %}
-          <a class="saveButton" href="{{ url_for('forget', media_shortcode = post['shortcode'], origin = origin) }}">Forget 💾</a>
+{#          <a class="saveButton" href="{{ url_for('forget', media_shortcode = post.shortcode, origin = origin) }}">#}
+              Forget 💾
+{#          </a>#}
           {% endif %}
         </p>
       </footer>

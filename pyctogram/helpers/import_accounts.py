@@ -204,8 +204,6 @@ def add_media(account, account_data):
 
 
 def update_media(user_id=None, list_id=None):
-    print('update_media')
-
     if list_id:
         list = List.query.filter_by(id=list_id).first()
         if not list:

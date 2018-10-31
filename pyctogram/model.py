@@ -93,6 +93,10 @@ class Account(db.Model):
     media = db.relationship('Media',
                             lazy=True,
                             backref=db.backref('accounts', lazy='joined'))
+    account_lists = db.relationship('List',
+                                    secondary=accounts2lists,
+                                    lazy='subquery',
+                                    backref=db.backref('account', lazy=True))
 
     def __init__(self, id, account_name):
         self.id = id
@@ -126,6 +130,12 @@ class List(db.Model):
         self.longname = longname
         self.description = description
         self.date_added = date_added
+
+    @property
+    def media(self):
+        media = Media.query.join(Account).filter(
+            Account.account_lists.any(List.id == self.id))
+        return media.order_by(Media.timestamp.desc()).all()
 
 
 class Media(db.Model):

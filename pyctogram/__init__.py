@@ -1,5 +1,8 @@
+import json
 import logging
 import os
+import re
+from datetime import datetime
 from urllib.parse import urlparse
 
 from flask import Flask, render_template
@@ -16,6 +19,13 @@ db = SQLAlchemy()
 migrate = Migrate()
 login_manager = LoginManager()
 appLog = logging.getLogger('pyctogram')
+
+
+def smart_truncate(content, length=100, suffix='…'):
+    if len(content) <= length:
+        return content
+    else:
+        return ' '.join(content[:length+1].split(' ')[0:-1]) + suffix
 
 
 def create_app():
@@ -57,6 +67,28 @@ def create_app():
     @app.errorhandler(404)
     def page_not_found(e):
         return render_template('404.html'), 404
+
+    @app.template_filter()
+    def json_loads(data):
+        return json.loads(data)
+
+    @app.template_filter()
+    def format_timestamp(ts, format='%Y-%m-%d'):
+        return datetime.fromtimestamp(ts).strftime(format)
+
+    @app.template_filter()
+    def parse_text(text):
+        text = smart_truncate(text, length=180)
+        caption = re.sub(
+            r'(\b(https?|ftp|file):\/\/[-A-Z0-9+&@#\/%?=~_|!:,.;]*[-A-Z0-9+&@#\/%=~_|])',
+            r'<a href="\1" target="_blank">\1</a>', text)
+        caption = re.sub(r'(\A|\s)@(\w+)',
+                       r'\1@<a href="http://www.instagram.com/\2">\2</a>',
+                         caption)
+        caption = re.sub(r'(\A|\s)#(\w+)',
+                       r'\1#<a href="https://www.instagram.com/explore/tags/\2/">\2</a>',
+                         caption)
+        return caption
 
     @app.cli.command()
     def dropdb():
