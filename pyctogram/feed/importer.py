@@ -27,8 +27,11 @@ def import_contacts_from_file(request, type):
         return redirect(request.url)
     if file and allowed_file(file.filename):
         filename = secure_filename(file.filename)
-        file_path = os.path.join(
-            current_app.config['UPLOAD_FOLDER'], filename)
+        dir_path = os.path.join(current_app.config['UPLOAD_FOLDER'],
+                                str(current_user.id))
+        if not os.path.exists(dir_path):
+            os.makedirs(dir_path)
+        file_path = os.path.join(dir_path, filename)
         file.save(file_path)
 
         with open(file_path, 'r') as f:
