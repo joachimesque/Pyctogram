@@ -1,9 +1,10 @@
 import json
 
 from bs4 import BeautifulSoup
+from flask import current_app
 from requests import get
 
-from pyctogram import db
+from pyctogram import appLog, db
 from pyctogram.model import Account, List
 
 
@@ -14,9 +15,15 @@ def get_account_data(account_name, headers):
     url = f'https://instagram.com/{account_name}'
     try:
         response = get(url, headers=headers, timeout=5)
-    except Exception:
-        print("Error: Something happened with the connection that "
-              f"prevented us to get {account_name}’s info")
+    except Exception as e:
+        appLog.error("Something happened with the connection that "
+                     f"prevented us to get {account_name}’s info")
+        appLog.error(e)
+        return None
+    if response.status_code >= 400:
+        appLog.error("Something happened with the connection that "
+                     f"prevented us to get {account_name}’s info "
+                     f"(Instagram status code: {response.status_code})")
         return None
 
     soup = BeautifulSoup(response.text, 'html.parser')
@@ -33,21 +40,25 @@ def get_account_data(account_name, headers):
                 account_data = data['entry_data']['ProfilePage'][0]['graphql'][
                     'user']
                 return account_data
-            except Exception:
-                exit('Error: could not load account data')
+            except Exception as e:
+                appLog.error(f'Could not load account data - error: {e}')
 
     return None
 
 
-def create_accounts(contacts_to_import, current_user, headers, list_info):
+def create_accounts(contacts_to_import, current_user, list_info):
     total = 0
+    not_imported = []
     for contact in contacts_to_import:
         account = Account.query.filter_by(
             account_name=contact).first()
         if not account:
-            account_data = get_account_data(contact, headers)
+            account_data = get_account_data(contact,
+                                            current_app.config[
+                                                'DEFAULT_HEADERS'])
 
             if not account_data:
+                not_imported.append(contact)
                 continue
 
             account = Account(id=account_data["id"],
@@ -90,4 +101,4 @@ def create_accounts(contacts_to_import, current_user, headers, list_info):
             default_list.accounts.append(account)
 
     db.session.commit()
-    return total
+    return total, not_imported

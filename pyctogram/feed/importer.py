@@ -44,10 +44,8 @@ def import_contacts_from_file(request, type):
                 return redirect(request.url)
 
             default_list_info = current_app.config['DEFAULT_LIST_INFO']
-            headers = current_app.config['DEFAULT_HEADERS']
-
             total = create_accounts(contacts_to_import, current_user,
-                                    headers, default_list_info)
+                                    default_list_info)
     return total
 
 
@@ -55,9 +53,13 @@ def import_contacts_from_file(request, type):
 @login_required
 def import_from_json():
     if request.method == 'POST':
-        total = import_contacts_from_file(request, 'json')
+        total, not_imported = import_contacts_from_file(request, 'json')
+        if not_imported:
+            accounts_list = ', '.join(not_imported)
+            flash('Errors were encountered for the following accounts:'
+                  f' {accounts_list}', 'error')
         return redirect(
-            url_for('importer.import_success', import_count=total))
+            url_for('importer.import_done', import_count=total))
     return render_template('import/json.html')
 
 
@@ -65,16 +67,19 @@ def import_from_json():
 @login_required
 def import_from_text():
     if request.method == 'POST':
-        total = import_contacts_from_file(request, 'text')
+        total, not_imported = import_contacts_from_file(request, 'text')
+        if not_imported:
+            accounts_list = ', '.join(not_imported)
+            flash('Errors were encountered for the following accounts:'
+                  f' {accounts_list}', 'error')
         return redirect(
-            url_for('importer.import_success', import_count=total))
+            url_for('importer.import_done', import_count=total))
     return render_template('import/text.html')
 
 
 @import_blueprint.route("/import", methods=['POST', 'GET'])
 @login_required
 def import_from_form():
-
     if request.method == 'POST':
 
         if request.form['contacts'] == '':
@@ -85,17 +90,19 @@ def import_from_form():
         contacts_to_import = request.form['contacts'].splitlines()
 
         default_list_info = current_app.config['DEFAULT_LIST_INFO']
-        headers = current_app.config['DEFAULT_HEADERS']
-        total = create_accounts(contacts_to_import, current_user,
-                                headers, default_list_info)
-
-        return redirect(url_for('importer.import_success', import_count=total))
+        total, not_imported = create_accounts(contacts_to_import, current_user,
+                                              default_list_info)
+        if not_imported:
+            accounts_list = ', '.join(not_imported)
+            flash('Errors were encountered for the following accounts:'
+                  f' {accounts_list}', 'error')
+        return redirect(url_for('importer.import_done', import_count=total))
 
     return render_template('import/form.html')
 
 
-@import_blueprint.route("/import/success")
+@import_blueprint.route("/import/done")
 @login_required
-def import_success():
+def import_done():
     import_count = request.args['import_count']
-    return render_template('import/success.html', import_count=import_count)
+    return render_template('import/done.html', import_count=import_count)

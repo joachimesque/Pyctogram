@@ -7,6 +7,11 @@ from flask_login import LoginManager
 from flask_migrate import Migrate
 from flask_sqlalchemy import SQLAlchemy
 
+log_file = os.getenv('APP_LOG')
+logging.basicConfig(filename=log_file,
+                    format=('%(asctime)s - %(name)s - %(levelname)s - '
+                            '%(message)s'),
+                    datefmt='%Y/%m/%d %H:%M:%S')
 db = SQLAlchemy()
 migrate = Migrate()
 login_manager = LoginManager()
@@ -27,8 +32,6 @@ def create_app():
         migrate.init_app(app, db)
         login_manager.init_app(app)
         login_manager.login_view = 'users.login'
-        login_manager.login_message = ('Veuillez vous connecter ou vous '
-                                       'enregistrer pour accéder à cette page')
 
     if app.debug:
         logging.getLogger('sqlalchemy').setLevel(logging.WARNING)
