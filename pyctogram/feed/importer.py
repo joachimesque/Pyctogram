@@ -71,6 +71,29 @@ def import_from_text():
     return render_template('import/text.html')
 
 
+@import_blueprint.route("/import", methods=['POST', 'GET'])
+@login_required
+def import_from_form():
+
+    if request.method == 'POST':
+
+        if request.form['contacts'] == '':
+            flash('Please fill in the text area before clicking the button.')
+            return render_template('import/form.html',
+                                   errors='The text area should not be empty.')
+
+        contacts_to_import = request.form['contacts'].splitlines()
+
+        default_list_info = current_app.config['DEFAULT_LIST_INFO']
+        headers = current_app.config['DEFAULT_HEADERS']
+        total = create_accounts(contacts_to_import, current_user,
+                                headers, default_list_info)
+
+        return redirect(url_for('importer.import_success', import_count=total))
+
+    return render_template('import/form.html')
+
+
 @import_blueprint.route("/import/success")
 @login_required
 def import_success():
