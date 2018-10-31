@@ -110,3 +110,4 @@ missed_connections.txt
 *.old
 
 .idea
+/pyctogram/uploads/*
