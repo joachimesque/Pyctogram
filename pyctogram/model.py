@@ -110,7 +110,7 @@ class List(db.Model):
     shortname = db.Column(db.Text)
     longname = db.Column(db.Text)
     description = db.Column(db.Text)
-    last_updated = db.Column(db.DateTime)
+    last_updated = db.Column(db.Integer)
     date_added = db.Column(db.DateTime)
     is_hidden = db.Column(db.Boolean)
     user = db.relationship(User, backref='user')
