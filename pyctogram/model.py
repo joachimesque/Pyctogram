@@ -1,6 +1,7 @@
 import datetime
+
 from flask_login import UserMixin
-from werkzeug.security import generate_password_hash, check_password_hash
+from werkzeug.security import check_password_hash, generate_password_hash
 
 from pyctogram import db
 
@@ -111,7 +112,8 @@ class Account(db.Model):
         self.account_name = account_name
 
     def get_media_paginate(self, page=1, per_page=10):
-        return Media.query.join(Account).filter(Account.id == self.id).order_by(
+        return Media.query.join(Account).filter(
+            Account.id == self.id).order_by(
             Media.timestamp.desc()).paginate(
             page, per_page, False)
 
