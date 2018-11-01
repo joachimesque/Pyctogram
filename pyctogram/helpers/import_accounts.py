@@ -84,6 +84,7 @@ def create_accounts(contacts_to_import, current_user, list_info):
             shortname=list_info['shortname']
         ).first()
 
+        # Note: default list (feed) should exist
         if not default_list:
             default_list = List(
                 user_id=current_user.id,

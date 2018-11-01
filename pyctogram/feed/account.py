@@ -100,6 +100,6 @@ def show_account(account_name):
     if origin[0:7] == 'profile':
         redirection = get_redirection(origin, '')
     else:
-        redirection = url_for('list_hidden_accounts')
+        redirection = url_for('feed.list_hidden_accounts')
 
     return redirect(redirection)

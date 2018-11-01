@@ -1,8 +1,9 @@
-from flask import Blueprint, flash, redirect, render_template, request, url_for
+from flask import (Blueprint, current_app, flash, redirect, render_template,
+                   request, url_for)
 from flask_login import current_user, login_user, logout_user
 
 from pyctogram import db
-from pyctogram.model import User
+from pyctogram.model import List, User
 from pyctogram.users.forms import LoginForm, RegisterForm
 
 users_blueprint = Blueprint('users', __name__)
@@ -33,7 +34,7 @@ def login():
 @users_blueprint.route('/register', methods=['GET', 'POST'])
 def register():
     if current_user.is_authenticated:
-        return redirect(url_for('fedd.index'))
+        return redirect(url_for('feed.index'))
 
     form = RegisterForm()
     if form.validate_on_submit():
@@ -41,6 +42,17 @@ def register():
                     email=form.email.data,
                     password=form.password.data)
         db.session.add(user)
+
+        # feed creation (= default list)
+        list_info = current_app.config['DEFAULT_LIST_INFO']
+        feed = List(
+            user_id=user.id,
+            shortname=list_info['shortname'],
+            longname=list_info['longname'],
+            description=list_info['description'],
+        )
+        feed.is_default = True
+        db.session.add(feed)
         db.session.commit()
         flash(
             'Vous êtes enregistré. Vous pouvez maintenant vous connecter.',

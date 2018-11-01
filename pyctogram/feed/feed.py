@@ -1,4 +1,4 @@
-from flask import Blueprint, current_app, render_template
+from flask import Blueprint, abort, current_app, render_template
 from flask_login import current_user, login_required
 
 from pyctogram.model import List
@@ -36,4 +36,15 @@ def index(page):
 @feed_blueprint.route("/feed/hidden-accounts")
 @login_required
 def list_hidden_accounts():
-    return render_template('feed/hidden.html', accounts=current_user.accounts)
+    hidden_accounts = []
+    default_list = List.query.filter_by(
+        user_id=current_user.id,
+        is_default=True
+    ).first()
+
+    if not default_list:
+        abort(404)
+    for account in current_user.accounts:
+        if account not in default_list.accounts:
+            hidden_accounts.append(account)
+    return render_template('feed/hidden.html', accounts=hidden_accounts)
