@@ -495,54 +495,54 @@ def profile_lists(account_name):
 #                                 the_list = the_list,
 #                                 accounts = the_accounts)
 
-
-@app.route("/list/<shortname>/add")
-def list_add(shortname):
-    e = Exporter()
-    l = Lists()
-
-    user_id = DEFAULT_USER_ID
-    list_id = l.get_list_id_from_shortname(shortname, user_id)
-
-    if not list_id:
-        abort(404)
-
-    # Get the accounts for that user
-    the_accounts_tup = e.get_all_accounts_info(user_id)
-
-
-    # Set Accounts list
-    the_accounts = []
-    for account in the_accounts_tup:
-        single_dict = {}
-        keys = ('id',
-                'account_name',
-                'full_name',
-                'biography',
-                'profile_pic_url',
-                'profile_pic_url_hd',
-                'external_url',
-                'external_url_linkshimmed',
-                'followed_by',
-                'follow',
-                'last_updated',
-                'is_private')
-        for k, a in zip(keys, account):
-            single_dict[k] = a
-
-        single_dict['is_in_list'] = l.check_if_account_in_list(list_id = list_id, account_id = single_dict['id'])
-        the_accounts.append(single_dict)
-
-
-    the_list = get_list(list_id)
-
-    # Close the DB
-    e.close()
-    l.close()
-
-    return render_template('lists/add_users.html',
-                                the_list = the_list,
-                                accounts = the_accounts)
+#
+# @app.route("/list/<shortname>/add")
+# def list_add(shortname):
+#     e = Exporter()
+#     l = Lists()
+#
+#     user_id = DEFAULT_USER_ID
+#     list_id = l.get_list_id_from_shortname(shortname, user_id)
+#
+#     if not list_id:
+#         abort(404)
+#
+#     # Get the accounts for that user
+#     the_accounts_tup = e.get_all_accounts_info(user_id)
+#
+#
+#     # Set Accounts list
+#     the_accounts = []
+#     for account in the_accounts_tup:
+#         single_dict = {}
+#         keys = ('id',
+#                 'account_name',
+#                 'full_name',
+#                 'biography',
+#                 'profile_pic_url',
+#                 'profile_pic_url_hd',
+#                 'external_url',
+#                 'external_url_linkshimmed',
+#                 'followed_by',
+#                 'follow',
+#                 'last_updated',
+#                 'is_private')
+#         for k, a in zip(keys, account):
+#             single_dict[k] = a
+#
+#         single_dict['is_in_list'] = l.check_if_account_in_list(list_id = list_id, account_id = single_dict['id'])
+#         the_accounts.append(single_dict)
+#
+#
+#     the_list = get_list(list_id)
+#
+#     # Close the DB
+#     e.close()
+#     l.close()
+#
+#     return render_template('lists/add_users.html',
+#                                 the_list = the_list,
+#                                 accounts = the_accounts)
 
 
 
@@ -577,16 +577,16 @@ def list_add(shortname):
 #     return redirect(redirection)
 
 
-@app.route("/list/add/<account_name>")
-def list_choices_for_user(account_name):
-    origin = request.args.get('origin', default='')
-
-    lists = get_lists()
-
-    return render_template('lists/choices.html',
-                                lists = lists,
-                                account_name = account_name,
-                                origin = origin)
+# @app.route("/list/add/<account_name>")
+# def list_choices_for_user(account_name):
+#     origin = request.args.get('origin', default='')
+#
+#     lists = get_lists()
+#
+#     return render_template('lists/choices.html',
+#                                 lists = lists,
+#                                 account_name = account_name,
+#                                 origin = origin)
 
 
 @app.route("/list/<shortname>/remove/<account_name>")

@@ -155,3 +155,33 @@ def list_accounts(shortname):
     return render_template('lists/accounts.html',
                            the_list=the_list,
                            accounts=the_list.accounts)
+
+
+@list_blueprint.route("/list/add/<account_name>")
+@login_required
+def list_choices_for_user(account_name):
+    origin = request.args.get('origin', default='')
+    lists = current_user.lists
+    account = Account.query.filter_by(account_name=account_name).first()
+    if not account:
+        abort(404)
+
+    return render_template('lists/choices.html',
+                           lists=lists,
+                           account=account,
+                           origin=origin)
+
+
+@list_blueprint.route("/list/<shortname>/add")
+@login_required
+def list_add(shortname):
+    the_list = List.query.filter_by(
+        user_id=current_user.id, shortname=shortname).first()
+    if not the_list:
+        abort(404)
+
+    # Get the accounts for that user
+    the_accounts = current_user.accounts
+    return render_template('lists/add_users.html',
+                           the_list=the_list,
+                           accounts=the_accounts)

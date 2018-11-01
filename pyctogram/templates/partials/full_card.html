@@ -21,9 +21,9 @@
           {% if request.url_rule.endpoint == 'index' %}
             <a title="Hide account from feed 🙈" class="button is-small is-outlined is-info" href="{{ url_for('hide_account', account_name = post.owner_account_name, origin = origin_delete) }}">Hide account 🙈</a><br>
           {% endif %}
-{#            <a class="button is-small is-outlined is-info" href="{{ url_for('list_choices_for_user', account_name = post.owner_account_name, origin = origin) }}">#}
+            <a class="button is-small is-outlined is-info" href="{{ url_for('list.list_choices_for_user', account_name = post.account.account_name, origin = origin) }}">
                 Add account to list 🔖
-{#            </a>#}
+            </a>
           </span>
         </div>
       </header>

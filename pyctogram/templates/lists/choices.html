@@ -1,6 +1,6 @@
 {% extends 'base.html' %}
 
-{% block title %}🔖 Select a list to add {{ account_name }}{% endblock %}</h1>
+{% block title %}<h1>🔖 Select a list to add {{ account.account_name }}{% endblock %}</h1>
 
 {% block header %}
   <h1 class="title"><span class="is-size-3" role="img" aria-label="Your lists">🔖</span>&nbsp;Select a list to add {{ account_name }}</h1>
@@ -8,21 +8,21 @@
 
 {% block content %}
  {% if not lists %}
-    <p class="is-size-4">Oops, you don’t have lists yet. Would you like to create one? {{ account_name }} will be added automatically.</p>
-    <p><a class="button is-info" href="{{ url_for('list_create', account_name = account_name) }}">Yes, I would like to create a new list</a></p>
+    <p class="is-size-4">Oops, you don’t have lists yet. Would you like to create one? {{ account.account_name }} will be added automatically.</p>
+    <p><a class="button is-info" href="{{ url_for('list.list_create', account_name = account.account_name) }}">Yes, I would like to create a new list</a></p>
  {% else %}
      <ul>
     {% for list in lists %}
       <li class="level">
         <span class="level-left">
           <strong class="is-size-5">{{ list.longname }}</strong>&nbsp;&nbsp;
-          <small>({{ list.count }} accounts followed)</small>
+          <small>({{ list.accounts|count }} accounts followed)</small>
         </span>
         <span class="level-right">
-          {% if account_is_in_list(list.shortname, account_name) %}
+          {% if account in list.accounts %}
           <a class="button is-small is-static">Already in this list</a>
           {% else %}
-          <a href="{{ url_for('list_add_user', shortname = list.shortname, account_name = account_name, origin = origin) }}" class="button is-info is-outlined">Select this list</a>
+          <a href="{{ url_for('list.list_add_user', shortname = list.shortname, account_name = account.account_name, origin = origin) }}" class="button is-info is-outlined">Select this list</a>
           {% endif %}
         </span>
       </li>
@@ -32,9 +32,10 @@
     <hr>
     <p>
 
-      <a href="{{ url_for('list_create', account_name = account_name, origin = origin) }}">
+      <a href="{{ url_for('list.list_create', account_name = account.account_name, origin = origin) }}">
         <strong><span class="is-size-7" role="img" aria-label="Plus">➕</span>
         Create a new list and add {{ account_name }}
+        </strong>
       </a>
     </p>
 
