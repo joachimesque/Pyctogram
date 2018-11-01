@@ -131,11 +131,11 @@ class List(db.Model):
         self.description = description
         self.date_added = date_added
 
-    @property
-    def media(self):
-        media = Media.query.join(Account).filter(
-            Account.account_lists.any(List.id == self.id))
-        return media.order_by(Media.timestamp.desc()).all()
+    def get_media_paginate(self, page=1, per_page=10):
+        return Media.query.join(Account).filter(
+            Account.account_lists.any(List.id == self.id)).order_by(
+            Media.timestamp.desc()).paginate(
+            page, per_page, False)
 
 
 class Media(db.Model):

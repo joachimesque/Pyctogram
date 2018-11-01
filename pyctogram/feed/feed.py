@@ -1,7 +1,7 @@
 from flask import Blueprint, current_app, render_template
 from flask_login import current_user, login_required
 
-from pyctogram.model import List, Media
+from pyctogram.model import List
 
 feed_blueprint = Blueprint('feed', __name__)
 
@@ -19,16 +19,16 @@ def index(page):
     # Work in progress
     posts = []
     pagination = None
+    per_page = current_app.config['PER_PAGE']
     default_list = List.query.filter_by(
         user_id=current_user.id,
         shortname=current_app.config['DEFAULT_LIST_INFO']['shortname']
     ).first()
 
-    if not default_list:
-        return render_template('feed/index.html', posts=posts,
-                               pagination=pagination)
-
-    posts = default_list.media
+    if default_list:
+        pagination = default_list.get_media_paginate(page=page,
+                                                     per_page=per_page)
+        posts = pagination.items
 
     return render_template('feed/index.html', posts=posts,
                            pagination=pagination)

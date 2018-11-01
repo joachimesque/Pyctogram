@@ -53,7 +53,7 @@ def create_app():
 
     from .model import Account, List, Media, User  # noqa
 
-    from .feed.home import feed_blueprint  # noqa
+    from .feed.feed import feed_blueprint  # noqa
     from .feed.importer import import_blueprint  # noqa
     from .users.auth import users_blueprint  # noqa
     app.register_blueprint(feed_blueprint)

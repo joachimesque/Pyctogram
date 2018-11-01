@@ -12,11 +12,11 @@ class BaseConfig:
         current_app.root_path, 'uploads'
     )
     ALLOWED_EXTENSIONS = {'txt', 'json'}
-    DEFAULT_USER_ID = 1
     DEFAULT_LIST_INFO = {'shortname': '_feed',
                          'longname': 'Feed',
                          'description': 'Default Feed List'}
     DEFAULT_HEADERS = {'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10.13; rv:62.0) Gecko/20100101 Firefox/62.0'}  # noqa
+    PER_PAGE = 24
 
 
 class DevelopmentConfig(BaseConfig):
