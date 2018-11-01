@@ -6,8 +6,8 @@
       {% block title %}{{ the_list.longname }}{% endblock %}
     </h1>
     <div class="level-right buttons">
-      <a href="{{ url_for('list_edit', shortname = the_list.shortname) }}" class="button is-small is-info is-outlined">Edit</a>
-      <a href="{{ url_for('list_delete', shortname = the_list.shortname) }}" class="button is-small is-danger is-outlined">Delete</a>
+      <a href="{{ url_for('list.list_edit', shortname = the_list.shortname) }}" class="button is-small is-info is-outlined">Edit</a>
+{#      <a href="{{ url_for('list_delete', shortname = the_list.shortname) }}" class="button is-small is-danger is-outlined">Delete</a>#}
     </div>
   </div>
 
@@ -18,8 +18,8 @@
 
   <div class="tabs">
     <ul>
-      <li><a href="{{ url_for('list_feed', shortname = the_list.shortname) }}">Feed</a></li>
-      <li class="is-active"><a href="{{ url_for('list_accounts', shortname = the_list.shortname) }}">Accounts</a></li>
+      <li><a href="{{ url_for('list.list_feed', shortname = the_list.shortname) }}">Feed</a></li>
+      <li class="is-active"><a href="{{ url_for('list.list_accounts', shortname = the_list.shortname) }}">Accounts</a></li>
     </ul>
   </div>
 
@@ -27,18 +27,18 @@
   {% for account in accounts %}
     <li class="level">
       <span class="level-left">
-        <a href="{{ url_for('profile', account_name = account.account_name) | replace('%40', '@') }}">
+        <a href="{{ url_for('account.profile', account_name = account.account_name) | replace('%40', '@') }}">
           <figure class="profile-picture image is-48x48">
-              <img src="{{ account.profile_pic_url }}" alt="{{ account.full_name }}"> 
+              <img src="{{ account.profile_pic_url }}" alt="{{ account.full_name }}">
           </figure>
         </a> &nbsp;&nbsp;
-        <a href="{{ url_for('profile', account_name = account.account_name) | replace('%40', '@') }}" class="is-black">
+        <a href="{{ url_for('account.profile', account_name = account.account_name) | replace('%40', '@') }}" class="is-black">
           <strong>{{ account.full_name }}</strong><br>
           <small>@{{ account.account_name }}</small>
         </a>
       </span>
       <span class="level-right">
-        <a href="{{ url_for('list_remove_user', shortname = the_list.shortname, account_name = account.account_name) }}" class="button is-small is-danger is-outlined">Remove from list</a>
+{#        <a href="{{ url_for('list_remove_user', shortname = the_list.shortname, account_name = account.account_name) }}" class="button is-small is-danger is-outlined">Remove from list</a>#}
       </span>
   </li>
 
@@ -47,9 +47,9 @@
   </ul>
   <hr>
   <p>
-    <a href="{{ url_for('list_add', shortname = the_list.shortname) }}">
-      <strong><span class="is-size-7" role="img" aria-label="Plus">➕</span>
-            Add accounts to list</strong>
-    </a>
+{#    <a href="{{ url_for('list_add', shortname = the_list.shortname) }}">#}
+{#      <strong><span class="is-size-7" role="img" aria-label="Plus">➕</span>#}
+{#            Add accounts to list</strong>#}
+{#    </a>#}
   </p>
 {% endblock %}

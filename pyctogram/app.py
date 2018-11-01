@@ -343,52 +343,52 @@ def profile_lists(account_name):
                             lists=lists)
 
 
-@app.route("/list/<shortname>", defaults={'page': 1})
-@app.route("/list/<shortname>/page/<int:page>")
-def list_feed(shortname, page):
-    e = Exporter()
-    u = User()
-    l = Lists()
-
-    user_id = DEFAULT_USER_ID
-    list_id = l.get_list_id_from_shortname(shortname, user_id)
-
-    if not list_id:
-        abort(404)
-
-    # gets
-    count = l.get_list_feed_count(list_id)
-
-    # instances
-    pagination = Pagination(page, config.elements_per_page, count)
-
-    if page > pagination.pages:
-      page = pagination.pages
-
-    feed = l.get_list_feed(list_id, page)
-
-    # sets
-    posts = []
-
-    for media in feed:
-
-        # gets
-        owner_profile = e.get_account_profile(media[1])
-        saved_status = u.get_saved_status(media[0], 0)
-
-        post = build_post_dict(media = media, owner_profile = owner_profile, saved_status = saved_status)
-
-        posts.append(post)
-
-    the_list = get_list(list_id)
-
-    l.close()
-    u.close()
-    e.close()
-    return render_template('lists/feed.html',
-                                the_list = the_list,
-                                posts=posts,
-                                pagination=pagination)
+# @app.route("/list/<shortname>", defaults={'page': 1})
+# @app.route("/list/<shortname>/page/<int:page>")
+# def list_feed(shortname, page):
+#     e = Exporter()
+#     u = User()
+#     l = Lists()
+#
+#     user_id = DEFAULT_USER_ID
+#     list_id = l.get_list_id_from_shortname(shortname, user_id)
+#
+#     if not list_id:
+#         abort(404)
+#
+#     # gets
+#     count = l.get_list_feed_count(list_id)
+#
+#     # instances
+#     pagination = Pagination(page, config.elements_per_page, count)
+#
+#     if page > pagination.pages:
+#       page = pagination.pages
+#
+#     feed = l.get_list_feed(list_id, page)
+#
+#     # sets
+#     posts = []
+#
+#     for media in feed:
+#
+#         # gets
+#         owner_profile = e.get_account_profile(media[1])
+#         saved_status = u.get_saved_status(media[0], 0)
+#
+#         post = build_post_dict(media = media, owner_profile = owner_profile, saved_status = saved_status)
+#
+#         posts.append(post)
+#
+#     the_list = get_list(list_id)
+#
+#     l.close()
+#     u.close()
+#     e.close()
+#     return render_template('lists/feed.html',
+#                                 the_list = the_list,
+#                                 posts=posts,
+#                                 pagination=pagination)
 
 
 @app.route("/list/create", methods=['POST', 'GET'], defaults = {'account_name' : ''})
@@ -422,78 +422,78 @@ def list_create(account_name):
         return render_template('lists/create.html', account_name = account_name, origin = origin)
 
 
-@app.route("/list/<shortname>/edit", methods=['POST', 'GET'])
-def list_edit(shortname):
-    l = Lists()
+# @app.route("/list/<shortname>/edit", methods=['POST', 'GET'])
+# def list_edit(shortname):
+#     l = Lists()
+#
+#     user_id = DEFAULT_USER_ID
+#     list_id = l.get_list_id_from_shortname(shortname, user_id)
+#
+#     if not list_id:
+#         abort(404)
+#
+#     if request.method == 'POST':
+#         returned_list, errors = forms.check_list_form(request_form = request.form)
+#
+#         if errors != {}:
+#             for error in errors.values():
+#                 flash(str(error))
+#             return render_template('lists/edit.html', errors = errors)
+#
+#         l = Lists()
+#
+#         l.modify_list(list_id, returned_list)
+#
+#         l.close()
+#
+#         return redirect(url_for('list_accounts', shortname = returned_list['shortname']))
+#
+#     else:
+#
+#         the_list = get_list(list_id)
+#
+#         return render_template('lists/edit.html', list = the_list)
 
-    user_id = DEFAULT_USER_ID
-    list_id = l.get_list_id_from_shortname(shortname, user_id)
-
-    if not list_id:
-        abort(404)
-
-    if request.method == 'POST':
-        returned_list, errors = forms.check_list_form(request_form = request.form)
-
-        if errors != {}:
-            for error in errors.values():
-                flash(str(error))
-            return render_template('lists/edit.html', errors = errors)
-
-        l = Lists()
-
-        l.modify_list(list_id, returned_list)
-
-        l.close()
-
-        return redirect(url_for('list_accounts', shortname = returned_list['shortname']))
-
-    else:
-
-        the_list = get_list(list_id)
-
-        return render_template('lists/edit.html', list = the_list)
 
 
-
-@app.route("/list/<shortname>/accounts")
-def list_accounts(shortname):
-    l = Lists()
-
-    user_id = DEFAULT_USER_ID
-    list_id = l.get_list_id_from_shortname(shortname, user_id)
-
-    if not list_id:
-        abort(404)
-
-    the_accounts_tup = l.get_list_accounts_info(list_id)
-
-    the_accounts = []
-    for account in the_accounts_tup:
-        single_dict = {}
-        keys = ('id',
-                'account_name',
-                'full_name',
-                'biography',
-                'profile_pic_url',
-                'profile_pic_url_hd',
-                'external_url',
-                'external_url_linkshimmed',
-                'followed_by',
-                'follow',
-                'last_updated',
-                'is_private',
-                'is_deleted')
-        for k, a in zip(keys, account):
-            single_dict[k] = a
-        the_accounts.append(single_dict)
-
-    the_list = get_list(list_id)
-
-    l.close()
-    return render_template('lists/accounts.html',
-                                the_list = the_list,
-                                accounts = the_accounts)
+# @app.route("/list/<shortname>/accounts")
+# def list_accounts(shortname):
+#     l = Lists()
+#
+#     user_id = DEFAULT_USER_ID
+#     list_id = l.get_list_id_from_shortname(shortname, user_id)
+#
+#     if not list_id:
+#         abort(404)
+#
+#     the_accounts_tup = l.get_list_accounts_info(list_id)
+#
+#     the_accounts = []
+#     for account in the_accounts_tup:
+#         single_dict = {}
+#         keys = ('id',
+#                 'account_name',
+#                 'full_name',
+#                 'biography',
+#                 'profile_pic_url',
+#                 'profile_pic_url_hd',
+#                 'external_url',
+#                 'external_url_linkshimmed',
+#                 'followed_by',
+#                 'follow',
+#                 'last_updated',
+#                 'is_private',
+#                 'is_deleted')
+#         for k, a in zip(keys, account):
+#             single_dict[k] = a
+#         the_accounts.append(single_dict)
+#
+#     the_list = get_list(list_id)
+#
+#     l.close()
+#     return render_template('lists/accounts.html',
+#                                 the_list = the_list,
+#                                 accounts = the_accounts)
 
 
 @app.route("/list/<shortname>/add")
@@ -639,11 +639,11 @@ def list_delete(shortname):
     return render_template('lists/confirm.html', shortname = shortname)
 
 
-@app.route("/lists")
-def list_lists():
-    lists = get_lists()
-
-    return render_template('lists/index.html', lists = lists)
+# @app.route("/lists")
+# def list_lists():
+#     lists = get_lists()
+#
+#     return render_template('lists/index.html', lists = lists)
 
 
 
@@ -950,24 +950,24 @@ def get_list(list_id):
     return the_list
 app.jinja_env.globals['get_list'] = get_list
 
-def get_lists():
-    l = Lists()
-
-    user_id = DEFAULT_USER_ID
-    all_lists = l.get_all_lists_info(user_id)
-
-    lists = []
-    for single_list in all_lists:
-        single_dict = {}
-        keys = ('id','shortname','longname','description','last_updated','date_added','user_id','is_hidden','count')
-        for k, s in zip(keys, single_list):
-            single_dict[k] = s
-        lists.append(single_dict)
-
-    l.close()
-
-    return lists
-app.jinja_env.globals['get_lists'] = get_lists
+# def get_lists():
+#     l = Lists()
+#
+#     user_id = DEFAULT_USER_ID
+#     all_lists = l.get_all_lists_info(user_id)
+#
+#     lists = []
+#     for single_list in all_lists:
+#         single_dict = {}
+#         keys = ('id','shortname','longname','description','last_updated','date_added','user_id','is_hidden','count')
+#         for k, s in zip(keys, single_list):
+#             single_dict[k] = s
+#         lists.append(single_dict)
+#
+#     l.close()
+#
+#     return lists
+# app.jinja_env.globals['get_lists'] = get_lists
 
 
 def check_if_account_in_list(list_shortname, account_name):

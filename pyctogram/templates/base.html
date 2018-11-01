@@ -36,9 +36,9 @@
           <span class="is-size-5" role="img" aria-label="Saved pictures">💾</span>&nbsp;Memory
         </a>
         <div class="navbar-item has-dropdown is-hoverable">
-{#          <a class="navbar-link" href="{{ url_for('list_lists') }}">#}
-{#            <span class="is-size-5" role="img" aria-label="Your lists">🔖</span>&nbsp;Lists#}
-{#          </a>#}
+          <a class="navbar-link" href="{{ url_for('list.list_lists') }}">
+            <span class="is-size-5" role="img" aria-label="Your lists">🔖</span>&nbsp;Lists
+          </a>
           <div class="navbar-dropdown">
 {#          {% if get_lists() is defined and get_lists()|length > 0 %}#}
 {#            {% for list in get_lists() %}#}

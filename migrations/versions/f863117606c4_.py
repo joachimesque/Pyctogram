@@ -1,7 +1,7 @@
-"""empty message
+"""init database
 
 Revision ID: f863117606c4
-Revises: 
+Revises:
 Create Date: 2018-10-30 08:47:39.414315
 
 """
@@ -58,9 +58,10 @@ def upgrade():
     sa.Column('shortname', sa.Text(), nullable=True),
     sa.Column('longname', sa.Text(), nullable=True),
     sa.Column('description', sa.Text(), nullable=True),
-    sa.Column('last_updated', sa.DateTime(), nullable=True),
+    sa.Column('last_updated', sa.Integer(), nullable=True),
     sa.Column('date_added', sa.DateTime(), nullable=True),
     sa.Column('is_hidden', sa.Boolean(), nullable=True),
+    sa.Column('is_default', sa.Boolean(), nullable=True),
     sa.ForeignKeyConstraint(['user_id'], ['users.id'], name='fk_user_list'),
     sa.PrimaryKeyConstraint('id')
     )

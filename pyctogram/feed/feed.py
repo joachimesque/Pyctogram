@@ -21,7 +21,7 @@ def index(page):
     per_page = current_app.config['PER_PAGE']
     default_list = List.query.filter_by(
         user_id=current_user.id,
-        shortname=current_app.config['DEFAULT_LIST_INFO']['shortname']
+        is_default=True
     ).first()
 
     if default_list:

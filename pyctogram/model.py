@@ -57,6 +57,9 @@ class User(UserMixin, db.Model):
                             secondary=user_faves,
                             lazy='subquery',
                             backref=db.backref('users', lazy=True))
+    lists = db.relationship('List',
+                            lazy=True,
+                            backref=db.backref('users', lazy='joined'))
 
     def __init__(self, username, email, password,
                  created_at=datetime.datetime.utcnow()):
@@ -127,6 +130,7 @@ class List(db.Model):
     last_updated = db.Column(db.Integer)
     date_added = db.Column(db.DateTime)
     is_hidden = db.Column(db.Boolean)
+    is_default = db.Column(db.Boolean, default=False)
     user = db.relationship(User, backref='user')
     accounts = db.relationship('Account',
                                secondary=accounts2lists,

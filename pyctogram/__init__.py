@@ -56,11 +56,13 @@ def create_app():
     from .feed.account import account_blueprint  # noqa
     from .feed.feed import feed_blueprint  # noqa
     from .feed.importer import import_blueprint  # noqa
+    from .feed.list import list_blueprint  # noqa
     from .feed.media import media_blueprint  # noqa
     from .users.auth import users_blueprint  # noqa
     app.register_blueprint(account_blueprint)
     app.register_blueprint(feed_blueprint)
     app.register_blueprint(import_blueprint)
+    app.register_blueprint(list_blueprint)
     app.register_blueprint(media_blueprint)
     app.register_blueprint(users_blueprint)
 

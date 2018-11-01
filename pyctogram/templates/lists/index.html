@@ -11,12 +11,12 @@
   {% for list in lists %}
     <li class="level">
       <span class="level-left">
-        <strong class="is-size-5"><a href="{{ url_for('list_feed', shortname = list.shortname) }}">{{ list.longname }}</a></strong>&nbsp;&nbsp;
-        <small>({{ list.count }} accounts followed)</small>
+        <strong class="is-size-5"><a href="{{ url_for('list.list_feed', shortname=list.shortname) }}">{{ list.longname }}</a></strong>&nbsp;&nbsp;
+        <small>({{ list.accounts|count }} accounts followed)</small>
       </span>
       <span class="level-right buttons">
-        <a href="{{ url_for('list_edit', shortname = list.shortname) }}" class="button is-small is-info is-outlined">Edit</a>
-        <a href="{{ url_for('list_delete', shortname = list.shortname) }}" class="button is-small is-danger is-outlined">Delete</a>
+        <a href="{{ url_for('list.list_edit', shortname=list.shortname) }}" class="button is-small is-info is-outlined">Edit</a>
+{#        <a href="{{ url_for('list.list_delete', shortname=list.shortname) }}" class="button is-small is-danger is-outlined">Delete</a>#}
       </span>
     </li>
   {% endfor %}
@@ -25,9 +25,9 @@
   <hr>
 
   <p class="is-size-5">
-    <a href="{{ url_for('list_create') }}">
-      <strong><span class="is-size-6" role="img" aria-label="Plus">➕</span>
-            Create a new list</strong>
-    </a>
+{#    <a href="{{ url_for('list.list_create') }}">#}
+{#      <strong><span class="is-size-6" role="img" aria-label="Plus">➕</span>#}
+{#            Create a new list</strong>#}
+{#    </a>#}
   </p>
 {% endblock %}

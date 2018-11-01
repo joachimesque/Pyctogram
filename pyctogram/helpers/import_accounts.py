@@ -91,6 +91,7 @@ def create_accounts(contacts_to_import, current_user, list_info):
                 longname=list_info['longname'],
                 description=list_info['description'],
             )
+            default_list.is_default = True
             db.session.add(default_list)
 
         if account not in current_user.accounts:
