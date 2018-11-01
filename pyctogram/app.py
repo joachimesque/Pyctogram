@@ -40,49 +40,49 @@ app = Flask(__name__)
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 app.secret_key = 'THIS_SHOULD_BE_CHANGED'
 
-@app.errorhandler(404)
-def page_not_found(e):
-    # note that we set the 404 status explicitly
-    return render_template('404.html'), 404
+# @app.errorhandler(404)
+# def page_not_found(e):
+#     # note that we set the 404 status explicitly
+#     return render_template('404.html'), 404
 
-@app.route("/", defaults={'page': 1})
-@app.route("/page/<int:page>")
-def index(page):
-    e = Exporter()
-    l = Lists()
-    u = User()
-
-    shortname = DEFAULT_LIST_INFO['shortname']
-    user_id = DEFAULT_USER_ID
-    list_id = l.get_list_id_from_shortname(shortname, user_id)
-
-    # gets
-    count = l.get_list_feed_count(list_id = list_id)
-
-    # instances
-    pagination = Pagination(page, config.elements_per_page, count)
-
-    if page > pagination.pages:
-      page = pagination.pages
-
-    feed = l.get_list_feed(list_id = list_id, page = page)
-
-    # sets
-    posts = []
-
-    for media in feed:
-
-        # gets
-        owner_profile = e.get_account_profile(media[1])
-        saved_status = u.get_saved_status(media[0], 0)
-
-        post = build_post_dict(media = media, owner_profile = owner_profile, saved_status = saved_status)
-
-        posts.append(post)
-
-    u.close()
-    e.close()
-    return render_template('feed/index.html', posts=posts, pagination=pagination)
+# @app.route("/", defaults={'page': 1})
+# @app.route("/page/<int:page>")
+# def index(page):
+#     e = Exporter()
+#     l = Lists()
+#     u = User()
+#
+#     shortname = DEFAULT_LIST_INFO['shortname']
+#     user_id = DEFAULT_USER_ID
+#     list_id = l.get_list_id_from_shortname(shortname, user_id)
+#
+#     # gets
+#     count = l.get_list_feed_count(list_id = list_id)
+#
+#     # instances
+#     pagination = Pagination(page, config.elements_per_page, count)
+#
+#     if page > pagination.pages:
+#       page = pagination.pages
+#
+#     feed = l.get_list_feed(list_id = list_id, page = page)
+#
+#     # sets
+#     posts = []
+#
+#     for media in feed:
+#
+#         # gets
+#         owner_profile = e.get_account_profile(media[1])
+#         saved_status = u.get_saved_status(media[0], 0)
+#
+#         post = build_post_dict(media = media, owner_profile = owner_profile, saved_status = saved_status)
+#
+#         posts.append(post)
+#
+#     u.close()
+#     e.close()
+#     return render_template('feed/index.html', posts=posts, pagination=pagination)
 
 @app.route("/memory/", defaults={'page': 1})
 @app.route("/memory/page/<int:page>")
@@ -121,29 +121,29 @@ def memory(page):
     e.close()
     return render_template('feed/memory.html', posts=posts, pagination=pagination)
 
-@app.route("/p/<media_shortcode>")
-def media(media_shortcode):
-    e = Exporter()
-    u = User()
-    
-    # gets
-    media = e.get_media_from_shortcode(media_shortcode)
-
-    if not media:
-        abort(404)
-
-    owner_profile = e.get_account_profile(media[1])
-
-    saved_status = u.get_saved_status(media[0], 0)
-
-    u.close()
-
-    post = build_post_dict(media = media, owner_profile = owner_profile, saved_status = saved_status)
-
-    post['origin'] = media[6]
-
-    e.close()
-    return render_template('media/index.html', post=post)
+# @app.route("/p/<media_shortcode>")
+# def media(media_shortcode):
+#     e = Exporter()
+#     u = User()
+#
+#     # gets
+#     media = e.get_media_from_shortcode(media_shortcode)
+#
+#     if not media:
+#         abort(404)
+#
+#     owner_profile = e.get_account_profile(media[1])
+#
+#     saved_status = u.get_saved_status(media[0], 0)
+#
+#     u.close()
+#
+#     post = build_post_dict(media = media, owner_profile = owner_profile, saved_status = saved_status)
+#
+#     post['origin'] = media[6]
+#
+#     e.close()
+#     return render_template('media/index.html', post=post)
 
 @app.route("/save/<media_shortcode>")
 def save(media_shortcode):
@@ -185,7 +185,7 @@ def save(media_shortcode):
     u = User()
     if u.get_saved_status(media[0], user_id) is False:
       u.save_media(media[0], user_id, filename, int(time.time()))
-    
+
     e.close()
     u.close()
 
@@ -230,67 +230,67 @@ def forget(media_shortcode):
 
 
 
-@app.route("/@<account_name>", defaults={'page': 1})
-@app.route("/@<account_name>/page/<int:page>")
-def profile(account_name, page):
-    e = Exporter()
-    u = User()
-
-    display_as_feed = False
-    if request.args.get('display') == 'feed':
-        display_as_feed = True
-
-    # gets
-    account_id = e.get_account_id_from_account_name(account_name)
-    
-    if not account_id:
-        abort(404)
-
-    profile = e.get_account_profile(account_id)
-    count = e.get_account_feed_count(account_id)
-
-    # instances
-    pagination = Pagination(page, config.elements_per_page, count)
-
-    if page > pagination.pages:
-      page = pagination.pages
-
-    feed = e.get_account_feed(account_id, page)
-
-    #sets
-    author = {}
-
-    author['id'] = account_id
-    author['account_name'] = account_name
-    author['full_name'] = profile[2]
-    author['biography'] = profile[3]
-    author['profile_pic_url'] = profile[4]
-    author['profile_pic_url_hd'] = profile[5]
-    author['external_url'] = profile[6]
-    author['external_url_linkshimmed'] = profile[7]
-    author['followed_by'] = profile[8]
-    author['follow'] = profile[9]
-    author['last_updated'] = datetime.datetime.fromtimestamp(profile[10])
-    author['is_private'] = bool(profile[11])
-    # author['is_deleted'] = bool(profile[12])
-
-    posts = []
-    for media in feed:
-        saved_status = u.get_saved_status(media[0], 0)
-
-        post = build_post_dict(media = media, owner_profile = profile, saved_status = saved_status)
-
-        post['thumbnail_320'] = json.loads(media[10])[3]['src']
-
-        posts.append(post)
-
-    u.close()
-    e.close()
-    return render_template('profile/index.html',
-                            author=author,
-                            posts=posts,
-                            pagination=pagination,
-                            display_as_feed=display_as_feed)
+# @app.route("/@<account_name>", defaults={'page': 1})
+# @app.route("/@<account_name>/page/<int:page>")
+# def profile(account_name, page):
+#     e = Exporter()
+#     u = User()
+#
+#     display_as_feed = False
+#     if request.args.get('display') == 'feed':
+#         display_as_feed = True
+#
+#     # gets
+#     account_id = e.get_account_id_from_account_name(account_name)
+#
+#     if not account_id:
+#         abort(404)
+#
+#     profile = e.get_account_profile(account_id)
+#     count = e.get_account_feed_count(account_id)
+#
+#     # instances
+#     pagination = Pagination(page, config.elements_per_page, count)
+#
+#     if page > pagination.pages:
+#       page = pagination.pages
+#
+#     feed = e.get_account_feed(account_id, page)
+#
+#     #sets
+#     author = {}
+#
+#     author['id'] = account_id
+#     author['account_name'] = account_name
+#     author['full_name'] = profile[2]
+#     author['biography'] = profile[3]
+#     author['profile_pic_url'] = profile[4]
+#     author['profile_pic_url_hd'] = profile[5]
+#     author['external_url'] = profile[6]
+#     author['external_url_linkshimmed'] = profile[7]
+#     author['followed_by'] = profile[8]
+#     author['follow'] = profile[9]
+#     author['last_updated'] = datetime.datetime.fromtimestamp(profile[10])
+#     author['is_private'] = bool(profile[11])
+#     # author['is_deleted'] = bool(profile[12])
+#
+#     posts = []
+#     for media in feed:
+#         saved_status = u.get_saved_status(media[0], 0)
+#
+#         post = build_post_dict(media = media, owner_profile = profile, saved_status = saved_status)
+#
+#         post['thumbnail_320'] = json.loads(media[10])[3]['src']
+#
+#         posts.append(post)
+#
+#     u.close()
+#     e.close()
+#     return render_template('profile/index.html',
+#                             author=author,
+#                             posts=posts,
+#                             pagination=pagination,
+#                             display_as_feed=display_as_feed)
 
 
 @app.route("/@<account_name>/lists")
@@ -442,7 +442,7 @@ def list_edit(shortname):
 
         l = Lists()
 
-        l.modify_list(list_id, returned_list) 
+        l.modify_list(list_id, returned_list)
 
         l.close()
 
@@ -623,7 +623,7 @@ def list_delete(shortname):
     if request.method == 'POST':
         if request.form['submit'] == 'submit':
             l = Lists()
-            
+
             user_id = DEFAULT_USER_ID
             list_id = l.get_list_id_from_shortname(shortname, user_id)
 
@@ -651,127 +651,127 @@ def list_lists():
 
 
 
-@app.route("/import/json", methods=['POST', 'GET'])
-def import_from_json():
-
-    if request.method == 'POST':
-        # check if the post request has the file part
-        if 'file' not in request.files:
-            flash('No file part')
-            return redirect(request.url)
-        file = request.files['file']
-
-        # if user does not select file, browser also
-        # submit an empty part without filename
-        if file.filename == '':
-            flash('No selected file')
-            return redirect(request.url)
-        if file and allowed_file(file.filename):
-            filename = secure_filename(file.filename)
-            file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
-
-            contacts_to_import = []
-            with open(os.path.join(app.config['UPLOAD_FOLDER'], filename), 'r') as f:
-                contacts_to_import = json.loads(f.read().splitlines()[0])
-
-            contacts_to_import = list(contacts_to_import['following'].keys())
-
-            if contacts_to_import == []:
-                flash('No contact to import')
-                return redirect(request.url)
-
-            i = Importer()
-
-            total = 0
-            for contact in contacts_to_import:
-                if not i.user_exists(contact):
-                    contact_info = i.get_account_data(contact)
-                    if i.add_new_user(contact_info):
-                        total += 1 
-
-            i.close()
-
-            return redirect(url_for('import_success', import_count = total))
-
-    return render_template('import/json.html')
-
-
-
-@app.route("/import/text", methods=['POST', 'GET'])
-def import_from_text():
-
-    if request.method == 'POST':
-        # check if the post request has the file part
-        if 'file' not in request.files:
-            flash('No file part')
-            return redirect(request.url)
-        file = request.files['file']
-
-        # if user does not select file, browser also
-        # submit an empty part without filename
-        if file.filename == '':
-            flash('No selected file')
-            return redirect(request.url)
-        if file and allowed_file(file.filename):
-            filename = secure_filename(file.filename)
-            file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
-
-            contacts_to_import = []
-            with open(os.path.join(app.config['UPLOAD_FOLDER'], filename), 'r') as f:
-                contacts_to_import = f.read().splitlines()
-
-            if contacts_to_import == []:
-                flash('No contact to import')
-                return redirect(request.url)
-
-            i = Importer()
-
-            total = 0
-            for contact in contacts_to_import:
-                contact_info = i.get_account_data(contact)
-                if not i.user_exists(contact):
-                    if i.add_new_user(contact_info):
-                        total += 1
-
-            i.close()
-
-            return redirect(url_for('import_success', import_count = total))
-
-    return render_template('import/text.html')
-
-
-
-@app.route("/import", methods=['POST', 'GET'])
-def import_from_form():
-
-    if request.method == 'POST':
-
-        if request.form['contacts'] == '':
-            flash('Please fill in the text area before clicking the button.')
-            return render_template('import/form.html', errors = 'The text area should not be empty.')
-
-        contacts_to_import = request.form['contacts'].splitlines()
-
-        i = Importer()
-
-        total = 0
-        for contact in contacts_to_import:
-            contact_info = i.get_account_data(contact)
-            if not i.user_exists(contact):
-                if i.add_new_user(contact_info):
-                    total += 1
-
-        i.close()
-
-        return redirect(url_for('import_success', import_count = total))
-    else:
-        return render_template('import/form.html')
-
-@app.route("/import/success")
-def import_success():
-    import_count = request.args['import_count']
-
-    return render_template('import/success.html', import_count = import_count)
+# @app.route("/import/json", methods=['POST', 'GET'])
+# def import_from_json():
+#
+#     if request.method == 'POST':
+#         # check if the post request has the file part
+#         if 'file' not in request.files:
+#             flash('No file part')
+#             return redirect(request.url)
+#         file = request.files['file']
+#
+#         # if user does not select file, browser also
+#         # submit an empty part without filename
+#         if file.filename == '':
+#             flash('No selected file')
+#             return redirect(request.url)
+#         if file and allowed_file(file.filename):
+#             filename = secure_filename(file.filename)
+#             file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
+#
+#             contacts_to_import = []
+#             with open(os.path.join(app.config['UPLOAD_FOLDER'], filename), 'r') as f:
+#                 contacts_to_import = json.loads(f.read().splitlines()[0])
+#
+#             contacts_to_import = list(contacts_to_import['following'].keys())
+#
+#             if contacts_to_import == []:
+#                 flash('No contact to import')
+#                 return redirect(request.url)
+#
+#             i = Importer()
+#
+#             total = 0
+#             for contact in contacts_to_import:
+#                 if not i.user_exists(contact):
+#                     contact_info = i.get_account_data(contact)
+#                     if i.add_new_user(contact_info):
+#                         total += 1
+#
+#             i.close()
+#
+#             return redirect(url_for('import_success', import_count = total))
+#
+#     return render_template('import/json.html')
+#
+#
+#
+# @app.route("/import/text", methods=['POST', 'GET'])
+# def import_from_text():
+#
+#     if request.method == 'POST':
+#         # check if the post request has the file part
+#         if 'file' not in request.files:
+#             flash('No file part')
+#             return redirect(request.url)
+#         file = request.files['file']
+#
+#         # if user does not select file, browser also
+#         # submit an empty part without filename
+#         if file.filename == '':
+#             flash('No selected file')
+#             return redirect(request.url)
+#         if file and allowed_file(file.filename):
+#             filename = secure_filename(file.filename)
+#             file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
+#
+#             contacts_to_import = []
+#             with open(os.path.join(app.config['UPLOAD_FOLDER'], filename), 'r') as f:
+#                 contacts_to_import = f.read().splitlines()
+#
+#             if contacts_to_import == []:
+#                 flash('No contact to import')
+#                 return redirect(request.url)
+#
+#             i = Importer()
+#
+#             total = 0
+#             for contact in contacts_to_import:
+#                 contact_info = i.get_account_data(contact)
+#                 if not i.user_exists(contact):
+#                     if i.add_new_user(contact_info):
+#                         total += 1
+#
+#             i.close()
+#
+#             return redirect(url_for('import_success', import_count = total))
+#
+#     return render_template('import/text.html')
+#
+#
+#
+# @app.route("/import", methods=['POST', 'GET'])
+# def import_from_form():
+#
+#     if request.method == 'POST':
+#
+#         if request.form['contacts'] == '':
+#             flash('Please fill in the text area before clicking the button.')
+#             return render_template('import/form.html', errors = 'The text area should not be empty.')
+#
+#         contacts_to_import = request.form['contacts'].splitlines()
+#
+#         i = Importer()
+#
+#         total = 0
+#         for contact in contacts_to_import:
+#             contact_info = i.get_account_data(contact)
+#             if not i.user_exists(contact):
+#                 if i.add_new_user(contact_info):
+#                     total += 1
+#
+#         i.close()
+#
+#         return redirect(url_for('import_success', import_count = total))
+#     else:
+#         return render_template('import/form.html')
+#
+# @app.route("/import/success")
+# def import_success():
+#     import_count = request.args['import_count']
+#
+#     return render_template('import/success.html', import_count = import_count)
 
 
 
@@ -822,7 +822,7 @@ def hide_account(account_name):
     origin = request.args.get('origin', default='')
     e = Exporter()
     l = Lists()
-    
+
 
     list_id = l.get_list_id_from_shortname(shortname = DEFAULT_LIST_INFO['shortname'], user_id = DEFAULT_USER_ID)
     account_id = e.get_account_id_from_account_name(account_name)
@@ -852,7 +852,7 @@ def show_account(account_name):
 
     e = Exporter()
     l = Lists()
-    
+
     list_id = l.get_list_id_from_shortname(shortname = DEFAULT_LIST_INFO['shortname'], user_id = DEFAULT_USER_ID)
     account_id = e.get_account_id_from_account_name(account_name)
 
@@ -876,62 +876,62 @@ def show_account(account_name):
 
 # FUNCTIONS
 
-def build_post_dict(media, owner_profile, saved_status):
-    # sets
- 
-    # 0  id INTEGER,
-    # 1  owner INTEGER,
-    # 2  media_type TEXT,
-    # 3  is_video INTEGER, # boolean
-    # 4  display_url TEXT,
-    # 5  caption TEXT,
-    # 6  shortcode TEXT,
-    # 7  timestamp INTEGER,
-    # 8  likes INTEGER,
-    # 9  comments INTEGER,
-    #10  thumbnails TEXT, # JSON object containing thumbnails
-    #11  sidecar TEXT # JSON object containing the whole edge_sidecar_to_children.edges
+# def build_post_dict(media, owner_profile, saved_status):
+#     # sets
+#
+#     # 0  id INTEGER,
+#     # 1  owner INTEGER,
+#     # 2  media_type TEXT,
+#     # 3  is_video INTEGER, # boolean
+#     # 4  display_url TEXT,
+#     # 5  caption TEXT,
+#     # 6  shortcode TEXT,
+#     # 7  timestamp INTEGER,
+#     # 8  likes INTEGER,
+#     # 9  comments INTEGER,
+#     #10  thumbnails TEXT, # JSON object containing thumbnails
+#     #11  sidecar TEXT # JSON object containing the whole edge_sidecar_to_children.edges
+#
+#     post = {}
+#
+#     post['is_saved'] = saved_status
+#
+#     post['media_id']      = media[0]
+#     post['owner']         = media[1]
+#     post['media_type']    = media[2]
+#     post['is_video']      = bool(media[3])
+#     post['display_url']   = media[4]
+#     post['caption']       = parse_text(media[5])
+#     post['caption_short'] = parse_text(smart_truncate(content = media[5], length = 180))
+#     post['shortcode']     = media[6]
+#     post['timestamp']     = datetime.datetime.fromtimestamp(media[7])
+#     post['likes']         = media[8]
+#     post['comments']      = media[9]
+#     post['thumbnails']    = json.loads(media[10])
+#
+#     if post['media_type'] == 'GraphSidecar' and json.loads(media[11]) != '':
+#         post['sidecar'] = json.loads(media[11])
+#     else:
+#         post['sidecar'] = []
+#
+#     post['owner_id']              = owner_profile[0]
+#     post['owner_account_name']    = owner_profile[1]
+#     post['owner_full_name']       = owner_profile[2]
+#     post['owner_profile_pic_url'] = owner_profile[4]
+#
+#     return post
 
-    post = {}
-
-    post['is_saved'] = saved_status
-
-    post['media_id']      = media[0]
-    post['owner']         = media[1]
-    post['media_type']    = media[2]
-    post['is_video']      = bool(media[3])
-    post['display_url']   = media[4]
-    post['caption']       = parse_text(media[5])
-    post['caption_short'] = parse_text(smart_truncate(content = media[5], length = 180))
-    post['shortcode']     = media[6]
-    post['timestamp']     = datetime.datetime.fromtimestamp(media[7])
-    post['likes']         = media[8]
-    post['comments']      = media[9]
-    post['thumbnails']    = json.loads(media[10])
-
-    if post['media_type'] == 'GraphSidecar' and json.loads(media[11]) != '':
-        post['sidecar'] = json.loads(media[11])
-    else:
-        post['sidecar'] = []
-
-    post['owner_id']              = owner_profile[0]
-    post['owner_account_name']    = owner_profile[1]
-    post['owner_full_name']       = owner_profile[2]
-    post['owner_profile_pic_url'] = owner_profile[4]
-
-    return post
-
-def parse_text(text):
-    tweet = re.sub(r'(\b(https?|ftp|file):\/\/[-A-Z0-9+&@#\/%?=~_|!:,.;]*[-A-Z0-9+&@#\/%=~_|])', r'<a href="\1" target="_blank">\1</a>', text)
-    tweet = re.sub(r'(\A|\s)@(\w+)', r'\1@<a href="http://www.instagram.com/\2">\2</a>', tweet)
-    tweet = re.sub(r'(\A|\s)#(\w+)', r'\1#<a href="https://www.instagram.com/explore/tags/\2/">\2</a>', tweet) 
-    return tweet
-
-def smart_truncate(content, length=100, suffix='…'):
-    if len(content) <= length:
-        return content
-    else:
-        return ' '.join(content[:length+1].split(' ')[0:-1]) + suffix
+# def parse_text(text):
+#     tweet = re.sub(r'(\b(https?|ftp|file):\/\/[-A-Z0-9+&@#\/%?=~_|!:,.;]*[-A-Z0-9+&@#\/%=~_|])', r'<a href="\1" target="_blank">\1</a>', text)
+#     tweet = re.sub(r'(\A|\s)@(\w+)', r'\1@<a href="http://www.instagram.com/\2">\2</a>', tweet)
+#     tweet = re.sub(r'(\A|\s)#(\w+)', r'\1#<a href="https://www.instagram.com/explore/tags/\2/">\2</a>', tweet)
+#     return tweet
+#
+# def smart_truncate(content, length=100, suffix='…'):
+#     if len(content) <= length:
+#         return content
+#     else:
+#         return ' '.join(content[:length+1].split(' ')[0:-1]) + suffix
 
 def get_list(list_id):
     l = Lists()
@@ -1049,16 +1049,16 @@ def get_redirection(origin, media_shortcode, media_owner = ''):
         return url_for(endpoint, page = destination_page, _anchor = destination)
 
 
-def url_for_other_page(page):
-    args = request.view_args.copy()
-    args['page'] = page
-    return url_for(request.endpoint, **args)
-app.jinja_env.globals['url_for_other_page'] = url_for_other_page
-
-
-def allowed_file(filename):
-    return '.' in filename and \
-           filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
+# def url_for_other_page(page):
+#     args = request.view_args.copy()
+#     args['page'] = page
+#     return url_for(request.endpoint, **args)
+# app.jinja_env.globals['url_for_other_page'] = url_for_other_page
+#
+#
+# def allowed_file(filename):
+#     return '.' in filename and \
+#            filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
 
 
 if __name__ == '__main__':
