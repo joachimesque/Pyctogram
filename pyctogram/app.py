@@ -390,36 +390,36 @@ def profile_lists(account_name):
 #                                 posts=posts,
 #                                 pagination=pagination)
 
-
-@app.route("/list/create", methods=['POST', 'GET'], defaults = {'account_name' : ''})
-@app.route("/list/create/autoadd/<account_name>", methods=['POST', 'GET'])
-def list_create(account_name):
-    origin = request.args.get('origin', default='')
-
-    if request.method == 'POST':
-
-        origin = request.args.get('origin', default='')
-        new_list, errors = forms.check_list_form(request_form = request.form)
-
-        if errors != {}:
-            for error in errors.values():
-                flash(str(error))
-            return redirect(url_for('list_create', shortname = new_list['shortname'], account_name = account_name))
-
-        l = Lists()
-
-        user_id = DEFAULT_USER_ID
-        l.create_new_list(new_list, user_id)
-
-        l.close()
-
-        if account_name != '':
-            return redirect(url_for('list_add_user', shortname = new_list['shortname'], account_name = account_name, origin = origin))
-        else:
-            return redirect(url_for('list_accounts', shortname = new_list['shortname']))
-
-    else:
-        return render_template('lists/create.html', account_name = account_name, origin = origin)
+#
+# @app.route("/list/create", methods=['POST', 'GET'], defaults = {'account_name' : ''})
+# @app.route("/list/create/autoadd/<account_name>", methods=['POST', 'GET'])
+# def list_create(account_name):
+#     origin = request.args.get('origin', default='')
+#
+#     if request.method == 'POST':
+#
+#         origin = request.args.get('origin', default='')
+#         new_list, errors = forms.check_list_form(request_form = request.form)
+#
+#         if errors != {}:
+#             for error in errors.values():
+#                 flash(str(error))
+#             return redirect(url_for('list_create', shortname = new_list['shortname'], account_name = account_name))
+#
+#         l = Lists()
+#
+#         user_id = DEFAULT_USER_ID
+#         l.create_new_list(new_list, user_id)
+#
+#         l.close()
+#
+#         if account_name != '':
+#             return redirect(url_for('list_add_user', shortname = new_list['shortname'], account_name = account_name, origin = origin))
+#         else:
+#             return redirect(url_for('list_accounts', shortname = new_list['shortname']))
+#
+#     else:
+#         return render_template('lists/create.html', account_name = account_name, origin = origin)
 
 
 # @app.route("/list/<shortname>/edit", methods=['POST', 'GET'])
@@ -546,35 +546,35 @@ def list_add(shortname):
 
 
 
-@app.route("/list/<shortname>/add/<account_name>")
-def list_add_user(shortname, account_name):
-    origin = request.args.get('origin', default='')
-    e = Exporter()
-    l = Lists()
-
-    account_id = e.get_account_id_from_account_name(account_name)
-    user_id = DEFAULT_USER_ID
-    list_id = l.get_list_id_from_shortname(shortname, user_id)
-
-    if not account_id:
-        abort(404)
-    if not list_id:
-        abort(404)
-
-    if l.check_if_account_in_list(list_id, account_id) is False:
-        l.add_account_to_list(list_id, account_id)
-
-    e.close()
-    l.close()
-
-
-
-    if origin == '':
-        redirection = url_for('list_feed', shortname = shortname)
-    else:
-        redirection = get_redirection(origin = origin, media_shortcode = '', media_owner = account_name)
-
-    return redirect(redirection)
+# @app.route("/list/<shortname>/add/<account_name>")
+# def list_add_user(shortname, account_name):
+#     origin = request.args.get('origin', default='')
+#     e = Exporter()
+#     l = Lists()
+#
+#     account_id = e.get_account_id_from_account_name(account_name)
+#     user_id = DEFAULT_USER_ID
+#     list_id = l.get_list_id_from_shortname(shortname, user_id)
+#
+#     if not account_id:
+#         abort(404)
+#     if not list_id:
+#         abort(404)
+#
+#     if l.check_if_account_in_list(list_id, account_id) is False:
+#         l.add_account_to_list(list_id, account_id)
+#
+#     e.close()
+#     l.close()
+#
+#
+#
+#     if origin == '':
+#         redirection = url_for('list_feed', shortname = shortname)
+#     else:
+#         redirection = get_redirection(origin = origin, media_shortcode = '', media_owner = account_name)
+#
+#     return redirect(redirection)
 
 
 @app.route("/list/add/<account_name>")
@@ -618,25 +618,25 @@ def list_remove_user(shortname, account_name):
     return redirect(redirection)
 
 
-@app.route("/list/<shortname>/delete", methods = ["GET", "POST"])
-def list_delete(shortname):
-    if request.method == 'POST':
-        if request.form['submit'] == 'submit':
-            l = Lists()
-
-            user_id = DEFAULT_USER_ID
-            list_id = l.get_list_id_from_shortname(shortname, user_id)
-
-            if not list_id:
-                abort(404)
-
-            l.delete_list(list_id)
-            l.close()
-
-            return redirect(url_for('list_lists'))
-
-    flash('Are you sure you want to delete this list? There is no turning back.')
-    return render_template('lists/confirm.html', shortname = shortname)
+# @app.route("/list/<shortname>/delete", methods = ["GET", "POST"])
+# def list_delete(shortname):
+#     if request.method == 'POST':
+#         if request.form['submit'] == 'submit':
+#             l = Lists()
+#
+#             user_id = DEFAULT_USER_ID
+#             list_id = l.get_list_id_from_shortname(shortname, user_id)
+#
+#             if not list_id:
+#                 abort(404)
+#
+#             l.delete_list(list_id)
+#             l.close()
+#
+#             return redirect(url_for('list_lists'))
+#
+#     flash('Are you sure you want to delete this list? There is no turning back.')
+#     return render_template('lists/confirm.html', shortname = shortname)
 
 
 # @app.route("/lists")
