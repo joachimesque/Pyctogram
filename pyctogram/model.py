@@ -102,6 +102,11 @@ class Account(db.Model):
         self.id = id
         self.account_name = account_name
 
+    def get_media_paginate(self, page=1, per_page=10):
+        return Media.query.join(Account).filter(Account.id == self.id).order_by(
+            Media.timestamp.desc()).paginate(
+            page, per_page, False)
+
 
 class List(db.Model):
     __tablename__ = "lists"

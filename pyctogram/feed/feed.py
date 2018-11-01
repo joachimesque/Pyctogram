@@ -16,7 +16,6 @@ def allowed_file(filename):
 @feed_blueprint.route("/page/<int:page>")
 @login_required
 def index(page):
-    # Work in progress
     posts = []
     pagination = None
     per_page = current_app.config['PER_PAGE']

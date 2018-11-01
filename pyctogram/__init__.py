@@ -53,9 +53,11 @@ def create_app():
 
     from .model import Account, List, Media, User  # noqa
 
+    from .feed.account import account_blueprint  # noqa
     from .feed.feed import feed_blueprint  # noqa
     from .feed.importer import import_blueprint  # noqa
     from .users.auth import users_blueprint  # noqa
+    app.register_blueprint(account_blueprint)
     app.register_blueprint(feed_blueprint)
     app.register_blueprint(import_blueprint)
     app.register_blueprint(users_blueprint)
@@ -75,6 +77,10 @@ def create_app():
     @app.template_filter()
     def format_timestamp(ts, format='%Y-%m-%d'):
         return datetime.fromtimestamp(ts).strftime(format)
+
+    @app.template_filter()
+    def thumbnail_320(thumbnails):
+        return json.loads(thumbnails)[3]['src']
 
     @app.template_filter()
     def parse_text(text):
