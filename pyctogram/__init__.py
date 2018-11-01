@@ -100,6 +100,13 @@ def create_app():
                          caption)
         return caption
 
+    @app.template_global()
+    def account_is_hidden(account, current_user):
+        """Check if an account is in the current user feed (= default list)."""
+        default_list = List.query.filter_by(
+            user_id=current_user.id, is_default=True).first()
+        return account not in default_list.accounts
+
     @app.cli.command()
     def dropdb():
         """Empty database for dev environments."""

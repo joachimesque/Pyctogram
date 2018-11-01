@@ -31,3 +31,9 @@ def index(page):
 
     return render_template('feed/index.html', posts=posts,
                            pagination=pagination)
+
+
+@feed_blueprint.route("/feed/hidden-accounts")
+@login_required
+def list_hidden_accounts():
+    return render_template('feed/hidden.html', accounts=current_user.accounts)

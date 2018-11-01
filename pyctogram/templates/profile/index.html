@@ -16,12 +16,12 @@
             {% set origin = 'profile_feed:@' ~ author.account_name ~ ':' ~ pagination.page %}
         {% endif %}
 
-{#        <li><a class="button is-small is-outlined is-info" href="{{ url_for('list_choices_for_user', account_name = author.account_name, origin = origin) }}">Add to list 🔖</a></li><br>#}
-{#        {% if account_is_hidden(author.id) %}#}
-{#          <li><a title="Unhide from feed 🐵" href="{{ url_for('show_account', account_name = author.account_name, origin = origin) }}" class="button is-small is-info is-outlined">Unhide 🐵</a></li>#}
-{#        {% else %}#}
-{#          <li><a title="Hide from feed 🙈" href="{{ url_for('hide_account', account_name = author.account_name, origin = origin) }}" class="button is-small is-info is-outlined">Hide 🙈</a></li>#}
-{#        {% endif %}#}
+        <li><a class="button is-small is-outlined is-info" href="{{ url_for('list.list_choices_for_user', account_name = author.account_name, origin = origin) }}">Add to list 🔖</a></li><br>
+        {% if account_is_hidden(author, current_user) %}
+          <li><a title="Unhide from feed 🐵" href="{{ url_for('account.show_account', account_name = author.account_name, origin = origin) }}" class="button is-small is-info is-outlined">Unhide 🐵</a></li>
+        {% else %}
+          <li><a title="Hide from feed 🙈" href="{{ url_for('account.hide_account', account_name = author.account_name, origin = origin) }}" class="button is-small is-info is-outlined">Hide 🙈</a></li>
+        {% endif %}
       </ul>
     </div>
     <div class="media-content">
@@ -47,7 +47,7 @@
     <ul>
       <li class="{% if display_as_feed == False %}is-active{% endif %}"><a href="{{ url_for('account.profile', account_name = author.account_name) | replace('%40', '@') }}">Grid</a></li>
       <li class="{% if display_as_feed == True %}is-active{% endif %}"><a href="{{ url_for('account.profile', account_name = author.account_name, display = 'feed') | replace('%40', '@') }}">Feed</a></li>
-{#      <li><a href="{{ url_for('profile_lists', account_name = author.account_name) | replace('%40', '@') }}">Lists</a></li>#}
+      <li><a href="{{ url_for('account.profile_lists', account_name = author.account_name) | replace('%40', '@') }}">Lists</a></li>
     </ul>
   </div>
 

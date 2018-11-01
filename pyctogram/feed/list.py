@@ -36,7 +36,7 @@ def list_feed(shortname, page):
 
 
 @list_blueprint.route("/list/create", methods=['POST', 'GET'],
-                      defaults={'account_name' : ''})
+                      defaults={'account_name': ''})
 @list_blueprint.route("/list/create/autoadd/<account_name>",
                       methods=['POST', 'GET'])
 @login_required
@@ -46,7 +46,8 @@ def list_create(account_name):
     if request.method == 'POST':
 
         origin = request.args.get('origin', default='')
-        new_list_data, errors = forms.check_list_form(request_form=request.form)
+        new_list_data, errors = forms.check_list_form(
+            request_form=request.form)
 
         if errors != {}:
             for error in errors.values():
@@ -95,6 +96,29 @@ def list_add_user(shortname, account_name):
         redirection = get_redirection(origin=origin,
                                       media_shortcode='',
                                       media_owner=account_name)
+    return redirect(redirection)
+
+
+@list_blueprint.route("/list/<shortname>/remove/<account_name>")
+@login_required
+def list_remove_user(shortname, account_name):
+    origin = request.args.get('origin', default='')
+
+    the_list = List.query.filter_by(shortname=shortname).first()
+    account = Account.query.filter_by(account_name=account_name).first()
+    if not account or not the_list:
+        abort(404)
+
+    if account in the_list.accounts:
+        the_list.accounts.remove(account)
+        db.session.commit()
+
+    if origin == '' or origin == 'list.list_accounts':
+        redirection = url_for('list.list_accounts', shortname=shortname)
+    else:
+        redirection = url_for('account.profile_lists',
+                              account_name=account_name)
+
     return redirect(redirection)
 
 

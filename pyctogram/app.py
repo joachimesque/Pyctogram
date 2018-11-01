@@ -293,54 +293,54 @@ app.secret_key = 'THIS_SHOULD_BE_CHANGED'
 #                             display_as_feed=display_as_feed)
 
 
-@app.route("/@<account_name>/lists")
-def profile_lists(account_name):
-    e = Exporter()
-    l = Lists()
-
-    #gets
-    account_id = e.get_account_id_from_account_name(account_name)
-
-    if not account_id:
-        abort(404)
-
-    profile = e.get_account_profile(account_id)
-
-    user_id = DEFAULT_USER_ID
-
-    the_lists_tup = l.get_lists_info_for_account(user_id =user_id, account_id =account_id)
-
-    lists = []
-    for single_list in the_lists_tup:
-        single_dict = {}
-        keys = ('id','shortname','longname','description','last_updated','date_added','user_id','is_hidden','count')
-        for k, s in zip(keys, single_list):
-            single_dict[k] = s
-        lists.append(single_dict)
-
-    #sets
-    author = {}
-
-    author['id'] = account_id
-    author['account_name'] = account_name
-    author['full_name'] = profile[2]
-    author['biography'] = profile[3]
-    author['profile_pic_url'] = profile[4]
-    author['profile_pic_url_hd'] = profile[5]
-    author['external_url'] = profile[6]
-    author['external_url_linkshimmed'] = profile[7]
-    author['followed_by'] = profile[8]
-    author['follow'] = profile[9]
-    author['last_updated'] = datetime.datetime.fromtimestamp(profile[10])
-    author['is_private'] = bool(profile[11])
-    # author['is_deleted'] = bool(profile[12])
-
-    e.close()
-    l.close()
-
-    return render_template('profile/lists.html',
-                            author=author,
-                            lists=lists)
+# @app.route("/@<account_name>/lists")
+# def profile_lists(account_name):
+#     e = Exporter()
+#     l = Lists()
+#
+#     #gets
+#     account_id = e.get_account_id_from_account_name(account_name)
+#
+#     if not account_id:
+#         abort(404)
+#
+#     profile = e.get_account_profile(account_id)
+#
+#     user_id = DEFAULT_USER_ID
+#
+#     the_lists_tup = l.get_lists_info_for_account(user_id =user_id, account_id =account_id)
+#
+#     lists = []
+#     for single_list in the_lists_tup:
+#         single_dict = {}
+#         keys = ('id','shortname','longname','description','last_updated','date_added','user_id','is_hidden','count')
+#         for k, s in zip(keys, single_list):
+#             single_dict[k] = s
+#         lists.append(single_dict)
+#
+#     #sets
+#     author = {}
+#
+#     author['id'] = account_id
+#     author['account_name'] = account_name
+#     author['full_name'] = profile[2]
+#     author['biography'] = profile[3]
+#     author['profile_pic_url'] = profile[4]
+#     author['profile_pic_url_hd'] = profile[5]
+#     author['external_url'] = profile[6]
+#     author['external_url_linkshimmed'] = profile[7]
+#     author['followed_by'] = profile[8]
+#     author['follow'] = profile[9]
+#     author['last_updated'] = datetime.datetime.fromtimestamp(profile[10])
+#     author['is_private'] = bool(profile[11])
+#     # author['is_deleted'] = bool(profile[12])
+#
+#     e.close()
+#     l.close()
+#
+#     return render_template('profile/lists.html',
+#                             author=author,
+#                             lists=lists)
 
 
 # @app.route("/list/<shortname>", defaults={'page': 1})
@@ -588,34 +588,34 @@ def profile_lists(account_name):
 #                                 account_name = account_name,
 #                                 origin = origin)
 
-
-@app.route("/list/<shortname>/remove/<account_name>")
-def list_remove_user(shortname, account_name):
-    origin = request.args.get('origin', default='')
-
-    e = Exporter()
-    l = Lists()
-
-    account_id = e.get_account_id_from_account_name(account_name)
-    user_id = DEFAULT_USER_ID
-    list_id = l.get_list_id_from_shortname(shortname, user_id)
-
-    if not account_id:
-        abort(404)
-    if not list_id:
-        abort(404)
-
-    l.remove_account_from_list(list_id, account_id)
-
-    e.close()
-    l.close()
-
-    if origin == '' or origin == 'list_accounts':
-        redirection = url_for('list_accounts', shortname = shortname)
-    else:
-        redirection = url_for('profile_lists', account_name = account_name)
-
-    return redirect(redirection)
+#
+# @app.route("/list/<shortname>/remove/<account_name>")
+# def list_remove_user(shortname, account_name):
+#     origin = request.args.get('origin', default='')
+#
+#     e = Exporter()
+#     l = Lists()
+#
+#     account_id = e.get_account_id_from_account_name(account_name)
+#     user_id = DEFAULT_USER_ID
+#     list_id = l.get_list_id_from_shortname(shortname, user_id)
+#
+#     if not account_id:
+#         abort(404)
+#     if not list_id:
+#         abort(404)
+#
+#     l.remove_account_from_list(list_id, account_id)
+#
+#     e.close()
+#     l.close()
+#
+#     if origin == '' or origin == 'list_accounts':
+#         redirection = url_for('list_accounts', shortname = shortname)
+#     else:
+#         redirection = url_for('profile_lists', account_name = account_name)
+#
+#     return redirect(redirection)
 
 
 # @app.route("/list/<shortname>/delete", methods = ["GET", "POST"])
@@ -779,97 +779,97 @@ def list_remove_user(shortname, account_name):
 
 
 
-@app.route("/feed/hidden-accounts")
-def list_hidden_accounts():
-#TODO
-    u = User()
-
-    list_shortname = DEFAULT_LIST_INFO['shortname']
-
-    # Get the accounts
-    the_accounts_tup = u.get_hidden_account_list(list_shortname = list_shortname, user_id = DEFAULT_USER_ID)
-
-    # Set Accounts list
-    the_accounts = []
-    for account in the_accounts_tup:
-        single_dict = {}
-        keys = ('id',
-                'account_name',
-                'full_name',
-                'biography',
-                'profile_pic_url',
-                'profile_pic_url_hd',
-                'external_url',
-                'external_url_linkshimmed',
-                'followed_by',
-                'follow',
-                'last_updated',
-                'is_private',
-                'is_deleted')
-        for k, a in zip(keys, account):
-            single_dict[k] = a
-
-        the_accounts.append(single_dict)
-
-    u.close()
-
-
-    return render_template('feed/hidden.html', accounts = the_accounts)
-
-
-@app.route("/feed/hide/<account_name>")
-def hide_account(account_name):
-    origin = request.args.get('origin', default='')
-    e = Exporter()
-    l = Lists()
+# @app.route("/feed/hidden-accounts")
+# def list_hidden_accounts():
+# #TODO
+#     u = User()
+#
+#     list_shortname = DEFAULT_LIST_INFO['shortname']
+#
+#     # Get the accounts
+#     the_accounts_tup = u.get_hidden_account_list(list_shortname = list_shortname, user_id = DEFAULT_USER_ID)
+#
+#     # Set Accounts list
+#     the_accounts = []
+#     for account in the_accounts_tup:
+#         single_dict = {}
+#         keys = ('id',
+#                 'account_name',
+#                 'full_name',
+#                 'biography',
+#                 'profile_pic_url',
+#                 'profile_pic_url_hd',
+#                 'external_url',
+#                 'external_url_linkshimmed',
+#                 'followed_by',
+#                 'follow',
+#                 'last_updated',
+#                 'is_private',
+#                 'is_deleted')
+#         for k, a in zip(keys, account):
+#             single_dict[k] = a
+#
+#         the_accounts.append(single_dict)
+#
+#     u.close()
+#
+#
+#     return render_template('feed/hidden.html', accounts = the_accounts)
 
 
-    list_id = l.get_list_id_from_shortname(shortname = DEFAULT_LIST_INFO['shortname'], user_id = DEFAULT_USER_ID)
-    account_id = e.get_account_id_from_account_name(account_name)
-
-    if not account_id:
-        abort(404)
-
-    l.remove_account_from_list(list_id = list_id, account_id = account_id)
-
-    # We're gonna transform that one to get the right page.
-    media_shortcode = origin.split(':')[1]
-    new_page = l.get_page_number_where_shortcode_is_displayed_in_list(list_id = list_id, media_shortcode = media_shortcode)
-
-    origin = origin[:origin.rfind(':') + 1] + str(int(new_page / config.elements_per_page) + 1)
-
-    l.close()
-    e.close()
-
-    redirection = get_redirection(origin = origin, media_shortcode = media_shortcode, media_owner = account_name)
-
-    return redirect(redirection)
-
-
-@app.route("/feed/unhide/<account_name>")
-def show_account(account_name):
-    origin = request.args.get('origin', default='')
-
-    e = Exporter()
-    l = Lists()
-
-    list_id = l.get_list_id_from_shortname(shortname = DEFAULT_LIST_INFO['shortname'], user_id = DEFAULT_USER_ID)
-    account_id = e.get_account_id_from_account_name(account_name)
-
-    if not account_id:
-        abort(404)
-
-    l.add_account_to_list(list_id = list_id, account_id = account_id)
-
-    l.close()
-    e.close()
-
-    if origin[0:7] == 'profile':
-        redirection = get_redirection(origin, '')
-    else:
-        redirection = url_for('list_hidden_accounts')
-
-    return redirect(redirection)
+# @app.route("/feed/hide/<account_name>")
+# def hide_account(account_name):
+#     origin = request.args.get('origin', default='')
+#     e = Exporter()
+#     l = Lists()
+#
+#
+#     list_id = l.get_list_id_from_shortname(shortname = DEFAULT_LIST_INFO['shortname'], user_id = DEFAULT_USER_ID)
+#     account_id = e.get_account_id_from_account_name(account_name)
+#
+#     if not account_id:
+#         abort(404)
+#
+#     l.remove_account_from_list(list_id = list_id, account_id = account_id)
+#
+#     # We're gonna transform that one to get the right page.
+#     media_shortcode = origin.split(':')[1]
+#     new_page = l.get_page_number_where_shortcode_is_displayed_in_list(list_id = list_id, media_shortcode = media_shortcode)
+#
+#     origin = origin[:origin.rfind(':') + 1] + str(int(new_page / config.elements_per_page) + 1)
+#
+#     l.close()
+#     e.close()
+#
+#     redirection = get_redirection(origin = origin, media_shortcode = media_shortcode, media_owner = account_name)
+#
+#     return redirect(redirection)
+#
+#
+# @app.route("/feed/unhide/<account_name>")
+# def show_account(account_name):
+#     origin = request.args.get('origin', default='')
+#
+#     e = Exporter()
+#     l = Lists()
+#
+#     list_id = l.get_list_id_from_shortname(shortname = DEFAULT_LIST_INFO['shortname'], user_id = DEFAULT_USER_ID)
+#     account_id = e.get_account_id_from_account_name(account_name)
+#
+#     if not account_id:
+#         abort(404)
+#
+#     l.add_account_to_list(list_id = list_id, account_id = account_id)
+#
+#     l.close()
+#     e.close()
+#
+#     if origin[0:7] == 'profile':
+#         redirection = get_redirection(origin, '')
+#     else:
+#         redirection = url_for('list_hidden_accounts')
+#
+#     return redirect(redirection)
 
 
 

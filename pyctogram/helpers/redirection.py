@@ -15,14 +15,14 @@ def get_redirection(origin, media_shortcode, media_owner=''):
             destination = 'top'
 
         if endpoint == 'profile_lists':
-            return url_for('profile_lists', account_name=media_owner).replace(
-                '%40', '@')
+            return url_for('account.profile_lists', account_name=media_owner
+                           ).replace('%40', '@')
         elif endpoint == 'profile_feed':
-            return url_for('profile', page=destination_page,
+            return url_for('account.profile', page=destination_page,
                            account_name=media_owner, display='feed',
                            _anchor=destination).replace('%40', '@')
         else:
-            return url_for('profile', page=destination_page,
+            return url_for('account.profile', page=destination_page,
                            account_name=media_owner,
                            _anchor=destination).replace('%40', '@')
 
