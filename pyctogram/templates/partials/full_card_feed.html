@@ -12,7 +12,7 @@
 
   {% set destination = post.shortcode %}
   {# If we're in a list, we display the list name #}
-  {% if request.url_rule.endpoint == 'list_feed' %}
+  {% if request.url_rule.endpoint == 'list.list_feed' %}
      {% set destination = the_list.shortname %}
   {% endif %}
 
@@ -28,7 +28,7 @@
     {% endif %}
     {% set origin_delete = the_endpoint ~ ':' ~ destination ~ ':' ~ pagination.page %}
   {% endif %}
- 
+
 
   {% include 'partials/full_card.html' %}
 

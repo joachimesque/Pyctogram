@@ -45,7 +45,7 @@ def get_redirection(origin, media_shortcode, media_owner=''):
     elif endpoint == 'media':
         return url_for('media', media_shortcode=media_shortcode)
 
-    elif endpoint == 'list_feed':
+    elif endpoint == 'list.list_feed':
         print(('ok', destination, media_shortcode), file=sys.stderr)
         return url_for(endpoint, shortname=destination,
                        _anchor=media_shortcode)

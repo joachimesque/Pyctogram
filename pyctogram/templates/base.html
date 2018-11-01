@@ -40,19 +40,16 @@
             <span class="is-size-5" role="img" aria-label="Your lists">🔖</span>&nbsp;Lists
           </a>
           <div class="navbar-dropdown">
-{#          {% if get_lists() is defined and get_lists()|length > 0 %}#}
-{#            {% for list in get_lists() %}#}
-{#            <a class="navbar-item" href="{{ url_for('list_feed', shortname = list.shortname) }}">#}
-{#              {{ list.longname }} &nbsp; <small>({{ list.count }})</small>#}
-{#            </a>#}
-{#            {% endfor %}#}
-{#            <div class="navbar-divider"></div>#}
-{#          {% endif %}#}
-{#            <a class="navbar-item" href="{{ url_for('list_create') }}">#}
-{#              <span class="is-size-7" role="img" aria-label="Plus">➕</span>&nbsp;#}
-{#              Create a new list#}
-{#            </a>#}
-
+          {% for list in current_user.lists %}
+          <a class="navbar-item" href="{{ url_for('list.list_feed', shortname = list.shortname) }}">
+            {{ list.longname }} &nbsp; <small>({{ list.accounts|count }})</small>
+          </a>
+          {% endfor %}
+          <div class="navbar-divider"></div>
+          <a class="navbar-item" href="{{ url_for('list.list_create') }}">
+            <span class="is-size-7" role="img" aria-label="Plus">➕</span>&nbsp;
+            Create a new list
+          </a>
           </div>
         </div>
       </div>
