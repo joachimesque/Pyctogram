@@ -84,42 +84,42 @@ app.secret_key = 'THIS_SHOULD_BE_CHANGED'
 #     e.close()
 #     return render_template('feed/index.html', posts=posts, pagination=pagination)
 
-@app.route("/memory/", defaults={'page': 1})
-@app.route("/memory/page/<int:page>")
-def memory(page):
-    e = Exporter()
-    u = User()
-
-    # Main user is 0
-    user_id = DEFAULT_USER_ID
-
-    # gets
-    count = u.remember_count(user_id)
-
-    # instances
-    pagination = Pagination(page, config.elements_per_page, count)
-
-    if page > pagination.pages:
-      page = pagination.pages
-
-    feed = u.remember_feed(user_id, page)
-
-    # sets
-    posts = []
-
-    for media in feed:
-
-        # gets
-        owner_profile = e.get_account_profile(media[1])
-        saved_status = u.get_saved_status(media[0], 0)
-
-        post = build_post_dict(media = media, owner_profile = owner_profile, saved_status = saved_status)
-
-        posts.append(post)
-
-    u.close()
-    e.close()
-    return render_template('feed/memory.html', posts=posts, pagination=pagination)
+# @app.route("/memory/", defaults={'page': 1})
+# @app.route("/memory/page/<int:page>")
+# def memory(page):
+#     e = Exporter()
+#     u = User()
+#
+#     # Main user is 0
+#     user_id = DEFAULT_USER_ID
+#
+#     # gets
+#     count = u.remember_count(user_id)
+#
+#     # instances
+#     pagination = Pagination(page, config.elements_per_page, count)
+#
+#     if page > pagination.pages:
+#       page = pagination.pages
+#
+#     feed = u.remember_feed(user_id, page)
+#
+#     # sets
+#     posts = []
+#
+#     for media in feed:
+#
+#         # gets
+#         owner_profile = e.get_account_profile(media[1])
+#         saved_status = u.get_saved_status(media[0], 0)
+#
+#         post = build_post_dict(media = media, owner_profile = owner_profile, saved_status = saved_status)
+#
+#         posts.append(post)
+#
+#     u.close()
+#     e.close()
+#     return render_template('feed/memory.html', posts=posts, pagination=pagination)
 
 # @app.route("/p/<media_shortcode>")
 # def media(media_shortcode):
@@ -145,88 +145,88 @@ def memory(page):
 #     e.close()
 #     return render_template('media/index.html', post=post)
 
-@app.route("/save/<media_shortcode>")
-def save(media_shortcode):
-    origin = request.args.get('origin', default='')
-    e = Exporter()
+# @app.route("/save/<media_shortcode>")
+# def save(media_shortcode):
+#     origin = request.args.get('origin', default='')
+#     e = Exporter()
+#
+#     # Main user is 0
+#     user_id = DEFAULT_USER_ID
+#
+#     # gets
+#     media = e.get_media_from_shortcode(media_shortcode)
+#
+#     if not media:
+#         abort(404)
+#
+#     # Create the filename and download the image
+#     owner_account_name = e.get_account_name_from_account_id(media[1])
+#     date = datetime.datetime.fromtimestamp(media[9]).strftime('%Y-%m-%d_%H-%M')
+#     filename = date + '_' + media_shortcode + '_by-' + owner_account_name + '.jpg'
+#     fileaddr = './static/images/' + str(user_id) + '/'
+#
+#     media_url = media[4]
+#
+#     if not os.path.exists(fileaddr):
+#       os.makedirs(fileaddr)
+#
+#     destination = fileaddr + filename
+#
+#     with open(destination, 'wb') as handle:
+#         response = requests.get(media_url, stream=True)
+#         if not response.ok:
+#             print(response)
+#         for block in response.iter_content(1024):
+#             if not block:
+#                 break
+#             handle.write(block)
+#
+#
+#     u = User()
+#     if u.get_saved_status(media[0], user_id) is False:
+#       u.save_media(media[0], user_id, filename, int(time.time()))
+#
+#     e.close()
+#     u.close()
+#
+#     redirection = get_redirection(origin = origin, media_shortcode = media_shortcode, media_owner = owner_account_name)
+#
+#     return redirect(redirection)
 
-    # Main user is 0
-    user_id = DEFAULT_USER_ID
-
-    # gets
-    media = e.get_media_from_shortcode(media_shortcode)
-
-    if not media:
-        abort(404)
-
-    # Create the filename and download the image
-    owner_account_name = e.get_account_name_from_account_id(media[1])
-    date = datetime.datetime.fromtimestamp(media[9]).strftime('%Y-%m-%d_%H-%M')
-    filename = date + '_' + media_shortcode + '_by-' + owner_account_name + '.jpg'
-    fileaddr = './static/images/' + str(user_id) + '/'
-
-    media_url = media[4]
-
-    if not os.path.exists(fileaddr):
-      os.makedirs(fileaddr)
-
-    destination = fileaddr + filename
-
-    with open(destination, 'wb') as handle:
-        response = requests.get(media_url, stream=True)
-        if not response.ok:
-            print(response)
-        for block in response.iter_content(1024):
-            if not block:
-                break
-            handle.write(block)
-
-
-    u = User()
-    if u.get_saved_status(media[0], user_id) is False:
-      u.save_media(media[0], user_id, filename, int(time.time()))
-
-    e.close()
-    u.close()
-
-    redirection = get_redirection(origin = origin, media_shortcode = media_shortcode, media_owner = owner_account_name)
-
-    return redirect(redirection)
-
-@app.route("/forget/<media_shortcode>")
-def forget(media_shortcode):
-    origin = request.args.get('origin', default='')
-    e = Exporter()
-
-    # gets
-    media_id = e.get_media_id_from_shortcode(media_shortcode)
-
-    owner_account_name = e.get_owner_account_name_from_media_id(media_id)
-
-    e.close()
-
-    if not media_id:
-        abort(404)
-
-    # Main user is 0
-    user_id = DEFAULT_USER_ID
-
-    u = User()
-    if u.get_saved_status(media_id, user_id) is True:
-      fileaddr = './static/images/' + str(user_id) + '/'
-      filename = u.get_saved_filename(media_id, user_id)
-      target = fileaddr + filename
-
-      u.forget_media(media_id, user_id)
-      if os.path.isfile(target):
-        os.remove(target)
-    u.close()
-
-    redirection = get_redirection(origin = origin,
-                                  media_shortcode = media_shortcode,
-                                  media_owner = owner_account_name)
-
-    return redirect(redirection)
+# @app.route("/forget/<media_shortcode>")
+# def forget(media_shortcode):
+#     origin = request.args.get('origin', default='')
+#     e = Exporter()
+#
+#     # gets
+#     media_id = e.get_media_id_from_shortcode(media_shortcode)
+#
+#     owner_account_name = e.get_owner_account_name_from_media_id(media_id)
+#
+#     e.close()
+#
+#     if not media_id:
+#         abort(404)
+#
+#     # Main user is 0
+#     user_id = DEFAULT_USER_ID
+#
+#     u = User()
+#     if u.get_saved_status(media_id, user_id) is True:
+#       fileaddr = './static/images/' + str(user_id) + '/'
+#       filename = u.get_saved_filename(media_id, user_id)
+#       target = fileaddr + filename
+#
+#       u.forget_media(media_id, user_id)
+#       if os.path.isfile(target):
+#         os.remove(target)
+#     u.close()
+#
+#     redirection = get_redirection(origin = origin,
+#                                   media_shortcode = media_shortcode,
+#                                   media_owner = owner_account_name)
+#
+#     return redirect(redirection)
 
 
 
@@ -1005,48 +1005,48 @@ def check_if_account_is_hidden(account_id):
 app.jinja_env.globals['account_is_hidden'] = check_if_account_is_hidden
 
 
-def get_redirection(origin, media_shortcode, media_owner = ''):
-
-    origin_list = origin.split(':')
-    endpoint = origin_list[0]
-    destination_page = int(origin_list[-1]) if origin_list[-1] != '' else 0
-    destination = origin_list[1] if len(origin_list) > 2 else ''
-
-    if endpoint[0:7] == 'profile':
-        if destination[0] == '@': # link from the header
-            media_owner = destination[1:]
-            destination = 'top'
-
-        if endpoint == 'profile_lists':
-            return url_for('profile_lists', account_name = media_owner).replace('%40', '@')
-        elif endpoint == 'profile_feed':
-            return url_for('profile', page = destination_page, account_name = media_owner, display = 'feed', _anchor = destination).replace('%40', '@')
-        else:
-            return url_for('profile', page = destination_page, account_name = media_owner, _anchor = destination).replace('%40', '@')
-
-    elif endpoint == 'profile_lists':
-        return url_for(endpoint, account_name = destination[1:])
-
-    elif endpoint == 'index':
-        # Get the shortcode of the previous item BEFORE CALLING THE FUNCTION, pass as media_shortcode
-        if media_shortcode == '':
-            media_shortcode = destination
-        return url_for(endpoint, page = destination_page, _anchor = media_shortcode)
-
-    elif endpoint == 'memory':
-        # Get the shortcode of the previous item BEFORE CALLING THE FUNCTION, pass as media_shortcode
-        return url_for(endpoint, page = destination_page, _anchor = destination)
-
-
-    elif endpoint == 'media':
-        return url_for('media', media_shortcode = media_shortcode)
-
-    elif endpoint == 'list_feed':
-        print(('ok', destination, media_shortcode), file=sys.stderr)
-        return url_for(endpoint, shortname = destination, _anchor = media_shortcode)
-
-    else:
-        return url_for(endpoint, page = destination_page, _anchor = destination)
+# def get_redirection(origin, media_shortcode, media_owner = ''):
+#
+#     origin_list = origin.split(':')
+#     endpoint = origin_list[0]
+#     destination_page = int(origin_list[-1]) if origin_list[-1] != '' else 0
+#     destination = origin_list[1] if len(origin_list) > 2 else ''
+#
+#     if endpoint[0:7] == 'profile':
+#         if destination[0] == '@': # link from the header
+#             media_owner = destination[1:]
+#             destination = 'top'
+#
+#         if endpoint == 'profile_lists':
+#             return url_for('profile_lists', account_name = media_owner).replace('%40', '@')
+#         elif endpoint == 'profile_feed':
+#             return url_for('profile', page = destination_page, account_name = media_owner, display = 'feed', _anchor = destination).replace('%40', '@')
+#         else:
+#             return url_for('profile', page = destination_page, account_name = media_owner, _anchor = destination).replace('%40', '@')
+#
+#     elif endpoint == 'profile_lists':
+#         return url_for(endpoint, account_name = destination[1:])
+#
+#     elif endpoint == 'index':
+#         # Get the shortcode of the previous item BEFORE CALLING THE FUNCTION, pass as media_shortcode
+#         if media_shortcode == '':
+#             media_shortcode = destination
+#         return url_for(endpoint, page = destination_page, _anchor = media_shortcode)
+#
+#     elif endpoint == 'memory':
+#         # Get the shortcode of the previous item BEFORE CALLING THE FUNCTION, pass as media_shortcode
+#         return url_for(endpoint, page = destination_page, _anchor = destination)
+#
+#
+#     elif endpoint == 'media':
+#         return url_for('media', media_shortcode = media_shortcode)
+#
+#     elif endpoint == 'list_feed':
+#         print(('ok', destination, media_shortcode), file=sys.stderr)
+#         return url_for(endpoint, shortname = destination, _anchor = media_shortcode)
+#
+#     else:
+#         return url_for(endpoint, page = destination_page, _anchor = destination)
 
 
 # def url_for_other_page(page):

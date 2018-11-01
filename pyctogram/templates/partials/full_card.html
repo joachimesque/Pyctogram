@@ -72,14 +72,14 @@
           {% if request.url_rule.endpoint == 'memory' %}
             {% set origin = origin_delete %}
           {% endif %}
-          {% if post.is_saved == False %}
-{#          <a class="saveButton" href="{{ url_for('save', media_shortcode = post.shortcode, origin = origin) }}">#}
-              Save 💾
-{#          </a>#}
-          {% else %}
-{#          <a class="saveButton" href="{{ url_for('forget', media_shortcode = post.shortcode, origin = origin) }}">#}
+          {% if post.is_saved(current_user.id)%}
+          <a class="saveButton" href="{{ url_for('media.forget', media_shortcode = post.shortcode, origin = origin) }}">
               Forget 💾
-{#          </a>#}
+          </a>
+          {% else %}
+          <a class="saveButton" href="{{ url_for('media.save', media_shortcode = post.shortcode, origin = origin) }}">
+              Save 💾
+          </a>
           {% endif %}
         </p>
       </footer>

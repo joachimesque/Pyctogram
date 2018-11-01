@@ -34,9 +34,8 @@ user_faves = db.Table(
     db.Column('media_id',
               db.Integer,
               db.ForeignKey('media.id'), primary_key=True),
-
     db.Column('filename', db.Text),
-    db.Column('date_added', db.DateTime)
+    db.Column('date_added', db.DateTime, default=datetime.datetime.utcnow())
 )
 
 
@@ -71,6 +70,12 @@ class User(UserMixin, db.Model):
 
     def check_password(self, password):
         return check_password_hash(self.password, password)
+
+    def get_media_paginate(self, page=1, per_page=10):
+        return Media.query.filter(
+            Media.fav_users.any(User.id == self.id)).order_by(
+            Media.timestamp.desc()).paginate(
+            page, per_page, False)
 
 
 class Account(db.Model):
@@ -165,3 +170,11 @@ class Media(db.Model):
     thumbnails = db.Column(db.Text)
     sidecar = db.Column(db.Text)
     account = db.relationship(Account, backref='account')
+    fav_users = db.relationship('User',
+                                secondary=user_faves,
+                                lazy='subquery',
+                                backref=db.backref('media', lazy=True))
+
+    def is_saved(self, user_id):
+        return User.query.filter(
+            User.id == user_id, User.faves.any(Media.id == self.id)).first()
