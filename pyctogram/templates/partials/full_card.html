@@ -53,9 +53,9 @@
             {{ post.caption|parse_text|safe }}
         </div>
         <p class="is-size-7 is-marginless">
-{#          <a href="{{ url_for('media', media_shortcode = post['shortcode']) }}">#}
+          <a href="{{ url_for('media.media', media_shortcode = post.shortcode) }}">
             <time datetime="{{ post.timestamp|format_timestamp }}">{{ post.timestamp|format_timestamp('%Y-%m-%d %H:%m') }}</time>
-{#          </a>#}
+          </a>
         </p>
       </div>
       <footer class="card-footer">
