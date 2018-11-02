@@ -25,27 +25,35 @@ A Flask-based web app lets you browse the saved info, as an image feed (much lik
 
 ## ⚗ How to install it
 
-In its current state, this project is not for absolute beginners.
+- After cloning the repo, install Python virtualenv and packages:
+```bash
+$ cd Pyctogram
+$ make install
+```
 
-You should have Python 3.6 installed, along with Flask, BeautifulSoup and sqlite3. A virtual environment could be a good thing to have, though I haven’t tried yet.
-
-When everything is installed, download & unzip the project, copy your Instagram `account_file` in the folder and run
-
-    $ python3 start_here.py
-
-This should setup the Database and import your contacts. Depending on the quantity of accounts you follow and your internet connectivity, it can take from a few seconds to many minutes (last time I tried, 800 contacts took 20 minutes to be scraped).
-
-When it’s done, run
-
-    $ FLASK_APP=app.py flask run
-
+When it’s done, initialize the database and run the server:
+```bash
+$ make init-db
+$ make serve
+```
 And open a browser page to `http://127.0.0.1:5000/`.
 
-### Development
+## ⚗ How to use it
 
-You can run the app in Debug mode by launching it that way:
-  
-    $ python3 app.py
+### Add contacts
+You must register to access the account importer.
+
+After registration, you can add accounts to the default feed by importing `connections.json` file from your [Instagram Data Archive](https://help.instagram.com/181231772500920).  
+You can also add accounts from a text file or directly on the application.
+
+### Get accounts media
+To update accounts media, you can run the following command:
+```bash
+$ make update-media
+```
+It updates all accounts regardless of users or lists.
+
+You can also update media from the web interface for a specific list.
 
 ## 🛠 To Do
 
@@ -53,6 +61,7 @@ You can run the app in Debug mode by launching it that way:
 - ~~👍 Display latest likes and comments on Media view~~ Following changes by Instagram, it won’t work.
 - ~~📇 Importing Instagram-exported accounts lists~~
 - ⏬ Calling the scraper from the web interface (with a nice Progress Bar component)
+- Optimize the scraper performances
 - 🎪 Better Bulma Customization
 - More emoji
 - ~~🖖 Some JS to help with the navigation (*j*, *k*, *l*, like on Flickr)~~
@@ -62,6 +71,7 @@ You can run the app in Debug mode by launching it that way:
 - 📔 Albums
 - 📲 Webapp-ify (keep the app on a server, but allow the webapp to download the saved pictures on the phone, to keep a feed of saved photos offline)
 - ~~🙈 “Hide from feed” if you want a contact to appear in lists, but not in your main feed~~
+- Configuration for "production" environnements
 
 ## 📃 Copyrights and License
 
