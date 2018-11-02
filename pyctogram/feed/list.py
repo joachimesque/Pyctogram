@@ -155,7 +155,7 @@ def list_edit(shortname):
 def list_delete(shortname):
     if request.method == 'POST':
         if request.form['submit'] == 'submit':
-            # only the current_user can delet his own lists
+            # only the current_user can delete his own lists
             the_list = List.query.filter_by(
                 user_id=current_user.id, shortname=shortname).first()
             if not the_list:

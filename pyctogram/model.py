@@ -104,8 +104,9 @@ class Account(db.Model):
                             backref=db.backref('accounts', lazy='joined'))
     account_lists = db.relationship('List',
                                     secondary=accounts2lists,
-                                    lazy='subquery',
-                                    backref=db.backref('account', lazy=True))
+                                    back_populates='accounts',
+                                    cascade="all",
+                                    lazy='dynamic')
 
     def __init__(self, id, account_name):
         self.id = id
@@ -136,8 +137,8 @@ class List(db.Model):
     user = db.relationship(User, backref='user')
     accounts = db.relationship('Account',
                                secondary=accounts2lists,
-                               lazy='subquery',
-                               backref=db.backref('lists', lazy=True))
+                               back_populates='account_lists',
+                               lazy='joined')
 
     def __init__(self, user_id, shortname, longname, description="",
                  date_added=datetime.datetime.utcnow()):

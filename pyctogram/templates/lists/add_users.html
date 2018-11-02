@@ -10,7 +10,7 @@
     </h1>
   </div>
 
-  <p><a href="{{ url_for('list_feed', shortname = the_list.shortname) }}">Go back to the list</a></p>
+  <p><a href="{{ url_for('list.list_feed', shortname = the_list.shortname) }}">Go back to the list</a></p>
 {% endblock %}
 
 {% block content %}
@@ -20,7 +20,7 @@
     <li class="column is-one-third has-text-centered">
       <div class="user-info">
         <figure class="profile-picture image is-64x64 is-centered">
-            <img src="{{ account.profile_pic_url }}" alt="{{ account.full_name }}"> 
+            <img src="{{ account.profile_pic_url }}" alt="{{ account.full_name }}">
         </figure>
         <strong>{{ account.full_name }}</strong><br>
         <small>@{{ account.account_name }}</small>
@@ -29,7 +29,7 @@
         {% if account.is_in_list %}
         <a class="button is-small is-static">Already there</a>
         {% else %}
-        <a href="{{ url_for('list_add_user', shortname = the_list.shortname, account_name = account.account_name) }}" class="button is-small is-info is-outlined">Add to list</a>
+        <a href="{{ url_for('list.list_add_user', shortname = the_list.shortname, account_name = account.account_name) }}" class="button is-small is-info is-outlined">Add to list</a>
         {% endif %}
       </div>
   </li>
