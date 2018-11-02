@@ -17,13 +17,13 @@
             💬<br>{{ post.comments }}
           </p>
           <p href="#" class="card-footer-item is-centered">
-            {% if post.is_saved == False %}
-            <a href="{{ url_for('media.save', media_shortcode = post.shortcode, origin = origin) }}">
-                💾<br>Save
-            </a>
-            {% else %}
+            {% if post.is_saved(current_user.id) %}
             <a href="{{ url_for('media.forget', media_shortcode = post.shortcode, origin = origin) }}">
                 💾<br>Forget
+            </a>
+            {% else %}
+            <a href="{{ url_for('media.save', media_shortcode = post.shortcode, origin = origin) }}">
+                💾<br>Save
             </a>
             {% endif %}
           </p>

@@ -60,6 +60,9 @@ def update_feed():
         is_default=True
     ).first()
 
+    if not default_list:
+        abort(404)
+
     failed_accounts = update_media(list_id=default_list.id)
     if failed_accounts:
         accounts_list = ', '.join(failed_accounts)

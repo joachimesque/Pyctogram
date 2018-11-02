@@ -42,6 +42,7 @@ def register():
                     email=form.email.data,
                     password=form.password.data)
         db.session.add(user)
+        db.session.flush()
 
         # feed creation (= default list)
         list_info = current_app.config['DEFAULT_LIST_INFO']
