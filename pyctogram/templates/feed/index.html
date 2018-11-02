@@ -11,7 +11,10 @@
       </h1>
     </div>
     <div class="level-right">
-      <small class="is-size-7"><a href="{{ url_for('feed.list_hidden_accounts') }}" class="">See hidden accounts 🙈</a></small>
+      <small class="is-size-7">
+        <p><a href="{{ url_for('feed.list_hidden_accounts') }}" class="">See hidden accounts 🙈</a></p>
+        <p><a href="{{ url_for('feed.update_feed') }}" class="">Update feed 🔄</a></p>
+      </small>
     </div>
   </div>
 {% endblock %}

@@ -1,6 +1,8 @@
-from flask import Blueprint, abort, current_app, render_template
+from flask import (Blueprint, abort, current_app, flash, redirect,
+                   render_template, url_for)
 from flask_login import current_user, login_required
 
+from pyctogram.helpers.import_accounts import update_media
 from pyctogram.model import List
 
 feed_blueprint = Blueprint('feed', __name__)
@@ -48,3 +50,20 @@ def list_hidden_accounts():
         if account not in default_list.accounts:
             hidden_accounts.append(account)
     return render_template('feed/hidden.html', accounts=hidden_accounts)
+
+
+@feed_blueprint.route("/feed/update-feed")
+@login_required
+def update_feed():
+    default_list = List.query.filter_by(
+        user_id=current_user.id,
+        is_default=True
+    ).first()
+
+    failed_accounts = update_media(list_id=default_list.id)
+    if failed_accounts:
+        accounts_list = ', '.join(failed_accounts)
+        flash('Errors were encountered for the following accounts:'
+              f' {accounts_list}', 'error')
+
+    return redirect(url_for('feed.index'))

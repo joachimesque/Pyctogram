@@ -24,3 +24,6 @@ migrate:
 
 serve:
 	$(FLASK) run --with-threads -h $(HOST) -p $(PORT)
+
+update-media:
+	$(FLASK) update

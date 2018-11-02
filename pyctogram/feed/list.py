@@ -4,6 +4,7 @@ from flask_login import current_user, login_required
 
 from pyctogram import db
 from pyctogram.helpers import forms
+from pyctogram.helpers.import_accounts import update_media
 from pyctogram.helpers.redirection import get_redirection
 from pyctogram.model import Account, List
 
@@ -213,3 +214,18 @@ def list_add(shortname):
     return render_template('lists/add_users.html',
                            the_list=the_list,
                            accounts=the_accounts)
+
+
+@list_blueprint.route("/list/<shortname>/update")
+@login_required
+def update_list(shortname):
+    the_list = List.query.filter_by(
+        user_id=current_user.id, shortname=shortname).first()
+
+    failed_accounts = update_media(list_id=the_list.id)
+    if failed_accounts:
+        accounts_list = ', '.join(failed_accounts)
+        flash('Errors were encountered for the following accounts:'
+              f' {accounts_list}', 'error')
+
+    return redirect(url_for('list.list_feed', shortname=shortname))

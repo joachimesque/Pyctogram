@@ -115,4 +115,16 @@ def create_app():
             os.remove(filename)
             print('Database dropped.')
 
+    @app.cli.command()
+    def update():
+        """Update media for all accounts"""
+        from .helpers.import_accounts import update_media
+        failed_accounts = update_media()
+        if failed_accounts:
+            accounts_list = ', '.join(failed_accounts)
+            print('Update done. Errors were encountered for the following '
+                  f'accounts: {accounts_list} (see logs for more information)')
+        else:
+            print('Update done.')
+
     return app

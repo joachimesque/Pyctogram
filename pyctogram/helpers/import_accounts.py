@@ -231,9 +231,9 @@ def update_media(user_id=None, list_id=None):
                                             'DEFAULT_HEADERS'])
 
         if not account_data:
-            status = '🤷‍♀ Account %s has returned no data' % account
+            status = f'🤷‍♀ Account {account.account_name} has returned no data'
             appLog.info(status)
-            failed_accounts.append(account)
+            failed_accounts.append(account.account_name)
             continue
 
         if not account_data['is_private'] and \
