@@ -132,6 +132,10 @@ def list_edit(shortname):
         abort(404)
 
     if request.method == 'POST':
+        if request.form['cancel'] == 'cancel':
+            return redirect(url_for('list.list_accounts',
+                                    shortname=the_list.shortname))
+
         returned_list, errors = forms.check_list_form(
             request_form=request.form)
 

@@ -8,10 +8,12 @@
     <h1 class="title is-marginless level-left">
       {{ the_list.longname }}
     </h1>
+    {% if not the_list.is_default %}
     <div class="level-right buttons">
       <a href="{{ url_for('list.list_edit', shortname = the_list.shortname) }}" class="button is-small is-info is-outlined">Edit</a>
       <a href="{{ url_for('list.list_delete', shortname = the_list.shortname) }}" class="button is-small is-danger is-outlined">Delete</a>
     </div>
+    {% endif %}
   </div>
 
   <p>{{ the_list.description }}</p>
