@@ -60,6 +60,7 @@ class User(UserMixin, db.Model):
                             lazy='subquery',
                             backref=db.backref('users', lazy=True))
     lists = db.relationship('List',
+                            order_by='desc(List.is_default), List.longname',
                             lazy=True,
                             backref=db.backref('users', lazy='joined'))
 
