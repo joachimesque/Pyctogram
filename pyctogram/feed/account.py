@@ -38,7 +38,7 @@ def profile_lists(account_name):
     if not account:
         abort(404)
 
-    lists = current_user.lists
+    lists = account.user_lists(user_id=current_user.id)
 
     return render_template('profile/lists.html',
                            author=account,

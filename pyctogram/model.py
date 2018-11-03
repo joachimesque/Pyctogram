@@ -124,6 +124,12 @@ class Account(db.Model):
             Media.timestamp.desc()).paginate(
             page, per_page, False)
 
+    def user_lists(self, user_id):
+        return List.query.filter(
+            List.user_id == user_id,
+            List.accounts.any(Account.id == self.id)
+        ).all()
+
 
 class List(db.Model):
     __tablename__ = "lists"
