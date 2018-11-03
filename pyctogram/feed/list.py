@@ -82,7 +82,8 @@ def list_create(account_name):
 def list_add_user(shortname, account_name):
     origin = request.args.get('origin', default='')
 
-    the_list = List.query.filter_by(shortname=shortname).first()
+    the_list = List.query.filter_by(
+        user_id=current_user.id, shortname=shortname).first()
     account = Account.query.filter_by(account_name=account_name).first()
     if not account or not the_list:
         abort(404)
@@ -105,7 +106,8 @@ def list_add_user(shortname, account_name):
 def list_remove_user(shortname, account_name):
     origin = request.args.get('origin', default='')
 
-    the_list = List.query.filter_by(shortname=shortname).first()
+    the_list = List.query.filter_by(
+        user_id=current_user.id, shortname=shortname).first()
     account = Account.query.filter_by(account_name=account_name).first()
     if not account or not the_list:
         abort(404)
