@@ -58,9 +58,11 @@
         <a class="navbar-item" href="{{ url_for('users.login') }}">
           Se connecter
         </a>
+        {% if registration_is_allowed() == True %}
         <a class="navbar-item" href="{{ url_for('users.register') }}">
           S'enregistrer
         </a>
+        {% endif %}
         {% else %}
         <a class="navbar-item" href="{{ url_for('users.logout') }}">
           Se déconnecter ({{ current_user.username }})

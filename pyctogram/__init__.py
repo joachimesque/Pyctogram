@@ -107,6 +107,10 @@ def create_app():
             user_id=current_user.id, is_default=True).first()
         return account not in default_list.accounts
 
+    @app.template_global()
+    def registration_is_allowed():
+        return os.getenv('ALLOW_REGISTRATION') == 'true'
+
     @app.cli.command()
     def dropdb():
         """Empty database for dev environments."""

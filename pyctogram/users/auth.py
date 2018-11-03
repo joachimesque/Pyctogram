@@ -1,3 +1,4 @@
+import os
 from flask import (Blueprint, current_app, flash, redirect, render_template,
                    request, url_for)
 from flask_login import current_user, login_user, logout_user
@@ -33,6 +34,11 @@ def login():
 def register():
     if current_user.is_authenticated:
         return redirect(url_for('feed.index'))
+
+    if os.getenv('ALLOW_REGISTRATION') != 'true':
+        flash(
+            'Registration is not available currently', 'error')
+        return redirect(url_for('users.login'))
 
     form = RegisterForm()
     if form.validate_on_submit():
