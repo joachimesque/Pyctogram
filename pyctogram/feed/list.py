@@ -135,7 +135,7 @@ def list_edit(shortname):
         abort(404)
 
     if request.method == 'POST':
-        if request.form['cancel'] == 'cancel':
+        if 'cancel' in request.form and request.form['cancel'] == 'cancel':
             return redirect(url_for('list.list_accounts',
                                     shortname=the_list.shortname))
 
@@ -154,7 +154,7 @@ def list_edit(shortname):
         return redirect(url_for('list.list_accounts',
                                 shortname=the_list.shortname))
 
-    return render_template('lists/edit.html', list=the_list)
+    return render_template('lists/edit.html', the_list=the_list)
 
 
 @list_blueprint.route("/list/<shortname>/delete", methods=["GET", "POST"])
