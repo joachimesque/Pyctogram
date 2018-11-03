@@ -25,7 +25,7 @@ A Flask-based web app lets you browse the saved info, as an image feed (much lik
 
 ## ⚗ How to install it
 
-- After cloning the repo, install Python virtualenv and packages:
+After cloning the repo, install Python virtualenv and packages:
 ```bash
 $ cd Pyctogram
 $ make install
@@ -51,9 +51,9 @@ To update accounts media, you can run the following command:
 ```bash
 $ make update-media
 ```
-It updates all accounts regardless of users or lists.
+It updates all accounts regardless of users or lists (recommanded way to update feeds).
 
-You can also update media from the web interface for a specific list.
+You can also update media from the web interface for the fedd or a list (not recommanded yet, if the feed/list has a lot of contacts).
 
 ## 🛠 To Do
 
