@@ -160,13 +160,18 @@ def list_edit(shortname):
 @list_blueprint.route("/list/<shortname>/delete", methods=["GET", "POST"])
 @login_required
 def list_delete(shortname):
+    # only the current_user can delete his own lists
+    the_list = List.query.filter_by(
+        user_id=current_user.id, shortname=shortname).first()
+    if not the_list:
+        abort(404)
+
+    if the_list.is_default:
+        flash('Default feed can not be deleted.', 'error')
+        return redirect(url_for('list.list_feed', shortname=shortname))
+
     if request.method == 'POST':
         if request.form['submit'] == 'submit':
-            # only the current_user can delete his own lists
-            the_list = List.query.filter_by(
-                user_id=current_user.id, shortname=shortname).first()
-            if not the_list:
-                abort(404)
             db.session.delete(the_list)
             db.session.commit()
             return redirect(url_for('list.list_lists'))
