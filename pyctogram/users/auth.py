@@ -1,4 +1,5 @@
 import os
+
 from flask import (Blueprint, current_app, flash, redirect, render_template,
                    request, url_for)
 from flask_login import current_user, login_user, logout_user
@@ -19,7 +20,7 @@ def login():
     if request.method == 'POST' and form.validate():
         user = User.query.filter_by(username=form.username.data).first()
         if user and user.check_password(form.password.data):
-            login_user(user)
+            login_user(user, remember=form.remember_me.data)
             flash(f'Connected as \'{user.username}\'', 'success')
             next = request.args.get('next')
             return redirect(next or url_for('feed.index'))
