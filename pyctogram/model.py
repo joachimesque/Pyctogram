@@ -149,6 +149,7 @@ class List(db.Model):
     user = db.relationship(User, backref='user')
     accounts = db.relationship('Account',
                                secondary=accounts2lists,
+                               order_by='Account.account_name',
                                back_populates='account_lists',
                                lazy='joined')
 
