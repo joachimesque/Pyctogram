@@ -228,6 +228,8 @@ def list_add(shortname):
 def update_list(shortname):
     the_list = List.query.filter_by(
         user_id=current_user.id, shortname=shortname).first()
+    if not the_list:
+        abort(404)
 
     failed_accounts = update_media(list_id=the_list.id)
     if failed_accounts:

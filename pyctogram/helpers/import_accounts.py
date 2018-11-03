@@ -62,7 +62,7 @@ def create_accounts(contacts_to_import, current_user, list_info):
                 continue
 
             account = Account(account_id=account_data['id'],
-                              account_name=account_data['username'])  # noqa
+                              account_name=account_data['username'])
             account.full_name = account_data['full_name']
             account.biography = account_data['biography']
             account.profile_pic_url = account_data[
