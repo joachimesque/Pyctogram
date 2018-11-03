@@ -111,3 +111,4 @@ missed_connections.txt
 
 .idea
 /pyctogram/uploads/*
+Makefile.custom.config
