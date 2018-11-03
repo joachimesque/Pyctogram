@@ -22,8 +22,14 @@ lint:
 migrate:
 	$(FLASK) db migrate
 
+run:
+	FLASK_ENV=production && $(GUNICORN) -b $(HOST):$(PORT) "$(FLASK_APP):create_app()" --error-logfile $(GUNICORN_LOG)
+
 serve:
 	$(FLASK) run --with-threads -h $(HOST) -p $(PORT)
+
+update-db:
+	$(FLASK) db upgrade --directory $(MIGRATIONS)
 
 update-media:
 	$(FLASK) update
