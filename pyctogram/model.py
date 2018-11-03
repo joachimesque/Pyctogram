@@ -108,8 +108,8 @@ class Account(db.Model):
                                     cascade="all",
                                     lazy='dynamic')
 
-    def __init__(self, id, account_name):
-        self.id = id
+    def __init__(self, account_id, account_name):
+        self.id = account_id
         self.account_name = account_name
 
     def get_media_paginate(self, page=1, per_page=10):

@@ -61,7 +61,7 @@ def create_accounts(contacts_to_import, current_user, list_info):
                 not_imported.append(contact)
                 continue
 
-            account = Account(id=account_data['id'],
+            account = Account(account_id=account_data['id'],
                               account_name=account_data['username'])  # noqa
             account.full_name = account_data['full_name']
             account.biography = account_data['biography']
@@ -207,11 +207,11 @@ def add_media(account, account_data):
 
 def update_media(user_id=None, list_id=None):
     if list_id:
-        list = List.query.filter_by(id=list_id).first()
-        if not list:
+        the_list = List.query.filter_by(id=list_id).first()
+        if not the_list:
             appLog.error(f'List {list_id} does not exit. No media update')
             return None
-        accounts = list.accounts
+        accounts = the_list.accounts
     elif user_id:
         user = User.query.filter_by(id=user_id).first()
         if not user:

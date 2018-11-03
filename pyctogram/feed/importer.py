@@ -17,15 +17,15 @@ def allowed_file(filename):
                'ALLOWED_EXTENSIONS']
 
 
-def import_contacts_from_file(request, type):
+def import_contacts_from_file(req, file_type):
     total = 0
-    if 'file' not in request.files:
+    if 'file' not in req.files:
         flash('No file part')
-        return redirect(request.url)
-    file = request.files['file']
+        return redirect(req.url)
+    file = req.files['file']
     if file.filename == '':
         flash('No selected file')
-        return redirect(request.url)
+        return redirect(req.url)
     if file and allowed_file(file.filename):
         filename = secure_filename(file.filename)
         dir_path = os.path.join(current_app.config['UPLOAD_FOLDER'],
@@ -36,7 +36,7 @@ def import_contacts_from_file(request, type):
         file.save(file_path)
 
         with open(file_path, 'r') as f:
-            if type == 'json':
+            if file_type == 'json':
                 contacts_to_import = json.loads(f.read().splitlines()[0])
                 contacts_to_import = list(
                     contacts_to_import['following'].keys())
@@ -45,7 +45,7 @@ def import_contacts_from_file(request, type):
 
             if not contacts_to_import:
                 flash('No contact to import')
-                return redirect(request.url)
+                return redirect(req.url)
 
             default_list_info = current_app.config['DEFAULT_LIST_INFO']
             total = create_accounts(contacts_to_import, current_user,

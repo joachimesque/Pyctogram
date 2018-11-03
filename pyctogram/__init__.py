@@ -79,8 +79,8 @@ def create_app():
         return json.loads(data)
 
     @app.template_filter()
-    def format_timestamp(ts, format='%Y-%m-%d'):
-        return datetime.fromtimestamp(ts).strftime(format)
+    def format_timestamp(ts, date_format='%Y-%m-%d'):
+        return datetime.fromtimestamp(ts).strftime(date_format)
 
     @app.template_filter()
     def thumbnail_320(thumbnails):
