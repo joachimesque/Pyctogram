@@ -26,7 +26,7 @@
         <small>@{{ account.account_name }}</small>
       </div>
       <div class="user-actions">
-        {% if account.is_in_list %}
+        {% if account in the_list.accounts %}
         <a class="button is-small is-static">Already there</a>
         {% else %}
         <a href="{{ url_for('list.list_add_user', shortname = the_list.shortname, account_name = account.account_name) }}" class="button is-small is-info is-outlined">Add to list</a>

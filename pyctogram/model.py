@@ -52,8 +52,9 @@ class User(UserMixin, db.Model):
     created_at = db.Column(db.DateTime, nullable=False)
     accounts = db.relationship('Account',
                                secondary=accounts2users,
-                               lazy='subquery',
-                               backref=db.backref('users', lazy=True))
+                               order_by='Account.account_name',
+                               back_populates='account_users',
+                               lazy='joined')
     faves = db.relationship('Media',
                             secondary=user_faves,
                             lazy='subquery',
@@ -104,6 +105,11 @@ class Account(db.Model):
                             backref=db.backref('accounts', lazy='joined'))
     account_lists = db.relationship('List',
                                     secondary=accounts2lists,
+                                    back_populates='accounts',
+                                    cascade="all",
+                                    lazy='dynamic')
+    account_users = db.relationship('User',
+                                    secondary=accounts2users,
                                     back_populates='accounts',
                                     cascade="all",
                                     lazy='dynamic')
