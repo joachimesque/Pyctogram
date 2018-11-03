@@ -31,7 +31,6 @@
         <a class="navbar-item" href="{{ url_for('feed.index') }}">
           <span class="is-size-4" role="img" aria-label="Picture">{{ title_emojo }}</span>&nbsp;Feed
         </a>
-        {% endif %}
         <a class="navbar-item" href="{{ url_for('media.memory') }}">
           <span class="is-size-5" role="img" aria-label="Saved pictures">💾</span>&nbsp;Memory
         </a>
@@ -52,6 +51,7 @@
           </a>
           </div>
         </div>
+        {% endif %}
       </div>
       <div class="navbar-end">
         {% if current_user.is_anonymous %}

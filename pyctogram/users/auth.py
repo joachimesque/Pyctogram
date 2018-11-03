@@ -19,14 +19,12 @@ def login():
         user = User.query.filter_by(username=form.username.data).first()
         if user and user.check_password(form.password.data):
             login_user(user)
-            flash('Connecté en tant que \'{}\''.format(user.username),
-                  'success')
+            flash(f'Connected as \'{user.username}\'', 'success')
             next = request.args.get('next')
             return redirect(next or url_for('feed.index'))
         else:
             flash(
-                'Login et/ou mot de passe incorrect, veuillez réessayer.'
-            ), 'error'
+                'Incorrect login and/or password, please try again.'), 'error'
 
     return render_template('user/login.html', form=form)
 
@@ -56,8 +54,7 @@ def register():
         db.session.add(feed)
         db.session.commit()
         flash(
-            'Vous êtes enregistré. Vous pouvez maintenant vous connecter.',
-            'success')
+            'Successfull registration, you can now log in', 'success')
         return redirect(url_for('users.login'))
 
     return render_template('user/register.html', title='Register', form=form)
