@@ -38,6 +38,11 @@ $ make serve
 ```
 And open a browser page to `http://127.0.0.1:5000/`.
 
+On production, you can run the server with this command (works with [Gunicorn](http://flask.pocoo.org/docs/1.0/deploying/wsgi-standalone/#gunicorn))
+```bash
+$ make run
+```
+
 ## ⚗ How to use it
 
 ### Add contacts
@@ -51,7 +56,7 @@ To update accounts media, you can run the following command:
 ```bash
 $ make update-media
 ```
-It updates all accounts regardless of users or lists (recommanded way to update feeds).
+It updates all accounts regardless of users or lists (recommanded way to update feeds, can be done with a cron).
 
 You can also update media from the web interface for the fedd or a list (not recommanded yet, if the feed/list has a lot of contacts).
 
@@ -71,7 +76,7 @@ You can also update media from the web interface for the fedd or a list (not rec
 - 📔 Albums
 - 📲 Webapp-ify (keep the app on a server, but allow the webapp to download the saved pictures on the phone, to keep a feed of saved photos offline)
 - ~~🙈 “Hide from feed” if you want a contact to appear in lists, but not in your main feed~~
-- Configuration for "production" environnements
+- <del>Configuration for "production" environnements</del>
 
 ## 📃 Copyrights and License
 
