@@ -9,9 +9,6 @@ install:
 	test -d $(VENV) || virtualenv $(VENV) -p $(PYTHON_VERSION)
 	$(PIP) install -r $(REQUIREMENTS)
 
-init-data:
-	$(PYTHON) start_here.py
-
 init-db:
 	$(FLASK) dropdb
 	$(FLASK) db upgrade --directory $(MIGRATIONS)
