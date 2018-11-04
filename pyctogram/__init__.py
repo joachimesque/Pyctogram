@@ -5,7 +5,7 @@ import re
 from datetime import datetime
 from urllib.parse import urlparse
 
-from flask import Flask, render_template
+from flask import Flask, render_template, request, url_for
 from flask_login import LoginManager
 from flask_migrate import Migrate
 from flask_sqlalchemy import SQLAlchemy
@@ -110,6 +110,12 @@ def create_app():
     @app.template_global()
     def registration_is_allowed():
         return os.getenv('ALLOW_REGISTRATION') == 'true'
+
+    @app.template_global()
+    def url_for_other_page(page):
+        args = request.view_args.copy()
+        args['page'] = page
+        return url_for(request.endpoint, **args)
 
     @app.cli.command()
     def dropdb():

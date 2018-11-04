@@ -2,18 +2,18 @@
   <nav class="pagination is-centered is-rounded" role="navigation" aria-label="pagination">
   {% if pagination.has_prev or pagination.has_next %}
     {% if pagination.has_prev %}
-      <a href="{{ url_for('feed.index', page=pagination.page + 1) }}" class="pagination-previous">Previous</a>
+      <a href="{{ url_for_other_page(pagination.page - 1) }}" class="pagination-previous">Previous</a>
     {% endif %}
 
     {% if pagination.has_next %}
-      <a href="{{ url_for('feed.index', page=pagination.page + 1) }}" class="pagination-next">Next page</a>
+      <a href="{{ url_for_other_page(pagination.page + 1) }}" class="pagination-next">Next page</a>
     {% endif %}
 
       <ul class="pagination-list">
       {%- for page in pagination.iter_pages() %}
         {% if page %}
           {% if page != pagination.page %}
-            <li><a href="{{ url_for('feed.index', page=page) }}" class="pagination-link" aria-label="Goto page {{ page }}">{{ page }}</a></li>
+            <li><a href="{{ url_for_other_page(page) }}" class="pagination-link" aria-label="Goto page {{ page }}">{{ page }}</a></li>
           {% else %}
             <li><a class="pagination-link is-current" aria-label="Page {{ page }}" aria-current="page">{{ page }}</a></li>
           {% endif %}
