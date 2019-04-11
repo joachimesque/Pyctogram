@@ -4427,7 +4427,8 @@ a.box:active {
 }
 
 .notification {
-  background-color: whitesmoke;
+  border: 1px solid currentcolor;
+  background-color: transparent;
   border-radius: 4px;
   padding: 1.25rem 2.5rem 1.25rem 1.5rem;
   position: relative;
@@ -4464,53 +4465,43 @@ a.box:active {
 }
 
 .notification.is-white {
-  background-color: white;
-  color: #0a0a0a;
-}
-
-.notification.is-black {
-  background-color: #0a0a0a;
   color: white;
 }
 
-.notification.is-light {
-  background-color: whitesmoke;
-  color: #363636;
+.notification.is-black {
+  color: #0a0a0a;
 }
 
-.notification.is-dark {
-  background-color: #363636;
+.notification.is-light {
   color: whitesmoke;
 }
 
+.notification.is-dark {
+  color: #363636;
+}
+
 .notification.is-primary {
-  background-color: #00d1b2;
-  color: #fff;
+  color: #00d1b2;
 }
 
 .notification.is-link {
-  background-color: #3273dc;
-  color: #fff;
+  color: #3273dc;
 }
 
 .notification.is-info {
-  background-color: #209cee;
-  color: #fff;
+  color: #209cee;
 }
 
 .notification.is-success {
-  background-color: #23d160;
-  color: #fff;
+  color: #23d160;
 }
 
 .notification.is-warning {
-  background-color: #ffdd57;
-  color: rgba(0, 0, 0, 0.7);
+  color: #ffdd57;
 }
 
 .notification.is-danger {
-  background-color: #ff3860;
-  color: #fff;
+  color: #ff3860;
 }
 
 .progress {
