@@ -56,17 +56,14 @@
       <div class="navbar-end">
         {% if current_user.is_anonymous %}
         <a class="navbar-item" href="{{ url_for('users.login') }}">
-          Se connecter
+          <span class="is-size-5" role="img">🔐</span>&nbsp;Login
         </a>
         {% if registration_is_allowed() == True %}
         <a class="navbar-item" href="{{ url_for('users.register') }}">
-          S'enregistrer
+          <span class="is-size-5" role="img">🔏</span>&nbsp;Signup
         </a>
         {% endif %}
         {% else %}
-        <a class="navbar-item" href="{{ url_for('users.logout') }}">
-          Se déconnecter ({{ current_user.username }})
-        </a>
         <div class="navbar-item has-dropdown is-hoverable">
           <div class="navbar-link">
             <span class="is-size-5" role="img" aria-label="Import">🗄</span>&nbsp;Import contacts
@@ -83,6 +80,9 @@
             </a>
           </div>
         </div>
+        <a class="navbar-item" href="{{ url_for('users.logout') }}">
+          Log out ({{ current_user.username }})
+        </a>
         {% endif %}
       </div>
     </div>
@@ -108,7 +108,7 @@
             {% if category == 'error' %}
             <li class="notification is-danger"><strong>{{ message }}</strong></li>
             {% elif category == 'success' %}
-            <li class="notification is-success"><strong>{{ message }}</strong></li>
+            <li class="notification is-primary"><strong>{{ message }}</strong></li>
             {% else %}
             <li class="notification is-info"><strong>{{ message }}</strong></li>
             {% endif %}
