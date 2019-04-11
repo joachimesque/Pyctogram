@@ -1,7 +1,7 @@
 {% extends 'base.html' %}
 
 {% block header %}
-    <h1 class="title">{% block title %}👤 S'enregistrer{% endblock %}</h1>
+    <h1 class="title">{% block title %}<span class="is-size-3" role="img">🔏</span>&nbsp;Signup{% endblock %}</h1>
 
 {% endblock %}
 
@@ -9,35 +9,101 @@
 
     <form action="" method="post">
         {{ form.hidden_tag() }}
-        <p>
-            {{ form.username.label }}<br>
-            {{ form.username(size=32) }}<br>
-            {% for error in form.username.errors %}
-                <span style="color: red;">[{{ error }}]</span>
-            {% endfor %}
-        </p>
-        <p>
-            {{ form.email.label }}<br>
-            {{ form.email(size=32) }}<br>
-            {% for error in form.email.errors %}
-                <span style="color: red;">[{{ error }}]</span>
-            {% endfor %}
-        </p>
-        <p>
-            {{ form.password.label }}<br>
-            {{ form.password(size=32) }}<br>
-            {% for error in form.password.errors %}
-                <span style="color: red;">[{{ error }}]</span>
-            {% endfor %}
-        </p>
-        <p>
-            {{ form.password_conf.label }}<br>
-            {{ form.password_conf(size=32) }}<br>
-            {% for error in form.password_conf.errors %}
-                <span style="color: red;">[{{ error }}]</span>
-            {% endfor %}
-        </p>
-        <p>{{ form.submit() }}</p>
-    </form>
 
-{% endblock %}
+      <div class="field is-horizontal">
+        <div class="field-label">
+          {{ form.username.label(class='label') }}
+        </div>
+        <div class="field-body">
+          <div class="field">
+              <div class="control has-icons-left">
+                {{ form.username(class='input') }}
+                <span class="icon is-small is-left">
+                  👤
+                </span>
+              </div>
+              {% for error in form.username.errors %}
+                <p class="help is-danger">
+                  {{ error }}
+                </p>
+              {% endfor %}
+          </div>
+        </div>
+      </div>
+      <div class="field is-horizontal">
+        <div class="field-label">
+          {{ form.email.label(class='label') }}
+        </div>
+        <div class="field-body">
+          <div class="field">
+              <div class="control has-icons-left">
+                {{ form.email(class='input') }}
+                <span class="icon is-small is-left">
+                  📧
+                </span>
+              </div>
+              {% for error in form.email.errors %}
+                <p class="help is-danger">
+                  {{ error }}
+                </p>
+              {% endfor %}
+          </div>
+        </div>
+      </div>
+      <div class="field is-horizontal">
+        <div class="field-label">
+          {{ form.password.label(class='label') }}
+        </div>
+        <div class="field-body">
+          <div class="field">
+              <div class="control has-icons-left">
+                {{ form.password(class='input') }}
+                <span class="icon is-small is-left">
+                  🔒
+                </span>
+              </div>
+              {% for error in form.password.errors %}
+                <p class="help is-danger">
+                  {{ error }}
+                </p>
+              {% endfor %}
+          </div>
+        </div>
+      </div>
+      <div class="field is-horizontal">
+        <div class="field-label">
+          {{ form.password_conf.label(class='label') }}
+        </div>
+        <div class="field-body">
+          <div class="field">
+              <div class="control has-icons-left">
+                {{ form.password_conf(class='input') }}
+                <span class="icon is-small is-left">
+                  🔒
+                </span>
+              </div>
+              {% for error in form.password_conf.errors %}
+                <p class="help is-danger">
+                  {{ error }}
+                </p>
+              {% endfor %}
+          </div>
+        </div>
+      </div>
+
+      <div class="field is-horizontal">
+        <div class="field-label">
+          <!-- Left empty for spacing -->
+        </div>
+        <div class="field-body">
+          <div class="field">
+            <div class="control">
+              {{ form.submit(class='button is-info') }}</p>
+            </div>
+          </div>
+
+        </form>
+
+    {% endblock %}  
+
+</div>

@@ -1,24 +1,80 @@
 {% extends 'base.html' %}
 
 {% block header %}
-  <h1 class="title">{% block title %}👤 Se connecter{% endblock %}</h1>
+  <h1 class="title">{% block title %}<span class="is-size-3" role="img">🔐</span>&nbsp;Login{% endblock %}</h1>
 
 {% endblock %}
 
 {% block content %}
 
     <form action="" method="post" novalidate>
-        {{ form.hidden_tag() }}
-        <p>
-            {{ form.username.label }}<br>
-            {{ form.username(size=32) }}
-        </p>
-        <p>
-            {{ form.password.label }}<br>
-            {{ form.password(size=32) }}
-        </p>
-        <p>{{ form.remember_me() }} {{ form.remember_me.label }}</p>
-        <p>{{ form.submit() }}</p>
+      {{ form.hidden_tag() }}
+      <div class="field is-horizontal">
+        <div class="field-label">
+          {{ form.username.label(class='label') }}
+        </div>
+        <div class="field-body">
+          <div class="field">
+            
+          <div class="control has-icons-left has-icons-right">
+            {{ form.username(class='input') }}
+            <span class="icon is-small is-left">
+              👤
+            </span>
+          </div>
+          {% for error in form.username.errors %}
+            <p class="help is-danger">
+              {{ error }}
+            </p>
+          {% endfor %}
+          </div>
+        </div>
+      </div>
+      <div class="field is-horizontal">
+        <div class="field-label">
+          {{ form.password.label(class='label') }}
+        </div>
+        <div class="field-body">
+          <div class="field">
+            
+          <div class="control has-icons-left has-icons-right">
+            {{ form.password(class='input') }}
+            <span class="icon is-small is-left">
+              🔒
+            </span>
+          </div>
+          {% for error in form.password.errors %}
+            <p class="help is-danger">
+              {{ error }}
+            </p>
+          {% endfor %}
+          </div>
+        </div>
+      </div>
+      <div class="field is-horizontal">
+        <div class="field-label">
+          {{ form.remember_me.label(class='label') }}
+        </div>
+        <div class="field-body">
+          <div class="field is-narrow">
+            <div class="control">
+              {{ form.remember_me() }}
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="field is-horizontal">
+        <div class="field-label">
+          <!-- Left empty for spacing -->
+        </div>
+        <div class="field-body">
+          <div class="field">
+            <div class="control">
+              {{ form.submit(class='button is-info') }}</p>
+            </div>
+          </div>
+        </div>
+      </div>
     </form>
 
 {% endblock %}
