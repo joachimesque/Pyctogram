@@ -4152,7 +4152,7 @@ a.box:active {
   .field-body {
     display: flex;
     flex-basis: 0;
-    flex-grow: 5;
+    flex-grow: 3;
     flex-shrink: 1;
   }
   .field-body .field {
