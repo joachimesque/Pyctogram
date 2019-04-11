@@ -21,7 +21,7 @@ def login():
         user = User.query.filter_by(username=form.username.data).first()
         if user and user.check_password(form.password.data):
             login_user(user, remember=form.remember_me.data)
-            flash(f'🎉 Welcome, {user.username}', 'info')
+            flash(f'🎉 Nice to see you, {user.username}!', 'info')
             next = request.args.get('next')
             return redirect(next or url_for('feed.index'))
         else:
