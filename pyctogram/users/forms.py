@@ -6,20 +6,20 @@ from pyctogram.model import User
 
 
 class LoginForm(FlaskForm):
-    username = StringField('Login', validators=[DataRequired()])
-    password = PasswordField('Mot de passe', validators=[DataRequired()])
-    remember_me = BooleanField('Se souvenir')
-    submit = SubmitField('Se connecter')
+    username = StringField('Nickname', validators=[DataRequired()])
+    password = PasswordField('Password', validators=[DataRequired()])
+    remember_me = BooleanField('Remember me')
+    submit = SubmitField('Get me in!')
 
 
 class RegisterForm(FlaskForm):
-    username = StringField('Login', validators=[DataRequired()])
-    email = StringField('E-mail', validators=[DataRequired(), Email()])
-    password = PasswordField('Mot de passe', validators=[DataRequired()])
-    password_conf = PasswordField('Mot de passe (confirmation)',
+    username = StringField('Nickname', validators=[DataRequired()])
+    email = StringField('Email', validators=[DataRequired(), Email()])
+    password = PasswordField('Password', validators=[DataRequired()])
+    password_conf = PasswordField('Password (confirmation)',
                                   validators=[DataRequired(),
                                               EqualTo('password')])
-    submit = SubmitField('S\'enregistrer')
+    submit = SubmitField('Sign me up!')
 
     def validate_username(self, username):
         user = User.query.filter_by(username=username.data).first()
