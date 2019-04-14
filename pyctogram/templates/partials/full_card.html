@@ -63,10 +63,10 @@
           <a href="https://instagram.com/p/{{ post.shortcode }}" target="_blank" noopener>View original ↗</a>
         </p>
         <p class="card-footer-item is-centered">
-          {{ post.likes }} 👍
+          {{ "{:,}".format(post.likes) }} 👍
         </p>
         <p class="card-footer-item is-centered">
-          {{ post.comments }} 💬
+          {{ "{:,}".format(post.comments) }} 💬
         </p>
         <p class="card-footer-item is-centered">
           {% if request.url_rule.endpoint == 'memory' %}

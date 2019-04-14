@@ -11,10 +11,10 @@
         </div>
         <footer class="card-footer has-text-centered">
           <p href="#" class="card-footer-item is-centered">
-            👍<br>{{ post.likes }}
+            👍<br>{{ "{:,}".format(post.likes) }}
           </p>
           <p href="#" class="card-footer-item is-centered">
-            💬<br>{{ post.comments }}
+            💬<br>{{ "{:,}".format(post.comments) }}
           </p>
           <p href="#" class="card-footer-item is-centered">
             {% if post.is_saved(current_user.id) %}
