@@ -48,7 +48,9 @@ body.template-profile .card .card-header {
   max-height: 100vh;
 }
 .card-header {
-  border: none;
+  border: 1px solid white;
+  border-top-left-radius: calc((64px + .75em) / 2);
+  border-top-right-radius: .5rem;
   box-shadow: none;
 }
 .card-image, .card-content, .card-footer {
