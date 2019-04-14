@@ -1,0 +1,75 @@
+{% extends 'base.html' %}
+{% set origin = 'profile_lists:@' ~ author.account_name ~ ':0' %}
+
+{% block title %}{{ author.full_name }}’s lists{% endblock %}
+
+{% block header %}
+  <div class="media">
+    <div class="media-left">
+      <figure class="profile-picture image is-96x96">
+          <img src="{{ author.profile_pic_url }}" alt="{{ author.account_name }}">
+      </figure>
+      <br>
+      <ul class="has-text-centered">
+        <li>
+          <a class="button is-small is-outlined is-info" href="{{ url_for('list.list_choices_for_user', account_name = author.account_name, origin = origin) }}">Add to list 🔖</a>
+        </li>
+        <br>
+        {% if account_is_hidden(author, current_user) %}
+          <li><a title="Unhide from feed 🐵" href="{{ url_for('account.show_account', account_name = author.account_name, origin = origin) }}" class="button is-small is-info is-outlined">Unhide 🐵</a></li>
+        {% else %}
+          <li><a title="Hide from feed 🙈" href="{{ url_for('account.hide_account', account_name = author.account_name, origin = origin) }}" class="button is-small is-info is-outlined">Hide 🙈</a></li>
+        {% endif %}
+      </ul>
+    </div>
+    <div class="media-content">
+      <h1 class="title is-1">{{ author['full_name'] }}</h1>
+      <p class="subtitle is-3">@{{ author.account_name }}</p>
+      <p class="content" style="white-space: pre-line;">{{ author.biography }}</p>
+      {% if author.external_url != None %}
+      <p class=""><a href="{{ author.external_url }}">{{ author.external_url }}</a></p>
+      {% endif %}
+      <p class="">
+        <a href="https://instagram.com/{{ author.account_name }}/">
+          View <strong>@{{ author.account_name }}</strong>’s profile on Instagram ↗
+        </a>
+      </p>
+    </div>
+  </div>
+
+{% endblock %}
+
+{% block content %}
+
+  <div class="tabs">
+    <ul>
+      <li><a href="{{ url_for('account.profile', account_name = author.account_name) | replace('%40', '@') }}">Grid</a></li>
+      <li><a href="{{ url_for('account.profile', account_name = author.account_name, display = 'feed') | replace('%40', '@') }}">Feed</a></li>
+      <li class="is-active"><a href="{{ url_for('account.profile_lists', account_name = author.account_name) | replace('%40', '@') }}">Lists</a></li>
+    </ul>
+  </div>
+
+
+  <ul>
+  {% for list in lists %}
+    <li class="level">
+      <span class="level-left">
+        <strong class="is-size-5"><a href="{{ url_for('list.list_feed', shortname = list.shortname) }}">{{ list.longname }}</a></strong>&nbsp;&nbsp;
+        <small>({{ list.count }} accounts followed)</small>
+      </span>
+      <span class="level-right">
+        <a href="{{ url_for('list.list_remove_user', shortname = list.shortname, account_name = author.account_name, origin = origin) }}" class="button is-small is-danger is-outlined">Remove from list</a>
+      </span>
+    </li>
+  {% endfor %}
+  </ul>
+  <hr>
+  <p>
+    <a class="" href="{{ url_for('list.list_choices_for_user', account_name = author.account_name, origin = origin) }}">
+      <strong><span class="is-size-6" role="img" aria-label="Plus">➕</span>
+            Add to a{% if lists|length > 0 %}nother{% endif %} list</strong>
+    </a>
+  </p>
+
+{% endblock %}
+

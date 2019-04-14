@@ -1,0 +1,28 @@
+{% extends 'base.html' %}
+{% import 'macros/pagination.html' as pagination_macro %}
+
+{% block title %}{{ the_list.longname }}{% endblock %}
+
+{% block header %}
+  {% include 'lists/list_header.html' %}
+{% endblock %}
+
+{% block content %}
+  <div class="tabs">
+    <ul>
+      <li class="is-active"><a href="{{ url_for('list.list_feed', shortname = the_list.shortname) }}">Feed</a></li>
+      <li><a href="{{ url_for('list.list_accounts', shortname = the_list.shortname) }}">Accounts</a></li>
+    </ul>
+    {% if not the_list.is_default %}
+      <a href="{{ url_for('list.list_edit', shortname = the_list.shortname) }}" class="button is-small is-info is-outlined">🖍 Edit</a> <a href="{{ url_for('list.list_delete', shortname = the_list.shortname) }}" class="button is-small is-danger is-outlined">❌ Delete</a>
+    {% endif %}
+  </div>
+
+  {% include 'partials/full_card_feed.html' %}
+  {{ pagination_macro.render_pagination(pagination) }}
+
+  {% if posts == [] %}
+      There’s nothing to display for now.
+  {% endif %}
+
+{% endblock %}

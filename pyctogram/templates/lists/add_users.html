@@ -1,0 +1,40 @@
+{% extends 'base.html' %}
+
+{% block title %}🔖 Adding accounts to "{{ the_list.longname }}"{% endblock %}
+
+{% block header %}
+  <div class="level">
+    <h1 class="title is-marginless level-left">
+      <span class="is-size-3" role="img" aria-label="List">🔖</span>&nbsp;
+      Adding accounts to list:<br>{{ the_list.longname }}
+    </h1>
+  </div>
+
+  <p><a href="{{ url_for('list.list_feed', shortname = the_list.shortname) }}">Go back to the list</a></p>
+{% endblock %}
+
+{% block content %}
+
+  <ul class="columns is-multiline user-list-grid">
+  {% for account in accounts %}
+    <li class="column is-one-third has-text-centered">
+      <div class="user-info">
+        <figure class="profile-picture image is-64x64 is-centered">
+            <img src="{{ account.profile_pic_url }}" alt="{{ account.full_name }}">
+        </figure>
+        <strong>{{ account.full_name }}</strong><br>
+        <small>@{{ account.account_name }}</small>
+      </div>
+      <div class="user-actions">
+        {% if account in the_list.accounts %}
+        <a class="button is-small is-static">Already there</a>
+        {% else %}
+        <a href="{{ url_for('list.list_add_user', shortname = the_list.shortname, account_name = account.account_name) }}" class="button is-small is-info is-outlined">Add to list</a>
+        {% endif %}
+      </div>
+  </li>
+
+
+  {% endfor %}
+  </ul>
+{% endblock %}

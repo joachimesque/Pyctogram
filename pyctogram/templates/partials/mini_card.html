@@ -1,0 +1,33 @@
+    {% set origin = request.url_rule.endpoint ~ ':' ~ post.shortcode ~ ':' ~ pagination.page %}
+    <div class=" column is-one-third" id="{{ post.shortcode }}">
+      <article class="card">
+
+        <div class="card-image">
+          <a href="{{ url_for('media.media', media_shortcode = post.shortcode) }}">
+            <figure class="image">
+              <img src="{{ post.thumbnails|thumbnail_320 }}" alt="A photo by {{ author.full_name }}">
+            </figure>
+          </a>
+        </div>
+        <footer class="card-footer has-text-centered">
+          <p href="#" class="card-footer-item is-centered">
+            👍<br>{{ "{:,}".format(post.likes) }}
+          </p>
+          <p href="#" class="card-footer-item is-centered">
+            💬<br>{{ "{:,}".format(post.comments) }}
+          </p>
+          <p href="#" class="card-footer-item is-centered">
+            {% if post.is_saved(current_user.id) %}
+            <a href="{{ url_for('media.forget', media_shortcode = post.shortcode, origin = origin) }}">
+                💾<br>Forget
+            </a>
+            {% else %}
+            <a href="{{ url_for('media.save', media_shortcode = post.shortcode, origin = origin) }}">
+                💾<br>Save
+            </a>
+            {% endif %}
+          </p>
+
+        </footer>
+      </article>
+    </div>

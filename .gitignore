@@ -102,8 +102,13 @@ venv.bak/
 
 # mypy
 .mypy_cache/
-database.db
+*.db
 static/images/0/*.jpg
 connections.json
 temp/*
 missed_connections.txt
+*.old
+
+.idea
+/pyctogram/uploads/*
+Makefile.custom.config

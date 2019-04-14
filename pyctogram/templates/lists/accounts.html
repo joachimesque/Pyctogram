@@ -1,0 +1,48 @@
+{% extends 'base.html' %}
+
+{% block header %}
+  {% include 'lists/list_header.html' %}
+{% endblock %}
+
+{% block content %}
+
+  <div class="tabs">
+    <ul>
+      <li><a href="{{ url_for('list.list_feed', shortname = the_list.shortname) }}">Feed</a></li>
+      <li class="is-active"><a href="{{ url_for('list.list_accounts', shortname = the_list.shortname) }}">Accounts</a></li>
+    </ul>
+    {% if not the_list.is_default %}
+      <a href="{{ url_for('list.list_edit', shortname = the_list.shortname) }}" class="button is-small is-info is-outlined">🖍 Edit</a> <a href="{{ url_for('list.list_delete', shortname = the_list.shortname) }}" class="button is-small is-danger is-outlined">❌ Delete</a>
+    {% endif %}
+  </div>
+
+  <ul>
+  {% for account in accounts %}
+    <li class="level">
+      <span class="level-left">
+        <a href="{{ url_for('account.profile', account_name = account.account_name) | replace('%40', '@') }}">
+          <figure class="profile-picture image is-48x48">
+              <img src="{{ account.profile_pic_url }}" alt="{{ account.full_name }}">
+          </figure>
+        </a> &nbsp;&nbsp;
+        <a href="{{ url_for('account.profile', account_name = account.account_name) | replace('%40', '@') }}" class="is-black">
+          <strong>{{ account.full_name }}</strong><br>
+          <small>@{{ account.account_name }}</small>
+        </a>
+      </span>
+      <span class="level-right">
+        <a href="{{ url_for('list.list_remove_user', shortname = the_list.shortname, account_name = account.account_name) }}" class="button is-small is-danger is-outlined">Remove from list</a>
+      </span>
+  </li>
+
+
+  {% endfor %}
+  </ul>
+  <hr>
+  <p>
+    <a href="{{ url_for('list.list_add', shortname = the_list.shortname) }}">
+      <strong><span class="is-size-7" role="img" aria-label="Plus">➕</span>
+            Add accounts to list</strong>
+    </a>
+  </p>
+{% endblock %}

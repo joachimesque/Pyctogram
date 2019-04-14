@@ -1,0 +1,11 @@
+  <div class="level">
+    <h1 class="title is-marginless level-left">
+      {{ the_list.longname }}
+    </h1>
+    <div class="level-right buttons">
+      <small class="is-size-7">
+        <p><a href="{{ url_for('list.update_list', shortname = the_list.shortname) }}" class="">Update feed 🔄</a></p>
+      </small>
+    </div>
+  </div>
+  <p>{{ the_list.description }}</p>

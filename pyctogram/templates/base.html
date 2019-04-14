@@ -1,0 +1,374 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset=utf-8>
+  <meta name=description content="">
+  <meta name=viewport content="width=device-width, initial-scale=1">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/bulma.css') }}">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/slider-css.css') }}">
+
+  {% set title_emojo = ['🗾','🎑','🏞','🌅','🌄','🌠','🎇','🎆','🌇','🌆','🏙','🌃','🌌','🌉','🌁'] | random %}
+  <title>{% block title %}{% endblock %} - Pyctogram</title>
+
+</head>
+<body class="template-{{ request.url_rule.endpoint }}">
+  <nav class="navbar" id="top">
+    <div class="navbar-brand">
+      <a class="navbar-item" href="{{ url_for('feed.index') }}">
+        <p class="is-size-3"><strong><span role="img" aria-label="Picture">📷</span> Pyctogram</strong></p>
+      </a>
+      <div class="navbar-burger burger" data-target="menu">
+        <span></span>
+        <span></span>
+        <span></span>
+      </div>
+    </div>
+
+    <div id="menu" class="navbar-menu">
+      <div class="navbar-start">
+        {% if not current_user.is_anonymous %}
+        <a class="navbar-item" href="{{ url_for('feed.index') }}">
+          <span class="is-size-4" role="img" aria-label="Picture">{{ title_emojo }}</span>&nbsp;Feed
+        </a>
+        <a class="navbar-item" href="{{ url_for('media.memory') }}">
+          <span class="is-size-5" role="img" aria-label="Saved pictures">💾</span>&nbsp;Memory
+        </a>
+        <div class="navbar-item has-dropdown is-hoverable">
+          <a class="navbar-link" href="{{ url_for('list.list_lists') }}">
+            <span class="is-size-5" role="img" aria-label="Your lists">🔖</span>&nbsp;Lists
+          </a>
+          <div class="navbar-dropdown">
+          {% for list in current_user.lists %}
+          <a class="navbar-item" href="{{ url_for('list.list_feed', shortname = list.shortname) }}">
+            {{ list.longname }} &nbsp; <small>({{ list.accounts|count }})</small>
+          </a>
+          {% endfor %}
+          <div class="navbar-divider"></div>
+          <a class="navbar-item" href="{{ url_for('list.list_create') }}">
+            <span class="is-size-7" role="img" aria-label="Plus">➕</span>&nbsp;
+            Create a new list
+          </a>
+          </div>
+        </div>
+        {% endif %}
+      </div>
+      <div class="navbar-end">
+        {% if current_user.is_anonymous %}
+        <a class="navbar-item" href="{{ url_for('users.login') }}">
+          <span class="is-size-5" role="img">🔐</span>&nbsp;Login
+        </a>
+        {% if registration_is_allowed() == True %}
+        <a class="navbar-item" href="{{ url_for('users.register') }}">
+          <span class="is-size-5" role="img">🔏</span>&nbsp;Signup
+        </a>
+        {% endif %}
+        {% else %}
+        <div class="navbar-item has-dropdown is-hoverable">
+          <div class="navbar-link">
+            <span class="is-size-5" role="img" aria-label="Import">🗄</span>&nbsp;Import contacts
+          </div>
+          <div class="navbar-dropdown is-right">
+            <a class="navbar-item" href="{{ url_for('importer.import_from_json') }}">
+              🗃 Import from&nbsp;<strong>connections.json</strong>
+            </a>
+            <a class="navbar-item" href="{{ url_for('importer.import_from_text') }}">
+              📋 Import from&nbsp;<strong>text file</strong>
+            </a>
+            <a class="navbar-item" href="{{ url_for('importer.import_from_form') }}">
+              📇 Import custom
+            </a>
+          </div>
+        </div>
+        <a class="navbar-item" href="{{ url_for('users.logout') }}">
+          🚪 Log out ({{ current_user.username }})
+        </a>
+        {% endif %}
+      </div>
+    </div>
+  </nav>
+
+
+
+  <header class="header section">
+    <div class="container">
+      <div class="columns is-centered">
+        <div class="column is-half">
+          {% block header %}{% endblock %}
+        </div>
+      </div>
+    </div>
+  {% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+    <div class="container">
+      <div class="columns is-centered">
+        <div class="column is-half">
+          <ul class=flashes>
+          {% for category, message in messages %}
+            {% if category == 'error' %}
+            <li class="notification is-danger"><strong>{{ message }}</strong></li>
+            {% elif category == 'success' %}
+            <li class="notification is-primary"><strong>{{ message }}</strong></li>
+            {% else %}
+            <li class="notification is-info"><strong>{{ message }}</strong></li>
+            {% endif %}
+          {% endfor %}
+          </ul>
+        </div>
+      </div>
+    </div>
+    {% endif %}
+  {% endwith %}
+  </header>
+  <section class="section">
+    <div class="container">
+      <div class="columns is-centered">
+        <div class="column is-half">
+          {% block content %}{% endblock %}
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <footer class="footer">
+    <div class="container">
+      <div class="content">
+        <p>
+          <strong><span role="img" aria-label="Picture">📷</span> Pyctogram</strong> is available on <a href="https://github.com/joachimesque/Pyctogram">Github</a>.<br>
+          The source code is licensed <a href="https://choosealicense.com/licenses/agpl-3.0/">AGPLv3</a>, unless otherwise mentioned. The photos are hosted by Instagram and belong to their authors.
+        </p>
+      </div>
+    </div>
+  </footer>
+
+  <script type="text/javascript" src="{{ url_for('static', filename='js/slider.js') }}"></script>
+  <script>
+    window.sliderInit = (function (window, document, undefined) {
+
+      'use strict';
+
+      // Feature Test
+      if ( 'querySelector' in document && 'addEventListener' in window && Array.prototype.forEach ) {
+
+        // SELECTORS
+        var sliders = document.querySelectorAll('[data-slider]');
+        var mySwipe = Array;
+
+
+        // EVENTS, LISTENERS, AND INITS
+
+        // Add class to HTML element to activate conditional CSS
+        document.documentElement.className += ' js-slider';
+
+        // Activate all sliders
+        Array.prototype.forEach.call(sliders, function (slider, index) {
+
+          // SELECTORS
+
+          var slideNav = slider.querySelector('[data-slider-nav]'); // Slider nav wrapper
+
+
+          // METHODS
+
+          // Display Slider navigation
+          var createNavButtons = function () {
+            if ( slideNav !== null ) {
+              slideNav.innerHTML = '<a data-slider-nav-prev href="#" class="button is-rounded is-white hidden" aria-label="Previous"><span class="icon is-small">◀</span></a><a data-slider-nav-next href="#" class="button is-rounded is-white" aria-label="Next"><span class="icon is-small">▶</span></a>';
+            }
+          };
+
+          // Handle next button
+          var handleNextBtn = function (event) {
+            event.preventDefault();
+            mySwipe[index].next();
+          };
+
+          // Handle previous button
+          var handlePrevBtn = function (event) {
+            event.preventDefault();
+            mySwipe[index].prev();
+          };
+
+
+          var checkActiveButtons = function(i,e) {
+              btnNext.classList.remove('hidden')
+              btnPrev.classList.remove('hidden')
+              if(i == e.parentNode.childElementCount - 1) {
+                btnNext.classList.add('hidden')
+              }
+              else if(i == 0) {
+                btnPrev.classList.add('hidden')
+              }
+          }
+
+          // EVENTS, LISTENERS, AND INITS
+
+          // Activate Slider
+          mySwipe[index] = Swipe(slider, {
+            speed: 500,
+            continuous: false,
+            callback: function(index, elem) {
+              checkActiveButtons(index, elem);
+            }
+          });
+
+          // Create slide count and nav
+          createNavButtons();
+          var btnNext = slider.querySelector('[data-slider-nav-next]'); // Next slide button
+          var btnPrev = slider.querySelector('[data-slider-nav-prev]'); // Previous slide button
+
+          // Toggle Previous & Next Buttons
+          if ( btnNext ) {
+            btnNext.addEventListener('click', handleNextBtn, false);
+          }
+          if ( btnPrev ) {
+            btnPrev.addEventListener('click', handlePrevBtn, false);
+          }
+
+          // Toggle Left & Right Keypress
+
+        });
+      }
+    })(window, document);
+
+    window.jkNavigation = (function (window, document, undefined) {
+      'use strict';
+
+      // Feature Test
+      if ( 'querySelector' in document && 'addEventListener' in window && Array.prototype.forEach ) {
+
+        // SELECTORS
+        var cards = document.querySelectorAll('article.full-card');
+
+        // FUNCTIONS
+        function isAnyPartOfElementInViewport(el) {
+
+            // Percentage of the card height at which it gets detected
+            var threshold = .66;
+
+            const rect = el.getBoundingClientRect();
+            // DOMRect { x: 8, y: 8, width: 100, height: 100, top: 8, right: 108, bottom: 108, left: 8 }
+            const windowHeight = (window.innerHeight || document.documentElement.clientHeight);
+
+            const vertInView = (rect.top <= windowHeight) && ((rect.top + rect.height * threshold) >= 0);
+
+            return (vertInView);
+        }
+
+        function getCurrentlyViewedCard(){
+            var cards = document.querySelectorAll('article.full-card');
+            var activeCards = []
+            Array.prototype.forEach.call(cards, function (card, index) {
+              if(isAnyPartOfElementInViewport(card)) {
+                activeCards.push(card);
+              }
+            })
+            return activeCards[0];
+        }
+
+        function jkNavNext() {
+          if(window.location.hash != '') {
+            var activeCard = document.querySelector(window.location.hash);
+            var nextCard = activeCard.nextElementSibling;
+            if (nextCard.nodeName == 'NAV') {
+              var destination = document.querySelector('nav.pagination .pagination-next');
+              destination = destination.href;
+              window.location = destination;
+            } else {
+              window.location.hash = nextCard.id;
+            }
+          } else {
+            window.location.hash = getCurrentlyViewedCard().id;
+          }
+        }
+
+        function jkNavPrev() {
+          if(window.location.hash != '') {
+            var activeCard = document.querySelector(window.location.hash);
+            var prevCard = activeCard.previousElementSibling;
+            if (prevCard == null) {
+              var destination = document.querySelector('nav.pagination a.is-current').parentElement.previousElementSibling.firstChild;
+              destination = destination.href;
+              window.location = destination;
+            } else {
+              window.location.hash = prevCard.id;
+            }
+          } else {
+            var dest = getCurrentlyViewedCard();
+            if(dest == cards[0]) {
+              window.location.hash = cards[cards.length - 1].id;
+            } else {
+              window.location.hash = dest.id;
+            }
+          }
+        }
+
+        function jkSave() {
+          if(window.location.hash != '') {
+            var activeCard = document.querySelector(window.location.hash);
+            var saveButton = activeCard.querySelector('a.saveButton');
+            saveButton.click();
+          }
+        }
+
+        // Handle keypress
+        var handleKeypress = function (event) {
+          if ( event.keyCode == 74 ) { /* j */
+            jkNavNext();
+          }
+          if ( event.keyCode == 75 ) { /* k */
+            jkNavPrev();
+          }
+          if ( event.keyCode == 76 ) { /* l */
+            jkSave();
+          }
+          if ( event.keyCode == 37 ) { /* left arrow */
+            getCurrentlyViewedCard().querySelector('[data-slider-nav-prev]').click();
+          }
+          if ( event.keyCode == 39) { /* right arrow */
+            getCurrentlyViewedCard().querySelector('[data-slider-nav-next]').click();
+          }
+
+        };
+
+        // Toggle Left & Right Keypress
+        window.addEventListener('keydown', handleKeypress, false);
+
+
+      }
+    })(window, document);
+
+    document.addEventListener('DOMContentLoaded', function () {
+
+      // Get all "navbar-burger" elements
+      var $navbarBurgers = Array.prototype.slice.call(document.querySelectorAll('.navbar-burger'), 0);
+
+      // Check if there are any navbar burgers
+      if ($navbarBurgers.length > 0) {
+
+        // Add a click event on each of them
+        $navbarBurgers.forEach(function ($el) {
+          $el.addEventListener('click', function () {
+
+            // Get the target from the "data-target" attribute
+            var target = $el.dataset.target;
+            var $target = document.getElementById(target);
+
+            // Toggle the class on both the "navbar-burger" and the "navbar-menu"
+            $el.classList.toggle('is-active');
+            $target.classList.toggle('is-active');
+
+          });
+        });
+      }
+
+    });
+  </script>
+
+</body>
+</html>
+
+
+
+
+

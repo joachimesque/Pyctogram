@@ -1,0 +1,61 @@
+{% extends 'base.html' %}
+
+{% block header %}
+  <h1 class="title">{% block title %}📋 Import contacts from text file{% endblock %}</h1>
+
+  <p>You can upload a text file, with one contact per line.</p>
+
+{% endblock %}
+
+{% block content %}
+
+
+<form action="{{ url_for('importer.import_from_text') }}" method="post" enctype="multipart/form-data">
+  <div class="field is-horizontal">
+    <div class="field-label is-normal">
+      <label for="file"  class="label">File</label>
+    </div>
+    <div class="field-body">
+      <div class="field">
+        <div class="file">
+          <label class="file-label">
+            <input class="file-input" id="file" type="file" name="file" accept=".txt">
+            <span class="file-cta">
+              <span class="file-icon">
+                ⤴
+              </span>
+              <span class="file-label">
+                Choose a file…
+              </span>
+            </span>
+          </label>
+        </div>
+        {% if errors is defined %}
+        <p class="help is-danger">
+          {{ errors }}
+        </p>
+        {% endif %}
+
+      </div>
+    </div>
+  </div>
+
+  <div class="field is-horizontal">
+    <div class="field-label">
+      <!-- Left empty for spacing -->
+    </div>
+    <div class="field-body">
+      <div class="field">
+        <div class="control">
+          <button class="button is-info" type="submit">
+            Import these contacts
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</form>
+
+
+
+{% endblock %}

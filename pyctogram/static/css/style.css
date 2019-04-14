@@ -1,0 +1,85 @@
+body {
+  background: whitesmoke;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+body > header {
+  margin-top: 2rem;
+}
+
+body > section {
+  flex: 1 0 auto;
+}
+
+.card .card-content a, .card a .title, .card a .subtitle, a.is-black {
+  color: #000;
+}
+.card .card-content a:hover, .card a:hover .title, .card a:hover .subtitle, a.is-black:hover {
+  color: #3273dc;
+}
+
+.pre-line {
+  white-space: pre-line;
+}
+body.template-profile .card .card-header {
+  display: none;
+}
+
+.card {
+  background: transparent;
+  box-shadow: none;
+}
+.card + .card {
+  margin-top: 4.5em;
+}
+
+
+.profile-picture img {
+  border-radius: 50%;
+}
+.profile-picture.image.is-centered {
+    margin: 0 auto;
+}
+
+.card.full-card .card-image img {
+  object-fit: contain;
+  max-height: 100vh;
+}
+.card-header {
+  border: 1px solid white;
+  border-top-left-radius: calc((64px + .75em) / 2);
+  border-top-right-radius: .5rem;
+  box-shadow: none;
+}
+.card-image, .card-content, .card-footer {
+  background: white;
+}
+.card:target  {
+  box-shadow: 0 1px 5px #3273dc;
+  border-radius: 10px;
+  border-top-left-radius: 38px;
+}
+.card-footer {
+  border-bottom-left-radius: .5rem;
+  border-bottom-right-radius: .5rem;
+}
+
+nav.pagination {
+  margin: 3rem 0 5rem;
+}
+
+.notification.is-danger {
+    background-color: transparent;
+    border: 1px solid #ff3860;
+    color: #ff3860;
+}
+
+.title.level-left {
+    flex-shrink: 1;
+    align-items: flex-start;
+}
+
+.user-list-grid li .user-info { min-height: 9rem; }
+.user-list-grid li .user-actions { margin-bottom: 3rem; }

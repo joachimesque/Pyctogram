@@ -1,0 +1,25 @@
+{% extends 'base.html' %}
+{% import 'macros/pagination.html' as pagination_macro %}
+
+{% block title %}{{ title_emojo }} Feed{% endblock %}
+
+{% block header %}
+  <div class="level">
+    <div class="level-left">
+      <h1 class="title">
+        <span class="is-size-3" role="img" aria-label="Picture">{{ title_emojo }}</span>&nbsp;Feed
+      </h1>
+    </div>
+    <div class="level-right">
+      <small class="is-size-7">
+        <p><a href="{{ url_for('feed.list_hidden_accounts') }}" class="">See hidden accounts 🙈</a></p>
+        <p><a href="{{ url_for('feed.update_feed') }}" class="">Update feed 🔄</a></p>
+      </small>
+    </div>
+  </div>
+{% endblock %}
+
+{% block content %}
+  {% include 'partials/full_card_feed.html' %}
+  {{ pagination_macro.render_pagination(pagination) }}
+{% endblock %}

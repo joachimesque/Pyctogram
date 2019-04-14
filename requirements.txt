@@ -1,5 +1,0 @@
-beautifulsoup4==4.6.0
-Flask==1.0.2
-Jinja2==2.10
-requests==2.18.4
-python-slugify==1.2.5

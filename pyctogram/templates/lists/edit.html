@@ -1,0 +1,99 @@
+{% extends 'base.html' %}
+
+{% block title %}🔖 Editing list : {{ the_list.longname }}{% endblock %}
+
+{% block header %}
+  <h1 class="title"><span class="is-size-3" role="img" aria-label="Your lists">🔖</span>&nbsp;Editing list : {{ the_list.longname }}</h1>
+
+  <p>Any character can go in the name with a limit of 100 characters, a description is not required (but it’s limited to 500 characters).<br>The Link identifier can only contain lowercase letters and dashes. No spaces, no fancy âcçënts. It is used to make the link, so keep it short, no more than 42 characters.</p>
+
+  {% if the_list.is_default %}
+  <p class="notification is-danger">Default feed can not be modified.</p>
+  {% endif %}
+{% endblock %}
+
+{% block content %}
+
+<form action="{{ url_for('list.list_edit', shortname=the_list.shortname) }}" method="post">
+  <div class="field is-horizontal">
+    <div class="field-label is-normal">
+      <label for="list_name" class="label">List name</label>
+    </div>
+    <div class="field-body">
+      <div class="field">
+        <p class="control is-expanded">
+          <input id="list_name" name="list_name" class="input{% if errors is defined and errors.longname is defined %} is-danger{% endif %}" type="text" value="{{ the_list.longname }}" {% if the_list.is_default  %} }} disabled {% endif %}>
+        </p>
+        {% if errors is defined and errors.longname is defined %}
+        <p class="help is-danger">
+          {{ errors.longname }}
+        </p>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+
+  <div class="field is-horizontal">
+    <div class="field-label is-normal">
+      <label for="list_link" class="label">Link identifier</label>
+    </div>
+    <div class="field-body">
+      <div class="field">
+        <p class="control is-expanded">
+          <input id="list_link" name="list_link" class="input{% if errors is defined and errors.shortname is defined %} is-danger{% endif %}" type="text" value="{{ the_list.shortname }}" {% if the_list.is_default  %} }} disabled {% endif %}>
+        </p>
+        {% if errors is defined and errors.shortname is defined %}
+        <p class="help is-danger">
+          {{ errors.shortname }}
+        </p>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+
+  <div class="field is-horizontal">
+    <div class="field-label is-normal">
+      <label for="list_description"  class="label">Description</label>
+    </div>
+    <div class="field-body">
+      <div class="field">
+        <p class="control is-expanded">
+          <textarea id="list_description" name="list_description" class="textarea{% if errors is defined and errors.description is defined %} is-danger{% endif %}" {% if the_list.is_default  %} }} disabled {% endif %}>{{ the_list.description }}</textarea>
+        </p>
+        {% if errors is defined and errors.description is defined %}
+        <p class="help is-danger">
+          {{ errors.description }}
+        </p>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+
+  <div class="field is-horizontal">
+    <div class="field-label">
+      <!-- Left empty for spacing -->
+    </div>
+    <div class="field-body">
+      <div class="field">
+        <div class="control">
+          <button class="button is-info" type="submit" {% if the_list.is_default  %} }} disabled {% endif %}>
+            Modify this list
+          </button>
+        </div>
+      </div>
+    </div>
+    {% if the_list.is_default %}
+    <div class="field-body">
+      <div class="field">
+        <div class="control">
+          <button class="button" type="submit" name="cancel" value="cancel">
+            Back
+          </button>
+        </div>
+      </div>
+    </div>
+    {% endif %}
+  </div>
+</form>
+
+{% endblock %}

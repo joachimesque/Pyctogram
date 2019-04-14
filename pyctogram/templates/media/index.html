@@ -1,0 +1,12 @@
+{% extends 'base.html' %}
+
+{% block title %}A photo by {{ post.account.full_name }}{% endblock %}
+
+{% block header %}
+  <h1 class="title">A photo by <a href="{{ url_for('account.profile', account_name = post.account.account_name) | replace('%40', '@') }}">{{ post.account.full_name }}</a></h1>
+{% endblock %}
+
+{% block content %}
+  {% set origin = 'media' %}
+  {% include 'partials/full_card.html' %}
+{% endblock %}
