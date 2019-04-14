@@ -2,16 +2,10 @@
     <h1 class="title is-marginless level-left">
       {{ the_list.longname }}
     </h1>
-    {% if not the_list.is_default %}
     <div class="level-right buttons">
-      <a href="{{ url_for('list.list_edit', shortname = the_list.shortname) }}" class="button is-small is-info is-outlined">Edit</a>
-      <a href="{{ url_for('list.list_delete', shortname = the_list.shortname) }}" class="button is-small is-danger is-outlined">Delete</a>
+      <small class="is-size-7">
+        <p><a href="{{ url_for('list.update_list', shortname = the_list.shortname) }}" class="">Update feed 🔄</a></p>
+      </small>
     </div>
-    {% endif %}
-  </div>
-  <div class="level">
-    <small class="is-size-7">
-      <p><a href="{{ url_for('list.update_list', shortname = the_list.shortname) }}" class="">Update feed 🔄</a></p>
-    </small>
   </div>
   <p>{{ the_list.description }}</p>
