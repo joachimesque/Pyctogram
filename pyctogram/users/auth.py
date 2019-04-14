@@ -26,7 +26,9 @@ def login():
             return redirect(next or url_for('feed.index'))
         else:
             flash(
-                '🚧 Incorrect login and/or password, please try again.'), 'error'
+                '🚧 Incorrect login and/or password, please try again.',
+                'error'
+            )
 
     return render_template('user/login.html', form=form)
 
