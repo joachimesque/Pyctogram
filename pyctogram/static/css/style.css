@@ -57,7 +57,9 @@ body.template-profile .card .card-header {
   background: white;
 }
 .card:target  {
-    box-shadow: 0 1px 5px #3273dc;
+  box-shadow: 0 1px 5px #3273dc;
+  border-radius: 10px;
+  border-top-left-radius: 38px;
 }
 .card-footer {
   border-bottom-left-radius: .5rem;
