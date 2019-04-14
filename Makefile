@@ -5,6 +5,9 @@ include Makefile.config
 clean:
 	rm -fr $(VENV)
 
+prepare-install:
+	python3 -m venv $(VENV)
+
 install:
 	test -d $(VENV) || virtualenv $(VENV) -p $(PYTHON_VERSION)
 	$(PIP) install -r $(REQUIREMENTS)
