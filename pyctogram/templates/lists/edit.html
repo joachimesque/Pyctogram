@@ -5,7 +5,7 @@
 {% block header %}
   <h1 class="title"><span class="is-size-3" role="img" aria-label="Your lists">🔖</span>&nbsp;Editing list : {{ the_list.longname }}</h1>
 
-  <p>Any character can go in the name with a limit of 100 characters, a description is not required (but it’s limited to 500 characters).<br>The Url name can only contain lowercase letters and dashes. No spaces, no fancy âcçënts. It is used to make the URL, so keep it short, no more than 42 characters.</p>
+  <p>Any character can go in the name with a limit of 100 characters, a description is not required (but it’s limited to 500 characters).<br>The Link identifier can only contain lowercase letters and dashes. No spaces, no fancy âcçënts. It is used to make the link, so keep it short, no more than 42 characters.</p>
 
   {% if the_list.is_default %}
   <p class="notification is-danger">Default feed can not be modified.</p>
@@ -35,12 +35,12 @@
 
   <div class="field is-horizontal">
     <div class="field-label is-normal">
-      <label for="list_name" class="label">Url name</label>
+      <label for="list_link" class="label">Link identifier</label>
     </div>
     <div class="field-body">
       <div class="field">
         <p class="control is-expanded">
-          <input id="list_name" name="list_name" class="input{% if errors is defined and errors.shortname is defined %} is-danger{% endif %}" type="text" value="{{ the_list.shortname }}" {% if the_list.is_default  %} }} disabled {% endif %}>
+          <input id="list_link" name="list_link" class="input{% if errors is defined and errors.shortname is defined %} is-danger{% endif %}" type="text" value="{{ the_list.shortname }}" {% if the_list.is_default  %} }} disabled {% endif %}>
         </p>
         {% if errors is defined and errors.shortname is defined %}
         <p class="help is-danger">
